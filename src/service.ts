@@ -62,6 +62,13 @@ export async function recordOutcome(actionId: string, type: OutcomeType, options
   return nextState;
 }
 
+export async function recordIssue(title: string, options: { note?: string; photoUri?: string } = {}) {
+  const trimmedTitle = title.trim();
+  if (!trimmedTitle) throw new Error('Issue title is required');
+  await repository.addOutcome({ id: id(), actionId: 'general-issue', type: 'issue_reported', occurredAt: new Date().toISOString(), title: trimmedTitle, note: options.note?.trim() || undefined, photoUri: options.photoUri });
+  return loadAppState();
+}
+
 export async function updateFrequency(actionId: string, frequency?: Frequency) {
   const state = await loadAppState();
   const config = state.configurations.find((candidate) => candidate.actionId === actionId);

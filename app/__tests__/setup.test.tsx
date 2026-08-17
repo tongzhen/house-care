@@ -7,7 +7,7 @@ jest.mock('../../src/db', () => ({}));
 
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import '../../src/i18n';
-import { Home, Setup } from '../index';
+import { Home, IssueForm, Setup } from '../index';
 import { getAction } from '../../src/catalog';
 
 describe('setup flow', () => {
@@ -42,5 +42,12 @@ describe('setup flow', () => {
     await render(<Home actions={[action]} configurations={new Map([[action.id, { actionId: action.id, enabled: true, notificationsEnabled: true, nextDueAt: new Date(Date.now() + 86400000).toISOString() }]])} language="en" now={Date.now()} onOpen={jest.fn()} onReportIssue={onReportIssue} />);
     fireEvent.press(screen.getByText('Report an issue'));
     expect(onReportIssue).toHaveBeenCalledTimes(1);
+  });
+
+  it('requires an issue title before saving', async () => {
+    const onSubmit = jest.fn(async () => undefined);
+    await render(<IssueForm title="" note="" onTitle={jest.fn()} onNote={jest.fn()} onPhoto={jest.fn()} onBack={jest.fn()} onSubmit={onSubmit} />);
+    fireEvent.press(screen.getByText('Save issue'));
+    expect(onSubmit).not.toHaveBeenCalled();
   });
 });

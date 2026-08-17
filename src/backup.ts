@@ -13,7 +13,7 @@ const backupSchema = z.object({
   version: z.literal(backupVersion),
   profile: z.object({ houseType: z.enum(['detached', 'terraced']).optional(), ageBand: z.enum(['new-build', '0-2', '3-10', '10+']).optional(), features: z.array(z.string()), appliances: z.array(z.string()), variants: z.record(z.string(), z.string()) }),
   configurations: z.array(z.object({ actionId: z.string().min(1), enabled: z.boolean(), frequencyOverride: frequencySchema.optional(), nextDueAt: z.string().datetime().optional(), snoozedUntil: z.string().datetime().optional(), notificationsEnabled: z.boolean() })),
-  outcomes: z.array(z.object({ id: z.string().min(1), actionId: z.string().min(1), type: z.enum(['done', 'snoozed', 'not_relevant', 'issue_reported']), occurredAt: z.string().datetime(), note: z.string().optional(), photoUri: z.string().optional() })),
+  outcomes: z.array(z.object({ id: z.string().min(1), actionId: z.string().min(1), type: z.enum(['done', 'snoozed', 'not_relevant', 'issue_reported']), occurredAt: z.string().datetime(), title: z.string().optional(), note: z.string().optional(), photoUri: z.string().optional() })),
   settings: z.object({ language: z.enum(['en', 'da']), notificationsEnabled: z.boolean() }),
 });
 

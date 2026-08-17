@@ -15,9 +15,11 @@ export async function initialiseDatabase() {
     PRAGMA journal_mode = WAL;
     CREATE TABLE IF NOT EXISTS home_profile (id TEXT PRIMARY KEY, house_type TEXT, age_band TEXT, features_json TEXT NOT NULL, appliances_json TEXT NOT NULL, variants_json TEXT NOT NULL, updated_at TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS action_configurations (action_id TEXT PRIMARY KEY, enabled INTEGER NOT NULL, frequency_interval INTEGER, frequency_unit TEXT, next_due_at TEXT, snoozed_until TEXT, notifications_enabled INTEGER NOT NULL DEFAULT 1);
-    CREATE TABLE IF NOT EXISTS task_outcomes (id TEXT PRIMARY KEY, action_id TEXT NOT NULL, outcome_type TEXT NOT NULL, occurred_at TEXT NOT NULL, note TEXT, photo_uri TEXT);
+    CREATE TABLE IF NOT EXISTS task_outcomes (id TEXT PRIMARY KEY, action_id TEXT NOT NULL, outcome_type TEXT NOT NULL, occurred_at TEXT NOT NULL, title TEXT, note TEXT, photo_uri TEXT);
     CREATE TABLE IF NOT EXISTS app_settings (key TEXT PRIMARY KEY, value TEXT NOT NULL);
   `);
+  const outcomeColumns = await connection.getAllAsync<{ name: string }>('PRAGMA table_info(task_outcomes)');
+  if (!outcomeColumns.some((column) => column.name === 'title')) await connection.execAsync('ALTER TABLE task_outcomes ADD COLUMN title TEXT;');
 }
 
 export async function loadProfile(): Promise<Profile | null> {
@@ -50,12 +52,12 @@ export async function deleteConfiguration(actionId: string) {
 
 export async function loadOutcomes(): Promise<TaskOutcome[]> {
   const connection = await db();
-  return connection.getAllAsync<TaskOutcome>('SELECT id, action_id AS actionId, outcome_type AS type, occurred_at AS occurredAt, note, photo_uri AS photoUri FROM task_outcomes ORDER BY occurred_at DESC');
+  return connection.getAllAsync<TaskOutcome>('SELECT id, action_id AS actionId, outcome_type AS type, occurred_at AS occurredAt, title, note, photo_uri AS photoUri FROM task_outcomes ORDER BY occurred_at DESC');
 }
 
 export async function addOutcome(outcome: TaskOutcome) {
   const connection = await db();
-  await connection.runAsync('INSERT INTO task_outcomes (id, action_id, outcome_type, occurred_at, note, photo_uri) VALUES (?, ?, ?, ?, ?, ?)', [outcome.id, outcome.actionId, outcome.type, outcome.occurredAt, outcome.note ?? null, outcome.photoUri ?? null]);
+  await connection.runAsync('INSERT INTO task_outcomes (id, action_id, outcome_type, occurred_at, title, note, photo_uri) VALUES (?, ?, ?, ?, ?, ?, ?)', [outcome.id, outcome.actionId, outcome.type, outcome.occurredAt, outcome.title ?? null, outcome.note ?? null, outcome.photoUri ?? null]);
 }
 
 export async function clearOutcomePhoto(outcomeId: string) {
@@ -97,7 +99,7 @@ export async function replaceLocalData(profile: Omit<Profile, 'id'>, configurati
       await transaction.runAsync('INSERT INTO action_configurations (action_id, enabled, frequency_interval, frequency_unit, next_due_at, snoozed_until, notifications_enabled) VALUES (?, ?, ?, ?, ?, ?, ?)', [configuration.actionId, configuration.enabled ? 1 : 0, configuration.frequencyOverride?.interval ?? null, configuration.frequencyOverride?.unit ?? null, configuration.nextDueAt ?? null, configuration.snoozedUntil ?? null, configuration.notificationsEnabled ? 1 : 0]);
     }
     for (const outcome of outcomes) {
-      await transaction.runAsync('INSERT INTO task_outcomes (id, action_id, outcome_type, occurred_at, note, photo_uri) VALUES (?, ?, ?, ?, ?, ?)', [outcome.id, outcome.actionId, outcome.type, outcome.occurredAt, outcome.note ?? null, outcome.photoUri ?? null]);
+      await transaction.runAsync('INSERT INTO task_outcomes (id, action_id, outcome_type, occurred_at, title, note, photo_uri) VALUES (?, ?, ?, ?, ?, ?, ?)', [outcome.id, outcome.actionId, outcome.type, outcome.occurredAt, outcome.title ?? null, outcome.note ?? null, outcome.photoUri ?? null]);
     }
     await transaction.runAsync('INSERT INTO app_settings (key, value) VALUES (?, ?)', ['language', settings.language]);
     await transaction.runAsync('INSERT INTO app_settings (key, value) VALUES (?, ?)', ['notificationsEnabled', String(settings.notificationsEnabled)]);

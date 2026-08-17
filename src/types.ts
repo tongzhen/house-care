@@ -11,5 +11,5 @@ export interface MaintenanceAction {
 }
 export interface Profile { id: string; houseType?: 'detached' | 'terraced'; ageBand?: 'new-build' | '0-2' | '3-10' | '10+'; features: string[]; appliances: string[]; variants: Record<string, string>; }
 export interface ActionConfiguration { actionId: string; enabled: boolean; frequencyOverride?: Frequency; nextDueAt?: string; snoozedUntil?: string; notificationsEnabled: boolean; }
-export interface TaskOutcome { id: string; actionId: string; type: OutcomeType; occurredAt: string; note?: string; photoUri?: string; }
+export interface TaskOutcome { id: string; actionId: string; type: OutcomeType; occurredAt: string; title?: string; note?: string; photoUri?: string; }
 export interface AppSettings { language: 'en' | 'da'; notificationsEnabled: boolean; }

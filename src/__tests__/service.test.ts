@@ -20,7 +20,7 @@ jest.mock('../catalog', () => ({
 
 import * as db from '../db';
 import { rescheduleNotifications } from '../notifications';
-import { recordOutcome, saveHomeProfile, setActionEnabled, updateFrequency } from '../service';
+import { recordIssue, recordOutcome, saveHomeProfile, setActionEnabled, updateFrequency } from '../service';
 
 const settings = { language: 'en' as const, notificationsEnabled: true };
 
@@ -59,6 +59,18 @@ describe('maintenance service', () => {
   it('disables an action marked not relevant', async () => {
     await recordOutcome('dishwasher-filter-clean', 'not_relevant');
     expect(db.upsertConfiguration).toHaveBeenCalledWith(expect.objectContaining({ enabled: false }));
+  });
+
+  it('records a standalone issue with a required trimmed title', async () => {
+    await recordIssue('  Water under dishwasher  ', { note: 'After a cycle' });
+
+    expect(db.addOutcome).toHaveBeenCalledWith(expect.objectContaining({ actionId: 'general-issue', type: 'issue_reported', title: 'Water under dishwasher', note: 'After a cycle' }));
+    expect(db.upsertConfiguration).not.toHaveBeenCalled();
+  });
+
+  it('rejects a standalone issue without a title', async () => {
+    await expect(recordIssue('   ')).rejects.toThrow('Issue title is required');
+    expect(db.addOutcome).not.toHaveBeenCalled();
   });
 
   it('removes configurations that are no longer applicable after editing the profile', async () => {

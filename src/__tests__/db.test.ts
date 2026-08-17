@@ -13,13 +13,14 @@ jest.mock('expo-sqlite', () => ({ openDatabaseAsync: jest.fn(async () => mockDat
 
 import { initialiseDatabase, loadProfile, replaceLocalData, resetLocalData, saveProfile } from '../db';
 
-beforeEach(() => { jest.clearAllMocks(); });
+beforeEach(() => { jest.clearAllMocks(); mockGetAllAsync.mockResolvedValue([{ name: 'title' }]); });
 
 describe('SQLite repository', () => {
   it('initialises all local persistence tables', async () => {
     await initialiseDatabase();
     expect(mockExecAsync).toHaveBeenCalledWith(expect.stringContaining('CREATE TABLE IF NOT EXISTS home_profile'));
     expect(mockExecAsync).toHaveBeenCalledWith(expect.stringContaining('CREATE TABLE IF NOT EXISTS task_outcomes'));
+    expect(mockExecAsync).not.toHaveBeenCalledWith(expect.stringContaining('ALTER TABLE task_outcomes'));
   });
 
   it('serialises a profile before writing it', async () => {
