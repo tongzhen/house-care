@@ -68,7 +68,7 @@ export default function Index() {
   const selectedOutcome = selectedOutcomeId ? state?.outcomes.find((outcome) => outcome.id === selectedOutcomeId) : undefined;
 
   if (!state) return <SafeAreaView style={styles.loading}><ActivityIndicator color={colors.green} /></SafeAreaView>;
-  if (!state.profile || view === 'setup') return <Setup initial={state.profile} onSave={async (profile) => { setState(await saveHomeProfile(profile)); setView('home'); }} />;
+  if (!state.profile || view === 'setup') return <Setup initial={state.profile} onBack={state.profile ? () => setView('settings') : undefined} onSave={async (profile) => { setState(await saveHomeProfile(profile)); setView(state.profile ? 'settings' : 'home'); }} />;
 
   const openAction = (actionId: string) => { setSelectedActionId(actionId); setView('detail'); };
   const outcome = async (type: 'done' | 'snoozed' | 'not_relevant', snoozeDays?: number) => {
@@ -91,7 +91,7 @@ export default function Index() {
   );
 }
 
-export function Setup({ initial, onSave }: { initial: Profile | null; onSave: (profile: Omit<Profile, 'id'>) => Promise<void> }) {
+export function Setup({ initial, onBack, onSave }: { initial: Profile | null; onBack?: () => void; onSave: (profile: Omit<Profile, 'id'>) => Promise<void> }) {
   const { t } = useTranslation();
   const [appliances, setAppliances] = useState<string[]>(initial?.appliances ?? ['dishwasher']);
   const [features, setFeatures] = useState<string[]>(initial?.features ?? []);
@@ -101,13 +101,14 @@ export function Setup({ initial, onSave }: { initial: Profile | null; onSave: (p
   const [saving, setSaving] = useState(false);
   const toggle = (value: string, values: string[], setter: (items: string[]) => void) => setter(values.includes(value) ? values.filter((item) => item !== value) : [...values, value]);
   return <SafeAreaView style={styles.safe}><ScrollView contentContainerStyle={styles.page}>
+    {onBack && <Pressable onPress={onBack}><Text style={styles.back}>‹ {t('settings')}</Text></Pressable>}
     <Text style={styles.kicker}>HOUSE CARE</Text><Text style={styles.h1}>{t('welcome')}</Text><Text style={styles.sub}>{t('setupHint')}</Text>
     <Text style={styles.label}>House type</Text><View style={styles.choiceRow}>{(['detached', 'terraced'] as const).map((item) => <Choice key={item} label={item === 'detached' ? 'Detached' : 'Terraced'} selected={houseType === item} onPress={() => setHouseType(item)} />)}</View>
     <Text style={styles.label}>Appliances</Text><View style={styles.choiceGrid}>{applianceChoices.map(([id, label]) => <Choice key={id} label={t(label)} selected={appliances.includes(id)} onPress={() => toggle(id, appliances, setAppliances)} />)}</View>
     {appliances.includes('tumble-dryer') && <><Text style={styles.label}>Tumble dryer type</Text><View style={styles.choiceRow}><Choice label="Vented" selected={dryerVariant === 'vented'} onPress={() => setDryerVariant('vented')} /><Choice label="Condenser / heat pump" selected={dryerVariant === 'condenser'} onPress={() => setDryerVariant('condenser')} /></View></>}
     {appliances.includes('cooker-hood') && <><Text style={styles.label}>Cooker hood type</Text><View style={styles.choiceRow}><Choice label="Recirculating" selected={hoodVariant === 'recirculating'} onPress={() => setHoodVariant('recirculating')} /><Choice label="Vented outside" selected={hoodVariant === 'vented-outside'} onPress={() => setHoodVariant('vented-outside')} /></View></>}
     <Text style={styles.label}>Home features</Text><View style={styles.choiceGrid}>{featureChoices.map((id) => <Choice key={id} label={id.replaceAll('-', ' ')} selected={features.includes(id)} onPress={() => toggle(id, features, setFeatures)} />)}</View>
-    <Pressable style={[styles.primary, saving && styles.dim]} disabled={saving || appliances.length === 0 || (appliances.includes('tumble-dryer') && !dryerVariant) || (appliances.includes('cooker-hood') && !hoodVariant)} onPress={async () => { setSaving(true); await onSave({ houseType, ageBand: 'new-build', appliances, features, variants: { ...(appliances.includes('tumble-dryer') && dryerVariant ? { tumbleDryer: dryerVariant } : {}), ...(appliances.includes('cooker-hood') && hoodVariant ? { cookerHood: hoodVariant } : {}) } }); setSaving(false); }}><Text style={styles.primaryText}>{saving ? '…' : t('continue')}</Text></Pressable>
+    <Pressable style={[styles.primary, saving && styles.dim]} disabled={saving || appliances.length === 0 || (appliances.includes('tumble-dryer') && !dryerVariant) || (appliances.includes('cooker-hood') && !hoodVariant)} onPress={async () => { setSaving(true); await onSave({ houseType, ageBand: 'new-build', appliances, features, variants: { ...(appliances.includes('tumble-dryer') && dryerVariant ? { tumbleDryer: dryerVariant } : {}), ...(appliances.includes('cooker-hood') && hoodVariant ? { cookerHood: hoodVariant } : {}) } }); setSaving(false); }}><Text style={styles.primaryText}>{saving ? '…' : t(onBack ? 'save' : 'continue')}</Text></Pressable>
   </ScrollView></SafeAreaView>;
 }
 

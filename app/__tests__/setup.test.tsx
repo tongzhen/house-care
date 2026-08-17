@@ -27,6 +27,15 @@ describe('setup flow', () => {
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ variants: { tumbleDryer: 'vented' } }));
   });
 
+  it('shows a Settings back button and Save action when editing a profile', async () => {
+    const onBack = jest.fn();
+    await render(<Setup initial={{ id: 'primary-home', houseType: 'detached', appliances: ['dishwasher'], features: [], variants: {} }} onBack={onBack} onSave={jest.fn(async () => undefined)} />);
+    fireEvent.press(screen.getByText('‹ Settings'));
+    expect(onBack).toHaveBeenCalledTimes(1);
+    expect(screen.getByText('Save')).toBeTruthy();
+    expect(screen.queryByText('Continue')).toBeNull();
+  });
+
   it('does not label an upcoming dishwasher task as due now', async () => {
     const action = getAction('dishwasher-filter-clean')!;
     const nextDueAt = new Date(Date.now() + 86400000).toISOString();
