@@ -1,5 +1,5 @@
 import { actionApplies, actions, getAction } from './catalog';
-import { clearData, importBackup } from './backup';
+import { clearData, importBackup, removeIssue, removeIssuePhoto } from './backup';
 import { atNineAM, nextDueDate } from './date';
 import * as repository from './db';
 import { cancelScheduledNotifications, rescheduleNotifications } from './notifications';
@@ -99,5 +99,15 @@ export async function importLocalBackup() {
 export async function resetAppData() {
   await cancelScheduledNotifications();
   await clearData();
+  return loadAppState();
+}
+
+export async function deleteIssuePhoto(outcome: TaskOutcome) {
+  await removeIssuePhoto(outcome);
+  return loadAppState();
+}
+
+export async function deleteIssueRecord(outcome: TaskOutcome) {
+  await removeIssue(outcome);
   return loadAppState();
 }

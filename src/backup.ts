@@ -3,7 +3,7 @@ import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import JSZip from 'jszip';
 import { z } from 'zod';
-import { loadOutcomes, replaceLocalData, resetLocalData } from './db';
+import { clearOutcomePhoto, deleteOutcome, loadOutcomes, replaceLocalData, resetLocalData } from './db';
 import type { AppState } from './service';
 import type { TaskOutcome } from './types';
 
@@ -80,4 +80,14 @@ export async function clearData() {
   const outcomes = await loadOutcomes();
   await removePhotos(outcomes);
   await resetLocalData();
+}
+
+export async function removeIssuePhoto(outcome: TaskOutcome) {
+  if (outcome.photoUri) await FileSystem.deleteAsync(outcome.photoUri, { idempotent: true });
+  await clearOutcomePhoto(outcome.id);
+}
+
+export async function removeIssue(outcome: TaskOutcome) {
+  if (outcome.photoUri) await FileSystem.deleteAsync(outcome.photoUri, { idempotent: true });
+  await deleteOutcome(outcome.id);
 }

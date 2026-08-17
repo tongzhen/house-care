@@ -58,6 +58,16 @@ export async function addOutcome(outcome: TaskOutcome) {
   await connection.runAsync('INSERT INTO task_outcomes (id, action_id, outcome_type, occurred_at, note, photo_uri) VALUES (?, ?, ?, ?, ?, ?)', [outcome.id, outcome.actionId, outcome.type, outcome.occurredAt, outcome.note ?? null, outcome.photoUri ?? null]);
 }
 
+export async function clearOutcomePhoto(outcomeId: string) {
+  const connection = await db();
+  await connection.runAsync('UPDATE task_outcomes SET photo_uri = NULL WHERE id = ?', [outcomeId]);
+}
+
+export async function deleteOutcome(outcomeId: string) {
+  const connection = await db();
+  await connection.runAsync('DELETE FROM task_outcomes WHERE id = ?', [outcomeId]);
+}
+
 export async function getSettings(): Promise<AppSettings> {
   const connection = await db();
   const rows = await connection.getAllAsync<{ key: string; value: string }>('SELECT key, value FROM app_settings');

@@ -30,9 +30,17 @@ describe('setup flow', () => {
   it('does not label an upcoming dishwasher task as due now', async () => {
     const action = getAction('dishwasher-filter-clean')!;
     const nextDueAt = new Date(Date.now() + 86400000).toISOString();
-    await render(<Home actions={[action]} configurations={new Map([[action.id, { actionId: action.id, enabled: true, notificationsEnabled: true, nextDueAt }]])} language="en" now={Date.now()} onOpen={jest.fn()} />);
+    await render(<Home actions={[action]} configurations={new Map([[action.id, { actionId: action.id, enabled: true, notificationsEnabled: true, nextDueAt }]])} language="en" now={Date.now()} onOpen={jest.fn()} onReportIssue={jest.fn()} />);
     expect(screen.getByText('Nothing needs your attention right now.')).toBeTruthy();
     expect(screen.queryByText('DUE NOW')).toBeNull();
     expect(screen.getByText('Clean the dishwasher filter')).toBeTruthy();
+  });
+
+  it('opens the Home-level report-issue entry point', async () => {
+    const action = getAction('dishwasher-filter-clean')!;
+    const onReportIssue = jest.fn();
+    await render(<Home actions={[action]} configurations={new Map([[action.id, { actionId: action.id, enabled: true, notificationsEnabled: true, nextDueAt: new Date(Date.now() + 86400000).toISOString() }]])} language="en" now={Date.now()} onOpen={jest.fn()} onReportIssue={onReportIssue} />);
+    fireEvent.press(screen.getByText('Report an issue'));
+    expect(onReportIssue).toHaveBeenCalledTimes(1);
   });
 });
