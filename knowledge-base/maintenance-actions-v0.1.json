@@ -1,0 +1,493 @@
+{
+  "schemaVersion": "0.1",
+  "contentVersion": "0.1",
+  "canonicalLanguage": "en",
+  "supportedLanguages": ["en", "da"],
+  "lastReviewed": "2026-08-17",
+  "contentPolicy": "Manufacturer instructions for the exact model or system override this guidance. This catalogue covers routine maintenance only, not repairs, installations, diagnostics, or emergency work.",
+  "actions": [
+    {
+      "id": "dishwasher-filter-check",
+      "category": "appliance",
+      "target": "dishwasher",
+      "profileConditions": { "appliances": ["dishwasher"] },
+      "trigger": { "kind": "recurring", "defaultFrequency": { "interval": 1, "unit": "week" } },
+      "estimatedMinutes": 3,
+      "safetyLevel": "DIY",
+      "content": {
+        "en": {
+          "title": "Check the dishwasher filter",
+          "whyItMatters": "A quick check helps catch food residue before it affects washing or drainage.",
+          "steps": ["Open the dishwasher and pull out the lower rack.", "Look at the accessible filter area for heavy residue or standing water.", "If the filter is heavily soiled, continue with the filter-cleaning action."],
+          "normalSigns": ["A small amount of residue in the coarse filter."],
+          "concerningSigns": ["Repeated standing water, a drain error, or a damaged filter."],
+          "escalationGuidance": "If drainage problems persist or the filter is damaged, consult the manual or an appliance technician.",
+          "safetyRestrictions": ["Do not reach into sharp debris.", "Do not dismantle the pump, hoses, or electrical parts."],
+          "manualNote": "Use the appliance manual for the filter location and removal method."
+        },
+        "da": null
+      },
+      "sources": ["https://www.bolius.dk/undgaa-en-klam-opvaskemaskine-98618"]
+    },
+    {
+      "id": "dishwasher-filter-clean",
+      "category": "appliance",
+      "target": "dishwasher",
+      "profileConditions": { "appliances": ["dishwasher"] },
+      "trigger": { "kind": "recurring", "defaultFrequency": { "interval": 2, "unit": "month" }, "frequencyNote": "Typically every 1–3 months depending on use." },
+      "estimatedMinutes": 10,
+      "safetyLevel": "DIY",
+      "content": {
+        "en": {
+          "title": "Clean the dishwasher filter",
+          "whyItMatters": "Food residue and grease can reduce wash performance, cause odours, obstruct drainage, and place extra load on the pump.",
+          "steps": ["Turn the dishwasher off and open the door.", "Pull out the lower rack.", "Remove the filters only as shown by the appliance manual; do not force a twist-lock or clip.", "Rinse the filters under warm water and use a soft brush.", "Wipe the accessible filter housing and drain area with a cloth.", "Reinstall and lock the filters in their original position.", "Run a short rinse cycle and check for standing water or leaks."],
+          "normalSigns": ["Filters rinse clean without damage.", "Spray arms turn freely.", "No standing water after a cycle."],
+          "concerningSigns": ["Repeated standing water, pump noise, drain-error code, poor drainage, leaks, or a filter that cannot be removed normally."],
+          "escalationGuidance": "Stop and consult the manual or an appliance technician if the problem persists, the appliance leaks, or a pump/drain error returns.",
+          "safetyRestrictions": ["Do not use chemical drain cleaner in the dishwasher.", "Do not dismantle the pump, hoses, or electrical parts."],
+          "manualNote": "The exact filter removal and rinse-cycle instructions vary by model."
+        },
+        "da": null
+      },
+      "sources": ["https://www.bolius.dk/undgaa-en-klam-opvaskemaskine-98618"]
+    },
+    {
+      "id": "washing-machine-drawer-seal",
+      "category": "appliance",
+      "target": "washing-machine",
+      "profileConditions": { "appliances": ["washing-machine"] },
+      "trigger": { "kind": "recurring", "defaultFrequency": { "interval": 1, "unit": "month" } },
+      "estimatedMinutes": 10,
+      "safetyLevel": "DIY",
+      "content": {
+        "en": {
+          "title": "Clean the washing-machine drawer and door seal",
+          "whyItMatters": "Detergent residue, lint, hair, and moisture can cause odours, mould, and reduced washing performance.",
+          "steps": ["Turn off the machine.", "Remove the detergent drawer using its release catch and rinse it with warm water.", "Clean the drawer cavity with a damp cloth without spraying into electrical areas.", "Wipe the rubber door seal, including its folds, and remove visible lint or objects.", "Leave the door and drawer slightly open to dry."],
+          "normalSigns": ["Light detergent residue or small amounts of lint."],
+          "concerningSigns": ["Severe mould, a loose door seal, a burning smell, or persistent odour after cleaning."],
+          "escalationGuidance": "Contact an appliance technician if the seal is damaged or an unusual smell persists.",
+          "safetyRestrictions": ["Do not spray water into electrical areas.", "Do not dismantle panels or electrical components."],
+          "manualNote": "Use the model manual for drawer removal instructions."
+        },
+        "da": null
+      },
+      "sources": ["https://www.bolius.dk/saa-meget-kan-du-spare-paa-at-pleje-dine-haarde-hvidevarer-7916"]
+    },
+    {
+      "id": "washing-machine-maintenance-wash",
+      "category": "appliance",
+      "target": "washing-machine",
+      "profileConditions": { "appliances": ["washing-machine"] },
+      "trigger": { "kind": "recurring", "defaultFrequency": { "interval": 1, "unit": "month" }, "frequencyNote": "Monthly or every 30–40 washes, according to the model." },
+      "estimatedMinutes": 5,
+      "safetyLevel": "DIY with caution",
+      "content": {
+        "en": {
+          "title": "Run the washing-machine maintenance wash",
+          "whyItMatters": "A suitable maintenance programme helps reduce detergent residue and odours inside the machine.",
+          "steps": ["Check the manual for the recommended maintenance programme and cleaner.", "Run the empty programme exactly as instructed.", "Leave the door and drawer open afterward so the machine can dry."],
+          "normalSigns": ["Some residue or odour during the first cleaning cycle."],
+          "concerningSigns": ["Persistent odour, drainage error, leak, or unusual noise."],
+          "escalationGuidance": "Contact an appliance technician if the problem persists after the manufacturer-recommended maintenance cycle.",
+          "safetyRestrictions": ["Do not mix cleaning chemicals.", "Do not use a cleaner unless it is approved for the model."],
+          "manualNote": "The programme and cleaner are model-specific."
+        },
+        "da": null
+      },
+      "sources": ["https://www.bolius.dk/saa-meget-kan-du-spare-paa-at-pleje-dine-haarde-hvidevarer-7916"]
+    },
+    {
+      "id": "washing-machine-pump-filter",
+      "category": "appliance",
+      "target": "washing-machine",
+      "profileConditions": { "appliances": ["washing-machine"] },
+      "trigger": { "kind": "recurring", "defaultFrequency": { "interval": 4, "unit": "month" }, "frequencyNote": "Check every 3–6 months or when the manual/error message indicates." },
+      "estimatedMinutes": 20,
+      "safetyLevel": "DIY with caution",
+      "content": {
+        "en": {
+          "title": "Check the washing-machine pump filter",
+          "whyItMatters": "A blocked pump filter can cause poor drainage, error messages, leaks, or extra load on the pump.",
+          "steps": ["Turn off the machine and consult the manual first.", "Place towels and a shallow tray below the service flap.", "Drain residual water only according to the manual.", "Remove and rinse the filter without forcing it.", "Refit the filter fully and check for leaks on the next short cycle."],
+          "normalSigns": ["Small amounts of water, lint, hair, coins, or buttons in the filter."],
+          "concerningSigns": ["Persistent drainage error, leaking after refitting, grinding noise, or a filter that will not turn without force."],
+          "escalationGuidance": "Contact an appliance technician if drainage errors persist, the machine leaks, or the filter housing is damaged.",
+          "safetyRestrictions": ["Never open the pump filter during an active or hot cycle.", "Do not tilt a heavy machine alone.", "Do not dismantle panels, hoses, or electrical components."],
+          "manualNote": "Follow the exact draining and filter-removal procedure in the model manual."
+        },
+        "da": null
+      },
+      "sources": ["https://www.bolius.dk/vedligeholdelse-af-afloeb-18468"]
+    },
+    {
+      "id": "dryer-lint-filter",
+      "category": "appliance",
+      "target": "tumble-dryer",
+      "profileConditions": { "appliances": ["tumble-dryer"] },
+      "trigger": { "kind": "recurring", "defaultFrequency": { "interval": 1, "unit": "cycle" } },
+      "estimatedMinutes": 2,
+      "safetyLevel": "DIY",
+      "content": {
+        "en": {
+          "title": "Clean the tumble-dryer lint filter",
+          "whyItMatters": "Lint restricts airflow, increases drying time and energy use, and can increase overheating and fire risk.",
+          "steps": ["Allow the dryer to cool and switch it off.", "Remove the lint filter.", "Remove lint by hand and clean both sides with a soft brush if needed.", "Refit the filter firmly before the next use."],
+          "normalSigns": ["Lint on the filter after every load."],
+          "concerningSigns": ["Burning smell, unusual heat, repeated airflow errors, or a damaged filter."],
+          "escalationGuidance": "Stop using the dryer and arrange service for burning smells, overheating, repeated errors, or damaged parts.",
+          "safetyRestrictions": ["Do not operate the dryer without the lint filter.", "Do not use sharp objects on the filter mesh."],
+          "manualNote": "Use the model manual for filter location and cleaning instructions."
+        },
+        "da": null
+      },
+      "sources": ["https://www.bolius.dk/saa-meget-kan-du-spare-paa-at-pleje-dine-haarde-hvidevarer-7916"]
+    },
+    {
+      "id": "dryer-condenser-filter",
+      "category": "appliance",
+      "target": "tumble-dryer",
+      "profileConditions": { "appliances": ["tumble-dryer"] },
+      "trigger": { "kind": "recurring", "defaultFrequency": { "interval": 1, "unit": "month" }, "frequencyNote": "Follow the model manual." },
+      "estimatedMinutes": 15,
+      "safetyLevel": "DIY with caution",
+      "content": {
+        "en": {
+          "title": "Clean the accessible dryer condenser or filter",
+          "whyItMatters": "A clean accessible condenser or heat-exchanger filter supports airflow and drying performance.",
+          "steps": ["Switch off the cooled dryer.", "Check whether the model permits user cleaning of the condenser or heat-exchanger filter.", "Remove only the designated cover or filter.", "Rinse or vacuum only as instructed, then dry and reinstall as required."],
+          "normalSigns": ["Some lint or moisture near the designated filter area."],
+          "concerningSigns": ["Unusual heat, much longer drying time, burning smell, or repeated airflow errors."],
+          "escalationGuidance": "Stop using the dryer and arrange service if overheating, burning smell, or repeated errors occur.",
+          "safetyRestrictions": ["Do not dismantle sealed refrigeration or heat-pump components.", "Do not open internal ducting."],
+          "manualNote": "This action must follow the exact model manual."
+        },
+        "da": null
+      },
+      "sources": ["https://www.bolius.dk/saa-meget-kan-du-spare-paa-at-pleje-dine-haarde-hvidevarer-7916"]
+    },
+    {
+      "id": "dryer-external-vent",
+      "category": "appliance",
+      "target": "vented-tumble-dryer",
+      "profileConditions": { "appliances": ["tumble-dryer"], "systemVariants": ["vented"] },
+      "trigger": { "kind": "recurring", "defaultFrequency": { "interval": 1, "unit": "year" } },
+      "estimatedMinutes": 5,
+      "safetyLevel": "DIY with caution",
+      "content": {
+        "en": {
+          "title": "Inspect the tumble-dryer external vent",
+          "whyItMatters": "A blocked or non-opening external vent can reduce airflow and increase overheating risk.",
+          "steps": ["From a safe ground-level position, look at the external vent during operation.", "Check that the flap opens and is clear of lint, leaves, and nests.", "Do not remove inaccessible ducting or climb to reach the vent."],
+          "normalSigns": ["The external flap opens during operation."],
+          "concerningSigns": ["The flap does not open, lint is heavily accumulated, or the dryer overheats."],
+          "escalationGuidance": "Arrange professional duct cleaning or appliance service for inaccessible or blocked ductwork.",
+          "safetyRestrictions": ["Do not climb or dismantle inaccessible ductwork."],
+          "manualNote": "Only applies to vented dryers."
+        },
+        "da": null
+      },
+      "sources": ["https://www.bolius.dk/saa-meget-kan-du-spare-paa-at-pleje-dine-haarde-hvidevarer-7916"]
+    },
+    {
+      "id": "cooker-hood-grease-filter",
+      "category": "appliance",
+      "target": "cooker-hood",
+      "profileConditions": { "appliances": ["cooker-hood"] },
+      "trigger": { "kind": "recurring", "defaultFrequency": { "interval": 2, "unit": "month" }, "frequencyNote": "Typically every 1–3 months depending on cooking frequency." },
+      "estimatedMinutes": 20,
+      "safetyLevel": "DIY",
+      "content": {
+        "en": {
+          "title": "Clean the cooker-hood grease filter",
+          "whyItMatters": "Grease buildup reduces extraction and increases odours, noise, and fire load.",
+          "steps": ["Switch off the hood and ensure the hob is cool.", "Remove the metal grease filter while supporting it.", "Check the manual for dishwasher suitability.", "If hand-washing, use warm water, degreasing dish soap, and a soft brush.", "Rinse, dry completely, and reinstall securely.", "If the hood recirculates air, check the manual for carbon-filter replacement."],
+          "normalSigns": ["Filter discolouration over time."],
+          "concerningSigns": ["Grease dripping, poor extraction, unusual vibration or noise, electrical smell, or an unsecured filter."],
+          "escalationGuidance": "Stop using the hood for electrical smells, sparking, loose wiring, or severe vibration. Use a qualified technician for motor, ducting, or electrical faults.",
+          "safetyRestrictions": ["Never clean above an active or hot hob.", "Do not spray liquid into switches, motor openings, or light fittings.", "Do not mix cleaning chemicals."],
+          "manualNote": "Dishwasher suitability and carbon-filter intervals are model-specific."
+        },
+        "da": null
+      },
+      "sources": ["https://www.bolius.dk/saadan-renser-du-emhaettens-filter-30960"]
+    },
+    {
+      "id": "cooker-hood-carbon-filter",
+      "category": "appliance",
+      "target": "recirculating-cooker-hood",
+      "profileConditions": { "appliances": ["cooker-hood"], "systemVariants": ["recirculating"] },
+      "trigger": { "kind": "recurring", "defaultFrequency": { "interval": 6, "unit": "month" }, "frequencyNote": "Use the model manual; carbon filters are often not washable." },
+      "estimatedMinutes": 5,
+      "safetyLevel": "DIY with caution",
+      "content": {
+        "en": {
+          "title": "Check the cooker-hood carbon filter",
+          "whyItMatters": "A saturated carbon filter reduces odour removal in a recirculating hood.",
+          "steps": ["Check whether the hood is a recirculating model.", "Use the manual to locate the carbon filter and confirm its replacement interval.", "Replace it only with the specified filter type."],
+          "normalSigns": ["Odour removal gradually becomes less effective."],
+          "concerningSigns": ["Filter cannot be secured or the hood has an electrical or motor fault."],
+          "escalationGuidance": "Contact an appliance technician if the filter housing or hood is damaged.",
+          "safetyRestrictions": ["Do not wash or reuse a carbon filter unless the manual explicitly allows it."],
+          "manualNote": "Only applies to recirculating cooker hoods."
+        },
+        "da": null
+      },
+      "sources": ["https://www.bolius.dk/saadan-renser-du-emhaettens-filter-30960"]
+    },
+    {
+      "id": "gutters-ground-check",
+      "category": "exterior",
+      "target": "gutters-downpipes",
+      "profileConditions": { "features": ["gutters"] },
+      "trigger": { "kind": "seasonal", "seasons": ["spring", "autumn"], "weatherEvents": ["heavy-rain", "storm", "leaf-fall"] },
+      "estimatedMinutes": 5,
+      "safetyLevel": "DIY",
+      "content": {
+        "en": {
+          "title": "Inspect gutters and downpipes from ground level",
+          "whyItMatters": "Blocked or damaged gutters can direct water toward the facade or foundation.",
+          "steps": ["Inspect from ground level.", "Look for overflow marks, sagging, missing brackets, leaks, and downpipe damage.", "After rain, check whether water is reaching the ground away from the house.", "Record anything that needs professional attention."],
+          "normalSigns": ["Leaves or small deposits after autumn.", "Water reaches the ground without overflow."],
+          "concerningSigns": ["Overflowing water, sagging gutters, detached brackets, or pooling by the foundation."],
+          "escalationGuidance": "Use a gutter or roofing professional for high, difficult, or unsafe access or persistent water damage.",
+          "safetyRestrictions": ["Do not climb onto roofs.", "Do not use a ladder in wind, rain, or ice."],
+          "manualNote": "This action is intentionally limited to safe ground-level observation."
+        },
+        "da": null
+      },
+      "sources": ["https://www.bolius.dk/bortledning-af-regnvand-og-forebyggelse-af-oversvoemmelse-19267"]
+    },
+    {
+      "id": "gutters-accessible-clean",
+      "category": "exterior",
+      "target": "gutters-downpipes",
+      "profileConditions": { "features": ["gutters"] },
+      "trigger": { "kind": "seasonal", "seasons": ["spring", "autumn"], "weatherEvents": ["leaf-fall"] },
+      "estimatedMinutes": 30,
+      "safetyLevel": "DIY with caution",
+      "content": {
+        "en": {
+          "title": "Clear accessible gutter debris",
+          "whyItMatters": "Leaves, needles, moss, and sludge can reduce water flow and cause overflow.",
+          "steps": ["Only work from a safe, accessible position at ground level or with equipment you are trained to use safely.", "Wear gloves and remove visible debris with a small scoop.", "Brush remaining debris into a container rather than the downpipe.", "If access is high or unsafe, arrange professional help."],
+          "normalSigns": ["Leaves and small deposits, especially after autumn."],
+          "concerningSigns": ["Persistent blockage, structural damage, or water entering the building."],
+          "escalationGuidance": "Use a gutter or roofing professional for high, difficult, or unsafe access.",
+          "safetyRestrictions": ["Never work on a roof.", "Do not use a ladder in wind, rain, or ice."],
+          "manualNote": "The app should not instruct users to climb to perform this action."
+        },
+        "da": null
+      },
+      "sources": ["https://www.bolius.dk/bortledning-af-regnvand-og-forebyggelse-af-oversvoemmelse-19267"]
+    },
+    {
+      "id": "faskine-inlet-check",
+      "category": "drainage",
+      "target": "faskine",
+      "profileConditions": { "features": ["drainage-faskine"] },
+      "trigger": { "kind": "recurring", "defaultFrequency": { "interval": 1, "unit": "year" }, "weatherEvents": ["heavy-rain"] },
+      "estimatedMinutes": 15,
+      "safetyLevel": "DIY with caution",
+      "content": {
+        "en": {
+          "title": "Inspect the accessible faskine inlet",
+          "whyItMatters": "Leaves, sediment, and damaged connections can reduce rainwater infiltration and cause overflow.",
+          "steps": ["Identify the inlet using property drawings or documentation.", "Clear leaves from gutters and surface inlets first.", "Open only an accessible sand-trap or inspection cover.", "Remove loose leaves and sediment with a scoop.", "Check visible inlet parts for cracks or disconnected joints.", "Replace the cover securely and observe the area during rain."],
+          "normalSigns": ["Some sediment in a sand trap.", "Water level rises temporarily during heavy rain and then drops."],
+          "concerningSigns": ["Repeated overflow, persistent standing water, a sunken area, damaged cover, or water moving toward the foundation."],
+          "escalationGuidance": "Contact an authorised drainage professional for recurring flooding, suspected collapsed or blocked pipes, damaged wells, or sunken ground.",
+          "safetyRestrictions": ["Do not enter wells.", "Do not excavate near buried pipes.", "Do not alter drainage connections."],
+          "manualNote": "Use property drawings or installation documentation where available."
+        },
+        "da": null
+      },
+      "sources": ["https://www.bolius.dk/bliv-klogere-paa-hvad-en-faskine-er-19268"]
+    },
+    {
+      "id": "pump-well-visual-check",
+      "category": "drainage",
+      "target": "pump-well",
+      "profileConditions": { "features": ["pump-well"] },
+      "trigger": { "kind": "recurring", "defaultFrequency": { "interval": 1, "unit": "month" }, "weatherEvents": ["heavy-rain", "power-cut"] },
+      "estimatedMinutes": 5,
+      "safetyLevel": "DIY with caution",
+      "content": {
+        "en": {
+          "title": "Visually check the pump well and alarm",
+          "whyItMatters": "Early awareness of alarms, overflow, or unusual operation can help prevent flooding.",
+          "steps": ["Locate the well, alarm panel, power supply, and service contact information.", "Inspect the closed cover and surrounding ground.", "Check the alarm or control panel for warning lights or messages.", "Record unusual noise, smell, water, or alarm information.", "Use only a manufacturer-provided user-safe test procedure."],
+          "normalSigns": ["A secure cover and dry ground around the well.", "Brief pump operation depending on system design."],
+          "concerningSigns": ["Alarm, breaker trip, continuous running, overflow, sewage smell, or water in basement areas."],
+          "escalationGuidance": "Treat an alarm, overflow, or basement-water risk as urgent. Contact the pump/service company or authorised drainage professional.",
+          "safetyRestrictions": ["Never enter a well.", "Do not remove a heavy cover alone.", "Do not touch electrical connections with wet hands."],
+          "manualNote": "Do not open or test the well unless the installer manual explicitly defines a safe user procedure."
+        },
+        "da": null
+      },
+      "sources": ["https://www.bolius.dk/bortledning-af-regnvand-og-forebyggelse-af-oversvoemmelse-19267"]
+    },
+    {
+      "id": "outdoor-tap-winter-check",
+      "category": "exterior",
+      "target": "outdoor-tap",
+      "profileConditions": { "features": ["outdoor-tap"] },
+      "trigger": { "kind": "seasonal", "seasons": ["autumn"], "weatherEvents": ["first-frost"] },
+      "estimatedMinutes": 10,
+      "safetyLevel": "DIY with caution",
+      "content": {
+        "en": {
+          "title": "Prepare the outdoor tap for frost",
+          "whyItMatters": "Water left in exposed pipes or fittings can freeze, expand, and cause damage.",
+          "steps": ["Identify whether the tap is frost-proof and whether there is an indoor shut-off or drain valve.", "Disconnect hoses, splitters, timers, and spray guns.", "Close the indoor shut-off only if the installation instructions require it.", "Open the outdoor tap to drain residual water as instructed.", "Leave the outlet in the recommended position for its tap type."],
+          "normalSigns": ["A small amount of water drains after the indoor shut-off is closed."],
+          "concerningSigns": ["Persistent dripping, a cracked fitting, damp wall, reduced flow, or indoor leakage."],
+          "escalationGuidance": "Shut off the water supply if safe and contact a plumber for leaks, suspected frost damage, or a failed shut-off valve.",
+          "safetyRestrictions": ["Do not assume a tap is frost-proof.", "Do not use open flame or high heat.", "Do not force frozen handles or fittings."],
+          "manualNote": "Use house documentation or ask a plumber if the tap type is unknown."
+        },
+        "da": null
+      },
+      "sources": ["https://www.bolius.dk/hold-husets-roer-varme-og-undgaa-frostspraengninger-14197"]
+    },
+    {
+      "id": "ventilation-grilles",
+      "category": "ventilation",
+      "target": "ventilation",
+      "profileConditions": { "features": ["ventilation"] },
+      "trigger": { "kind": "recurring", "defaultFrequency": { "interval": 3, "unit": "month" } },
+      "estimatedMinutes": 10,
+      "safetyLevel": "DIY",
+      "content": {
+        "en": {
+          "title": "Clean accessible ventilation grilles",
+          "whyItMatters": "Clean grilles support airflow, moisture removal, and indoor-air quality.",
+          "steps": ["Vacuum or wipe accessible grilles.", "Do not change their adjustment settings.", "Check for visible dust, mouldy odour, or blocked airflow.", "Record issues for professional follow-up."],
+          "normalSigns": ["Dust on grilles."],
+          "concerningSigns": ["Persistent alarm, mouldy odour, no airflow, or unusual vibration."],
+          "escalationGuidance": "Contact a ventilation technician for airflow, balancing, duct, fan, or persistent alarm issues.",
+          "safetyRestrictions": ["Do not change duct settings or block vents permanently."],
+          "manualNote": "Do not remove fixed grilles unless the manual identifies them as user-removable."
+        },
+        "da": null
+      },
+      "sources": ["https://www.bolius.dk/saadan-renser-du-filtrene-i-dit-ventilationsanlaeg-30880"]
+    },
+    {
+      "id": "ventilation-filters",
+      "category": "ventilation",
+      "target": "ventilation",
+      "profileConditions": { "features": ["ventilation"] },
+      "trigger": { "kind": "recurring", "defaultFrequency": { "interval": 6, "unit": "month" }, "frequencyNote": "Use the model manual; common default is 1–2 times per year." },
+      "estimatedMinutes": 20,
+      "safetyLevel": "DIY with caution",
+      "content": {
+        "en": {
+          "title": "Check or replace accessible ventilation filters",
+          "whyItMatters": "Dirty filters can reduce ventilation effectiveness and increase dust and moisture problems.",
+          "steps": ["Identify the system and model.", "Turn the unit off only if the manual instructs you to.", "Open only the user-service filter panel.", "Note filter orientation before removal.", "Vacuum or replace only as the manufacturer permits.", "Reinstall the correct filter type and orientation.", "Reset the filter timer only if the manual instructs you to."],
+          "normalSigns": ["Dust on filters and grilles."],
+          "concerningSigns": ["Persistent alarm, water leak, burning smell, unusual vibration, damaged cable, or no airflow after filter replacement."],
+          "escalationGuidance": "Contact a ventilation technician for persistent alarms, leaks, damaged fans or ducts, or service beyond user-accessible parts.",
+          "safetyRestrictions": ["Do not open electrical or motor compartments.", "Do not run the system without filters unless the manufacturer explicitly permits it."],
+          "manualNote": "Many disposable filters should be replaced rather than washed."
+        },
+        "da": null
+      },
+      "sources": ["https://www.bolius.dk/saadan-renser-du-filtrene-i-dit-ventilationsanlaeg-30880"]
+    },
+    {
+      "id": "floor-drain-clean",
+      "category": "drainage",
+      "target": "floor-drain",
+      "profileConditions": { "features": ["floor-drains"] },
+      "trigger": { "kind": "recurring", "defaultFrequency": { "interval": 1, "unit": "month" } },
+      "estimatedMinutes": 12,
+      "safetyLevel": "DIY with caution",
+      "content": {
+        "en": {
+          "title": "Clean the floor drain and water trap",
+          "whyItMatters": "Hair, soap, and debris can cause odours, slow drainage, and overflow. Rarely used drains can dry out.",
+          "steps": ["Put on gloves and ventilate the room if needed.", "Remove the grate and only visible fasteners designed for user removal.", "Lift the drain cup or water trap if it is designed to be removable.", "Remove hair and debris, then wash accessible parts with warm water and mild detergent.", "Refit the water trap in the correct orientation and replace the grate.", "Run water and observe drainage."],
+          "normalSigns": ["Hair and soap residue in the cup.", "A mild odour that disappears after cleaning."],
+          "concerningSigns": ["Persistent sewage odour, repeated slow drainage, water rising elsewhere, leakage, or soft flooring nearby."],
+          "escalationGuidance": "Use a plumber or drainage professional for recurring blockages, sewage backup, leakage, or suspected wet-room construction damage.",
+          "safetyRestrictions": ["Do not use aggressive chemical unblockers as routine maintenance.", "Do not push tools deep into the drain or dismantle fixed connections."],
+          "manualNote": "For rarely used drains, add water every 1–3 months to restore the water seal."
+        },
+        "da": null
+      },
+      "sources": ["https://www.bolius.dk/vedligeholdelse-af-afloeb-18468"]
+    },
+    {
+      "id": "underfloor-heating-visual-check",
+      "category": "heating",
+      "target": "underfloor-heating",
+      "profileConditions": { "features": ["underfloor-heating"] },
+      "trigger": { "kind": "seasonal", "seasons": ["autumn"], "defaultFrequency": { "interval": 1, "unit": "month" } },
+      "estimatedMinutes": 8,
+      "safetyLevel": "DIY with caution",
+      "content": {
+        "en": {
+          "title": "Check underfloor heating at the start of the heating season",
+          "whyItMatters": "A visual check can reveal leaks, alarms, or uneven heating without requiring system adjustments.",
+          "steps": ["Identify whether the system is water-based or electric.", "Use room thermostats only within the normal range.", "Check that rooms respond gradually over 24–48 hours.", "Visually inspect accessible areas for moisture, alarms, unusual noise, or visible damage.", "Record rooms that remain persistently cold or hot."],
+          "normalSigns": ["Slow response after a setting change.", "Slight differences between rooms."],
+          "concerningSigns": ["Visible leak, persistent error, sudden pressure change, overheating, breaker trip, or a room remaining cold after a full day."],
+          "escalationGuidance": "Contact a heating/plumbing professional for water-based issues or an authorised electrician for electric-system faults.",
+          "safetyRestrictions": ["Do not bleed, refill, open, or adjust manifold valves.", "Do not remove electrical covers or drill into floors."],
+          "manualNote": "System types vary. If the system is unknown, limit the action to visual observation."
+        },
+        "da": null
+      },
+      "sources": []
+    },
+    {
+      "id": "wood-floor-routine-clean",
+      "category": "flooring",
+      "target": "wood-floor",
+      "profileConditions": { "features": ["wood-floors"] },
+      "trigger": { "kind": "recurring", "defaultFrequency": { "interval": 1, "unit": "week" } },
+      "estimatedMinutes": 15,
+      "safetyLevel": "DIY",
+      "content": {
+        "en": {
+          "title": "Clean and protect wood floors",
+          "whyItMatters": "Wood is sensitive to moisture, abrasion, and unsuitable cleaners.",
+          "steps": ["Identify the finish if possible: lacquered, oiled, soap-treated, waxed, or unknown.", "Vacuum with a soft brush or sweep with a soft broom.", "Remove spills promptly with a slightly damp cloth and dry the area.", "Damp-clean with minimal water and a finish-approved cleaner.", "Use felt pads and lift rather than drag furniture."],
+          "normalSigns": ["Fine surface scratches in high-traffic areas.", "Slight colour change from light exposure."],
+          "concerningSigns": ["Cupping, warping, black staining, soft wood, persistent damp smell, or moisture from beneath the floor."],
+          "escalationGuidance": "Investigate moisture first. Contact a flooring professional for widespread finish failure, warping, deep damage, or suspected subfloor moisture.",
+          "safetyRestrictions": ["Use as little water as possible.", "Avoid strong or unsuitable cleaners."],
+          "manualNote": "Use the exact finish manufacturer’s cleaning guidance."
+        },
+        "da": null
+      },
+      "sources": ["https://www.bolius.dk/vedligeholdelse-af-gulve-19427"]
+    },
+    {
+      "id": "wood-floor-care-review",
+      "category": "flooring",
+      "target": "wood-floor",
+      "profileConditions": { "features": ["wood-floors"] },
+      "trigger": { "kind": "recurring", "defaultFrequency": { "interval": 6, "unit": "month" }, "frequencyNote": "For oil-treated floors, follow the product system; substantial re-oiling may be about every 2 years." },
+      "estimatedMinutes": 10,
+      "safetyLevel": "DIY with caution",
+      "content": {
+        "en": {
+          "title": "Review wood-floor surface care",
+          "whyItMatters": "Checking the finish helps identify wear before moisture or abrasion causes deeper damage.",
+          "steps": ["Check the finish and manufacturer guidance.", "Look for worn areas, peeling, scratches, or reduced water resistance.", "Test any care product in an inconspicuous area first.", "Use only the recommended oil, soap, wax, or lacquer system.", "Follow the product’s drying, ventilation, and curing instructions."],
+          "normalSigns": ["Reduced sheen or water beading as an oiled finish wears."],
+          "concerningSigns": ["Widespread peeling, warping, deep damage, damp smell, or moisture beneath the floor."],
+          "escalationGuidance": "Contact a flooring professional for sanding, major refinishing, or suspected moisture damage.",
+          "safetyRestrictions": ["Do not use unsuitable treatments.", "Oily rags can self-heat: lay them flat to dry outdoors or follow the product disposal instructions; never leave them crumpled in a bin."],
+          "manualNote": "Surface treatment is product- and finish-specific."
+        },
+        "da": null
+      },
+      "sources": ["https://www.bolius.dk/hvilken-behandling-skal-du-give-dit-traegulv-11256"]
+    }
+  ]
+}
