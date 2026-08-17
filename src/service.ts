@@ -62,10 +62,10 @@ export async function recordOutcome(actionId: string, type: OutcomeType, options
   return nextState;
 }
 
-export async function recordIssue(title: string, options: { note?: string; photoUri?: string } = {}) {
+export async function recordIssue(title: string, options: { actionId?: string; note?: string; photoUri?: string } = {}) {
   const trimmedTitle = title.trim();
   if (!trimmedTitle) throw new Error('Issue title is required');
-  await repository.addOutcome({ id: id(), actionId: 'general-issue', type: 'issue_reported', occurredAt: new Date().toISOString(), title: trimmedTitle, note: options.note?.trim() || undefined, photoUri: options.photoUri });
+  await repository.addOutcome({ id: id(), actionId: options.actionId ?? 'general-issue', type: 'issue_reported', occurredAt: new Date().toISOString(), title: trimmedTitle, note: options.note?.trim() || undefined, photoUri: options.photoUri });
   return loadAppState();
 }
 

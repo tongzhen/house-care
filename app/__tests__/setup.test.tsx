@@ -55,7 +55,9 @@ describe('setup flow', () => {
 
   it('requires an issue title before saving', async () => {
     const onSubmit = jest.fn(async () => undefined);
-    await render(<IssueForm title="" note="" onTitle={jest.fn()} onNote={jest.fn()} onPhoto={jest.fn()} onBack={jest.fn()} onSubmit={onSubmit} />);
+    await render(<IssueForm title="" note="" actions={[]} language="en" onChooseAction={jest.fn()} onTitle={jest.fn()} onNote={jest.fn()} onPhoto={jest.fn()} onBack={jest.fn()} onSubmit={onSubmit} />);
+    expect(screen.getByText('Related maintenance action')).toBeTruthy();
+    expect(screen.getByText('None')).toBeTruthy();
     fireEvent.press(screen.getByText('Save issue'));
     expect(onSubmit).not.toHaveBeenCalled();
   });

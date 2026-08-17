@@ -68,6 +68,11 @@ describe('maintenance service', () => {
     expect(db.upsertConfiguration).not.toHaveBeenCalled();
   });
 
+  it('associates an issue with an action only when one is selected', async () => {
+    await recordIssue('Dishwasher leak', { actionId: 'dishwasher-filter-clean' });
+    expect(db.addOutcome).toHaveBeenCalledWith(expect.objectContaining({ actionId: 'dishwasher-filter-clean', title: 'Dishwasher leak' }));
+  });
+
   it('rejects a standalone issue without a title', async () => {
     await expect(recordIssue('   ')).rejects.toThrow('Issue title is required');
     expect(db.addOutcome).not.toHaveBeenCalled();
