@@ -323,7 +323,7 @@ The visual direction is calm, practical, and reassuring:
 | Setup | Select home systems and appliances in under three minutes. |
 | Home | See one due action and up to two upcoming actions. |
 | Actions | Browse active applicable actions by category. |
-| Action detail | Read safe guidance and record an outcome. |
+| Action detail | Read safe guidance, record an outcome, or add the current scheduled occurrence to a personal calendar. |
 | Frequency editor | Set, reset, or disable a personal schedule. |
 | Issue report | Add optional note/photo and receive safe next steps. |
 | History | Review completed tasks and issue records. |
@@ -344,6 +344,7 @@ The visual direction is calm, practical, and reassuring:
 - The Home screen ranks due actions by overdue status, content priority, then due date; it shows one primary task and two upcoming tasks.
 - Done appends an outcome, clears snooze state, calculates the next due date, and replaces the local notification.
 - Snooze changes only `snoozedUntil` and reschedules the existing action; it does not alter frequency.
+- Add to calendar creates a one-time event in a user-selected writable device calendar using the current due or snooze time. It is a snapshot: later House Care changes never update or delete the calendar event.
 - Not relevant disables the configuration and records an outcome. Re-enabling is available in Settings.
 - Issue reporting accepts no attachment, note only, image only, or both. It always renders the action’s stored escalation guidance and never adds diagnostic content.
 - Database initialization, import, media copy, and notification failures produce a clear retry-safe UI state. Import failure must leave all existing data untouched.

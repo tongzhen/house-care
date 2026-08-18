@@ -7,7 +7,7 @@ jest.mock('../../src/db', () => ({}));
 
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import '../../src/i18n';
-import { Home, IssueForm, Setup } from '../index';
+import { ActionDetail, Home, IssueForm, Setup } from '../index';
 import { getAction } from '../../src/catalog';
 
 describe('setup flow', () => {
@@ -51,6 +51,16 @@ describe('setup flow', () => {
     await render(<Home actions={[action]} configurations={new Map([[action.id, { actionId: action.id, enabled: true, notificationsEnabled: true, nextDueAt: new Date(Date.now() + 86400000).toISOString() }]])} language="en" now={Date.now()} onOpen={jest.fn()} onReportIssue={onReportIssue} />);
     fireEvent.press(screen.getByText('Report an issue'));
     expect(onReportIssue).toHaveBeenCalledTimes(1);
+  });
+
+  it('offers calendar export for scheduled actions but not habit actions', async () => {
+    const action = getAction('dishwasher-filter-clean')!;
+    const props = { configuration: { actionId: action.id, enabled: true, notificationsEnabled: true, nextDueAt: new Date(Date.now() + 86400000).toISOString() }, language: 'en' as const, onBack: jest.fn(), onDone: jest.fn(), onSnooze: jest.fn(), onCustomSnooze: jest.fn(async () => undefined), onNotRelevant: jest.fn(), onIssue: jest.fn(), onFrequency: jest.fn(async () => undefined), onEnabled: jest.fn(async () => undefined) };
+    const view = await render(<ActionDetail action={action} {...props} />);
+    expect(screen.getByText('Add to calendar')).toBeTruthy();
+
+    await act(async () => { view.rerender(<ActionDetail action={{ ...action, trigger: { kind: 'habit' } }} {...props} />); });
+    expect(screen.queryByText('Add to calendar')).toBeNull();
   });
 
   it('requires an issue title before saving', async () => {
