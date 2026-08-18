@@ -21,8 +21,9 @@ jest.mock('../catalog', () => ({
 import * as db from '../db';
 import { rescheduleNotifications } from '../notifications';
 import { recordIssue, recordOutcome, saveHomeProfile, setActionEnabled, updateFrequency } from '../service';
+import { defaultNotificationSchedule } from '../notificationSchedule';
 
-const settings = { language: 'en' as const, notificationsEnabled: true };
+const settings = { language: 'en' as const, notificationsEnabled: true, notificationSchedule: defaultNotificationSchedule() };
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -91,5 +92,16 @@ describe('maintenance service', () => {
     await updateFrequency('dishwasher-filter-clean', { interval: 3, unit: 'month' });
     await setActionEnabled('dishwasher-filter-clean', false);
     expect(rescheduleNotifications).toHaveBeenCalledTimes(2);
+  });
+
+  it('rejects an invalid custom frequency before persistence', async () => {
+    await expect(updateFrequency('dishwasher-filter-clean', { interval: 25, unit: 'year' })).rejects.toThrow();
+    expect(db.upsertConfiguration).not.toHaveBeenCalled();
+  });
+
+  it('persists a custom snooze datetime without changing the frequency', async () => {
+    const snoozedUntil = '2099-08-20T14:30:00.000Z';
+    await recordOutcome('dishwasher-filter-clean', 'snoozed', { snoozedUntil });
+    expect(db.upsertConfiguration).toHaveBeenCalledWith(expect.objectContaining({ snoozedUntil }));
   });
 });

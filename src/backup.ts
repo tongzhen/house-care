@@ -4,17 +4,18 @@ import * as Sharing from 'expo-sharing';
 import JSZip from 'jszip';
 import { z } from 'zod';
 import { clearOutcomePhoto, deleteOutcome, loadOutcomes, replaceLocalData, resetLocalData } from './db';
+import { defaultNotificationSchedule, validateNotificationSchedule } from './notificationSchedule';
 import type { AppState } from './service';
 import type { TaskOutcome } from './types';
 
-const backupVersion = 1;
+const backupVersion = 2;
 const frequencySchema = z.object({ interval: z.number().int().positive(), unit: z.enum(['day', 'week', 'month', 'year']) });
 const backupSchema = z.object({
-  version: z.literal(backupVersion),
+  version: z.union([z.literal(1), z.literal(backupVersion)]),
   profile: z.object({ houseType: z.enum(['detached', 'terraced']).optional(), ageBand: z.enum(['new-build', '0-2', '3-10', '10+']).optional(), features: z.array(z.string()), appliances: z.array(z.string()), variants: z.record(z.string(), z.string()) }),
   configurations: z.array(z.object({ actionId: z.string().min(1), enabled: z.boolean(), frequencyOverride: frequencySchema.optional(), nextDueAt: z.string().datetime().optional(), snoozedUntil: z.string().datetime().optional(), notificationsEnabled: z.boolean() })),
   outcomes: z.array(z.object({ id: z.string().min(1), actionId: z.string().min(1), type: z.enum(['done', 'snoozed', 'not_relevant', 'issue_reported']), occurredAt: z.string().datetime(), title: z.string().optional(), note: z.string().optional(), photoUri: z.string().optional() })),
-  settings: z.object({ language: z.enum(['en', 'da']), notificationsEnabled: z.boolean() }),
+  settings: z.object({ language: z.enum(['en', 'da']), notificationsEnabled: z.boolean(), notificationSchedule: z.record(z.string(), z.object({ enabled: z.boolean(), startTime: z.string(), endTime: z.string() })).optional() }),
 });
 
 async function removePhotos(outcomes: TaskOutcome[]) {
@@ -67,7 +68,9 @@ export async function importBackup() {
       restoredOutcomes.push({ ...outcome, photoUri });
     }
     const existingOutcomes = await loadOutcomes();
-    await replaceLocalData(manifest.profile, manifest.configurations, restoredOutcomes, manifest.settings);
+    const notificationSchedule = { ...defaultNotificationSchedule(), ...manifest.settings.notificationSchedule };
+    validateNotificationSchedule(notificationSchedule);
+    await replaceLocalData(manifest.profile, manifest.configurations, restoredOutcomes, { ...manifest.settings, notificationSchedule });
     await removePhotos(existingOutcomes);
     return true;
   } catch (error) {

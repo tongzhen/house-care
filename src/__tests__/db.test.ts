@@ -12,6 +12,7 @@ const mockDatabase = { execAsync: mockExecAsync, runAsync: mockRunAsync, getFirs
 jest.mock('expo-sqlite', () => ({ openDatabaseAsync: jest.fn(async () => mockDatabase) }));
 
 import { initialiseDatabase, loadProfile, replaceLocalData, resetLocalData, saveProfile } from '../db';
+import { defaultNotificationSchedule } from '../notificationSchedule';
 
 beforeEach(() => { jest.clearAllMocks(); mockGetAllAsync.mockResolvedValue([{ name: 'title' }]); });
 
@@ -37,7 +38,7 @@ describe('SQLite repository', () => {
   });
 
   it('replaces imported records within one exclusive transaction', async () => {
-    await replaceLocalData({ appliances: ['dishwasher'], features: [], variants: {} }, [{ actionId: 'dishwasher-filter-clean', enabled: true, notificationsEnabled: true }], [], { language: 'en', notificationsEnabled: true });
+    await replaceLocalData({ appliances: ['dishwasher'], features: [], variants: {} }, [{ actionId: 'dishwasher-filter-clean', enabled: true, notificationsEnabled: true }], [], { language: 'en', notificationsEnabled: true, notificationSchedule: defaultNotificationSchedule() });
     expect(mockWithExclusiveTransactionAsync).toHaveBeenCalledTimes(1);
     expect(mockExecAsync).toHaveBeenCalledWith(expect.stringContaining('DELETE FROM task_outcomes'));
     expect(mockRunAsync).toHaveBeenCalledWith(expect.stringContaining('INSERT INTO home_profile'), expect.anything());

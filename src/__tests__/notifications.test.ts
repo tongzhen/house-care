@@ -6,6 +6,7 @@ jest.mock('expo-notifications', () => ({
 }));
 
 import * as NativeNotifications from 'expo-notifications';
+import { defaultNotificationSchedule } from '../notificationSchedule';
 import { requestNotificationPermission, rescheduleNotifications, subscribeToNotificationResponses } from '../notifications';
 
 const mockScheduleNotificationAsync = jest.mocked(NativeNotifications.scheduleNotificationAsync);
@@ -31,6 +32,17 @@ describe('local notifications', () => {
     mockGetPermissionsAsync.mockResolvedValue(granted);
     await rescheduleNotifications([{ actionId: 'dishwasher-filter-clean', enabled: true, notificationsEnabled: true, nextDueAt: '2099-08-20T09:00:00.000Z' }], [action], true);
     expect(mockScheduleNotificationAsync).toHaveBeenCalledWith(expect.objectContaining({ content: expect.objectContaining({ body: 'Clean filter' }) }));
+  });
+
+  it('moves a reminder into the configured weekday window', async () => {
+    mockGetPermissionsAsync.mockResolvedValue(granted);
+    const base = new Date(2099, 7, 20, 9, 0, 0, 0);
+    const schedule = defaultNotificationSchedule();
+    schedule[base.getDay() as keyof typeof schedule] = { enabled: true, startTime: '18:00', endTime: '19:00' };
+    await rescheduleNotifications([{ actionId: 'dishwasher-filter-clean', enabled: true, notificationsEnabled: true, nextDueAt: base.toISOString() }], [action], true, 'en', schedule);
+    const call = mockScheduleNotificationAsync.mock.calls[0]?.[0] as { trigger: { date: Date } };
+    expect(call.trigger.date.getHours()).toBe(18);
+    expect(call.trigger.date.getMinutes()).toBe(0);
   });
 
   it('requests permission only when it is not already granted', async () => {

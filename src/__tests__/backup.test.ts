@@ -10,13 +10,14 @@ import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import { clearData, exportBackup, removeIssue, removeIssuePhoto } from '../backup';
 import * as db from '../db';
+import { defaultNotificationSchedule } from '../notificationSchedule';
 
 beforeEach(() => { jest.clearAllMocks(); });
 
 describe('local backup', () => {
   it('exports a versioned archive without mutating local data', async () => {
     jest.mocked(Sharing.isAvailableAsync).mockResolvedValue(true);
-    await exportBackup({ profile: { id: 'primary-home', appliances: ['dishwasher'], features: [], variants: {} }, configurations: [], outcomes: [], settings: { language: 'en', notificationsEnabled: true } });
+    await exportBackup({ profile: { id: 'primary-home', appliances: ['dishwasher'], features: [], variants: {} }, configurations: [], outcomes: [], settings: { language: 'en', notificationsEnabled: true, notificationSchedule: defaultNotificationSchedule() } });
     expect(FileSystem.writeAsStringAsync).toHaveBeenCalledWith(expect.stringContaining('house-care-backup-'), 'zip-data', expect.anything());
     expect(Sharing.shareAsync).toHaveBeenCalled();
     expect(db.resetLocalData).not.toHaveBeenCalled();

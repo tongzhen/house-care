@@ -3,6 +3,7 @@ import { clearData, importBackup, removeIssue, removeIssuePhoto } from './backup
 import { atNineAM, nextDueDate } from './date';
 import * as repository from './db';
 import { cancelScheduledNotifications, rescheduleNotifications } from './notifications';
+import { validateNotificationSchedule } from './notificationSchedule';
 import type { ActionConfiguration, AppSettings, Frequency, OutcomeType, Profile, TaskOutcome } from './types';
 
 export interface AppState { profile: Profile | null; configurations: ActionConfiguration[]; outcomes: TaskOutcome[]; settings: AppSettings; }
@@ -39,26 +40,32 @@ export async function saveHomeProfile(profile: Omit<Profile, 'id'>): Promise<App
     await repository.upsertConfiguration(existingById.get(action.id) ?? initialConfiguration(action.id, position));
   }
   const state = await loadAppState();
-  await rescheduleNotifications(state.configurations, actions, state.settings.notificationsEnabled, state.settings.language);
+  await rescheduleNotifications(state.configurations, actions, state.settings.notificationsEnabled, state.settings.language, state.settings.notificationSchedule);
   return state;
 }
 
-export async function recordOutcome(actionId: string, type: OutcomeType, options: { note?: string; photoUri?: string; snoozeDays?: number } = {}) {
+export async function recordOutcome(actionId: string, type: OutcomeType, options: { note?: string; photoUri?: string; snoozeDays?: number; snoozedUntil?: string } = {}) {
   const state = await loadAppState();
   const action = getAction(actionId);
   const current = state.configurations.find((config) => config.actionId === actionId);
   if (!action || !current) throw new Error('Action is not configured');
   const now = new Date();
+  let snoozedUntil: string | undefined;
+  if (type === 'snoozed') {
+    const requested = options.snoozedUntil ? new Date(options.snoozedUntil) : new Date(now.getTime() + (options.snoozeDays ?? 1) * 86400000);
+    if (Number.isNaN(requested.getTime()) || requested <= now) throw new Error('Snooze time must be in the future.');
+    snoozedUntil = options.snoozedUntil ?? atNineAM(requested).toISOString();
+  }
   const outcome: TaskOutcome = { id: id(), actionId, type, occurredAt: now.toISOString(), note: options.note, photoUri: options.photoUri };
   await repository.addOutcome(outcome);
   const frequency = current.frequencyOverride ?? action.trigger.defaultFrequency;
   const next: ActionConfiguration = { ...current, snoozedUntil: undefined };
   if (type === 'done' && frequency) next.nextDueAt = atNineAM(nextDueDate(now, frequency)).toISOString();
-  if (type === 'snoozed') next.snoozedUntil = atNineAM(new Date(now.getTime() + (options.snoozeDays ?? 1) * 86400000)).toISOString();
+  if (type === 'snoozed') next.snoozedUntil = snoozedUntil;
   if (type === 'not_relevant') next.enabled = false;
   await repository.upsertConfiguration(next);
   const nextState = await loadAppState();
-  await rescheduleNotifications(nextState.configurations, actions, nextState.settings.notificationsEnabled, nextState.settings.language);
+  await rescheduleNotifications(nextState.configurations, actions, nextState.settings.notificationsEnabled, nextState.settings.language, nextState.settings.notificationSchedule);
   return nextState;
 }
 
@@ -73,10 +80,11 @@ export async function updateFrequency(actionId: string, frequency?: Frequency) {
   const state = await loadAppState();
   const config = state.configurations.find((candidate) => candidate.actionId === actionId);
   if (!config) throw new Error('Action is not configured');
+  if (frequency) validateFrequency(frequency);
   const reference = new Date();
   await repository.upsertConfiguration({ ...config, frequencyOverride: frequency, nextDueAt: frequency ? atNineAM(nextDueDate(reference, frequency)).toISOString() : config.nextDueAt });
   const nextState = await loadAppState();
-  await rescheduleNotifications(nextState.configurations, actions, nextState.settings.notificationsEnabled, nextState.settings.language);
+  await rescheduleNotifications(nextState.configurations, actions, nextState.settings.notificationsEnabled, nextState.settings.language, nextState.settings.notificationSchedule);
   return nextState;
 }
 
@@ -85,22 +93,29 @@ export async function setActionEnabled(actionId: string, enabled: boolean) {
   if (!config) throw new Error('Action is not configured');
   await repository.upsertConfiguration({ ...config, enabled, snoozedUntil: enabled ? undefined : config.snoozedUntil });
   const nextState = await loadAppState();
-  await rescheduleNotifications(nextState.configurations, actions, nextState.settings.notificationsEnabled, nextState.settings.language);
+  await rescheduleNotifications(nextState.configurations, actions, nextState.settings.notificationsEnabled, nextState.settings.language, nextState.settings.notificationSchedule);
   return nextState;
 }
 
 export async function updateSettings(settings: AppSettings) {
+  validateNotificationSchedule(settings.notificationSchedule);
   await repository.saveSettings(settings);
   const state = await loadAppState();
-  await rescheduleNotifications(state.configurations, actions, settings.notificationsEnabled, settings.language);
+  await rescheduleNotifications(state.configurations, actions, settings.notificationsEnabled, settings.language, settings.notificationSchedule);
   return state;
 }
 
 export async function importLocalBackup() {
   if (!(await importBackup())) return null;
   const state = await loadAppState();
-  await rescheduleNotifications(state.configurations, actions, state.settings.notificationsEnabled, state.settings.language);
+  await rescheduleNotifications(state.configurations, actions, state.settings.notificationsEnabled, state.settings.language, state.settings.notificationSchedule);
   return state;
+}
+
+export function validateFrequency(frequency: Frequency) {
+  const limits: Record<Frequency['unit'], number> = { day: 365, week: 52, month: 24, year: 10 };
+  if (!Number.isInteger(frequency.interval) || frequency.interval < 1 || frequency.interval > limits[frequency.unit]) throw new Error('Frequency interval is outside the allowed range.');
+  return frequency;
 }
 
 export async function resetAppData() {

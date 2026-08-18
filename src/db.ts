@@ -1,4 +1,5 @@
 import * as SQLite from 'expo-sqlite';
+import { defaultNotificationSchedule, validateNotificationSchedule } from './notificationSchedule';
 import type { ActionConfiguration, AppSettings, FrequencyUnit, Profile, TaskOutcome } from './types';
 
 let database: SQLite.SQLiteDatabase | undefined;
@@ -74,13 +75,18 @@ export async function getSettings(): Promise<AppSettings> {
   const connection = await db();
   const rows = await connection.getAllAsync<{ key: string; value: string }>('SELECT key, value FROM app_settings');
   const values = Object.fromEntries(rows.map((row) => [row.key, row.value]));
-  return { language: values.language === 'da' ? 'da' : 'en', notificationsEnabled: values.notificationsEnabled !== 'false' };
+  let notificationSchedule = defaultNotificationSchedule();
+  if (values.notificationSchedule) {
+    try { validateNotificationSchedule(notificationSchedule = { ...notificationSchedule, ...JSON.parse(values.notificationSchedule) }); } catch { notificationSchedule = defaultNotificationSchedule(); }
+  }
+  return { language: values.language === 'da' ? 'da' : 'en', notificationsEnabled: values.notificationsEnabled !== 'false', notificationSchedule };
 }
 
 export async function saveSettings(settings: AppSettings) {
   const connection = await db();
   await connection.runAsync('INSERT OR REPLACE INTO app_settings (key, value) VALUES (?, ?)', ['language', settings.language]);
   await connection.runAsync('INSERT OR REPLACE INTO app_settings (key, value) VALUES (?, ?)', ['notificationsEnabled', String(settings.notificationsEnabled)]);
+  await connection.runAsync('INSERT OR REPLACE INTO app_settings (key, value) VALUES (?, ?)', ['notificationSchedule', JSON.stringify(settings.notificationSchedule)]);
 }
 
 export async function resetLocalData() {
@@ -103,5 +109,6 @@ export async function replaceLocalData(profile: Omit<Profile, 'id'>, configurati
     }
     await transaction.runAsync('INSERT INTO app_settings (key, value) VALUES (?, ?)', ['language', settings.language]);
     await transaction.runAsync('INSERT INTO app_settings (key, value) VALUES (?, ?)', ['notificationsEnabled', String(settings.notificationsEnabled)]);
+    await transaction.runAsync('INSERT INTO app_settings (key, value) VALUES (?, ?)', ['notificationSchedule', JSON.stringify(settings.notificationSchedule)]);
   });
 }
