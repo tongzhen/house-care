@@ -71,7 +71,7 @@ export default function Index() {
   const selectedOutcome = selectedOutcomeId ? state?.outcomes.find((outcome) => outcome.id === selectedOutcomeId) : undefined;
 
   if (!state) return <SafeAreaView style={styles.loading}><ActivityIndicator color={colors.green} /></SafeAreaView>;
-  if (!state.profile || view === 'setup') return <Setup initial={state.profile} onBack={state.profile ? () => setView('settings') : undefined} onSave={async (profile) => { setState(await saveHomeProfile(profile)); setView(state.profile ? 'settings' : 'home'); }} />;
+  if (!state.profile || view === 'setup') return <Setup initial={state.profile} onBack={state.profile ? () => setView('settings') : undefined} onSave={async (profile) => { const nextState = await saveHomeProfile(profile); setState(nextState); setView(nextState.profile ? 'settings' : 'home'); }} />;
 
   const openAction = (actionId: string) => { setSelectedActionId(actionId); setView('detail'); };
   const outcome = async (type: 'done' | 'snoozed' | 'not_relevant', snoozeDays?: number, snoozedUntil?: string) => {

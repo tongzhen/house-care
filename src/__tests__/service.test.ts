@@ -104,6 +104,15 @@ describe('maintenance service', () => {
     expect(db.deleteConfiguration).toHaveBeenCalledWith('floor-drain-clean');
   });
 
+  it('adds configurations for actions that become applicable after editing the profile', async () => {
+    jest.mocked(db.loadConfigurations).mockResolvedValue([]);
+
+    await saveHomeProfile({ appliances: ['dishwasher'], features: ['floor-drains'], variants: {} });
+
+    expect(db.upsertConfiguration).toHaveBeenCalledWith(expect.objectContaining({ actionId: 'dishwasher-filter-clean', enabled: true }));
+    expect(db.upsertConfiguration).toHaveBeenCalledWith(expect.objectContaining({ actionId: 'floor-drain-clean', enabled: true }));
+  });
+
   it('reschedules reminders after changing frequency or enablement', async () => {
     await updateFrequency('dishwasher-filter-clean', { interval: 3, unit: 'month' });
     await setActionEnabled('dishwasher-filter-clean', false);
