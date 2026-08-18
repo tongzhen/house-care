@@ -104,4 +104,10 @@ describe('maintenance service', () => {
     await recordOutcome('dishwasher-filter-clean', 'snoozed', { snoozedUntil });
     expect(db.upsertConfiguration).toHaveBeenCalledWith(expect.objectContaining({ snoozedUntil }));
   });
+
+  it('clears a previous snooze when frequency changes so the new due date is visible', async () => {
+    jest.mocked(db.loadConfigurations).mockResolvedValue([{ actionId: 'dishwasher-filter-clean', enabled: true, notificationsEnabled: true, nextDueAt: '2026-08-17T09:00:00.000Z', snoozedUntil: '2099-08-20T14:30:00.000Z' }]);
+    await updateFrequency('dishwasher-filter-clean', { interval: 3, unit: 'month' });
+    expect(db.upsertConfiguration).toHaveBeenCalledWith(expect.objectContaining({ frequencyOverride: { interval: 3, unit: 'month' }, snoozedUntil: undefined, nextDueAt: expect.any(String) }));
+  });
 });

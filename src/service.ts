@@ -82,7 +82,7 @@ export async function updateFrequency(actionId: string, frequency?: Frequency) {
   if (!config) throw new Error('Action is not configured');
   if (frequency) validateFrequency(frequency);
   const reference = new Date();
-  await repository.upsertConfiguration({ ...config, frequencyOverride: frequency, nextDueAt: frequency ? atNineAM(nextDueDate(reference, frequency)).toISOString() : config.nextDueAt });
+  await repository.upsertConfiguration({ ...config, frequencyOverride: frequency, nextDueAt: frequency ? atNineAM(nextDueDate(reference, frequency)).toISOString() : config.nextDueAt, snoozedUntil: undefined });
   const nextState = await loadAppState();
   await rescheduleNotifications(nextState.configurations, actions, nextState.settings.notificationsEnabled, nextState.settings.language, nextState.settings.notificationSchedule);
   return nextState;
