@@ -57,6 +57,22 @@ describe('maintenance service', () => {
     expect(rescheduleNotifications).toHaveBeenCalled();
   });
 
+  it('removes a future occurrence and schedules the next one after that occurrence', async () => {
+    jest.useFakeTimers().setSystemTime(new Date('2026-08-18T10:00:00.000Z'));
+    jest.mocked(db.loadConfigurations).mockResolvedValue([{ actionId: 'dishwasher-filter-clean', enabled: true, notificationsEnabled: true, nextDueAt: '2026-08-25T09:00:00.000Z' }]);
+
+    try {
+      await recordOutcome('dishwasher-filter-clean', 'done');
+
+      const savedConfiguration = jest.mocked(db.upsertConfiguration).mock.calls[0][0];
+      expect(savedConfiguration.snoozedUntil).toBeUndefined();
+      expect(savedConfiguration.nextDueAt).toBeDefined();
+      expect(new Date(savedConfiguration.nextDueAt!).getTime()).toBe(new Date('2026-09-25T09:00:00').getTime());
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
   it('disables an action marked not relevant', async () => {
     await recordOutcome('dishwasher-filter-clean', 'not_relevant');
     expect(db.upsertConfiguration).toHaveBeenCalledWith(expect.objectContaining({ enabled: false }));

@@ -60,7 +60,12 @@ export async function recordOutcome(actionId: string, type: OutcomeType, options
   await repository.addOutcome(outcome);
   const frequency = current.frequencyOverride ?? action.trigger.defaultFrequency;
   const next: ActionConfiguration = { ...current, snoozedUntil: undefined };
-  if (type === 'done' && frequency) next.nextDueAt = atNineAM(nextDueDate(now, frequency)).toISOString();
+  if (type === 'done' && frequency) {
+    const scheduledOccurrence = current.snoozedUntil ?? current.nextDueAt;
+    const scheduledDate = scheduledOccurrence ? new Date(scheduledOccurrence) : now;
+    const referenceDate = scheduledDate > now ? scheduledDate : now;
+    next.nextDueAt = atNineAM(nextDueDate(referenceDate, frequency)).toISOString();
+  }
   if (type === 'snoozed') next.snoozedUntil = snoozedUntil;
   if (type === 'not_relevant') next.enabled = false;
   await repository.upsertConfiguration(next);
