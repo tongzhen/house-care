@@ -17,7 +17,8 @@
       ],
       "expo-notifications",
       "expo-localization",
-      "expo-sharing"
+      "expo-sharing",
+      "@react-native-community/datetimepicker"
     ],
     "ios": {
       "supportsTablet": false,
