@@ -1,6 +1,6 @@
 # House Care maintenance knowledge base
 
-`maintenance-actions-v0.1.json` is the app-ready English-first catalogue for the local MVP.
+`maintenance-actions-v0.1.json` is the app-ready English-canonical catalogue for the local MVP, with Danish translations included under the same action IDs.
 
 ## Structure
 
@@ -9,7 +9,7 @@
 - `profileConditions` controls whether the action applies to a home.
 - `trigger` contains the default schedule and future seasonal/weather metadata.
 - `content.en` is the canonical content for early delivery.
-- `content.da` is reserved for the later Danish localization.
+- `content.da` contains the Danish localization and must preserve the English safety meaning.
 - User frequency overrides must be stored outside this file.
 - Completion and issue history must reference `id`, not the title.
 - `sources` and `lastReviewed` support content review and future source display.
@@ -37,7 +37,7 @@ The app should keep these as accessible inspection or user-maintenance actions o
 
 ## Localization
 
-English is the canonical early-delivery language. Danish translations should populate `content.da` using the same action IDs and the same safety meaning. Translation must not create separate action records or separate scheduling logic.
+English is the canonical language. Danish translations populate `content.da` using the same action IDs and the same safety meaning. Translation must not create separate action records or separate scheduling logic. All 21 current actions have Danish content.
 
 ## Scheduling notes
 

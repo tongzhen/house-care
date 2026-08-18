@@ -275,7 +275,7 @@ This follows data-minimization and private-storage principles described by [OWAS
 
 ## 4. Knowledge base and localization
 
-The current English-first catalogue is [maintenance-actions-v0.1.json](knowledge-base/maintenance-actions-v0.1.json). It contains 21 atomic actions with stable IDs, eligibility conditions, default scheduling, safety level, guidance, escalation text, sources, and Danish placeholders.
+The current English-canonical catalogue is [maintenance-actions-v0.1.json](knowledge-base/maintenance-actions-v0.1.json). It contains 21 atomic actions with stable IDs, eligibility conditions, default scheduling, safety level, guidance, escalation text, sources, and Danish translations.
 
 ### Content contract
 
@@ -615,7 +615,7 @@ flowchart LR
 - Expo React Native, TypeScript, Expo Router, SQLite, and local notifications are the approved MVP stack.
 - The MVP supports iOS and Android phones only; tablet, desktop, web, and native platform-specific feature work are excluded.
 - One home profile is supported per installation; multiple-home management is deferred.
-- English is the default language during early delivery; Danish is added before the pilot through the same translation keys and action IDs.
+- English is the default language during early delivery; Danish is available before the pilot through the same translation keys and action IDs.
 - The app is fully usable offline. No authentication, backend, cloud sync, API, weather integration, remote content update, or push notification is included.
 - Postcode is not collected in the MVP because it has no approved offline use; it may be added later with explicit purpose and consent.
 - Local reminders occur once at 09:00 device-local time on the due date. No repeated overdue reminders are sent.
@@ -625,7 +625,7 @@ flowchart LR
 - Not relevant disables an action until manually re-enabled in Settings.
 - The MVP allows one optional issue image, selected from the system photo picker; direct camera capture is deferred.
 - Photos and structured data stay in app-private storage. Export is user initiated and produces a versioned ZIP backup.
-- The bundled knowledge base remains English-canonical during development. Every Danish translation must preserve the source action’s safety meaning before release.
+- The bundled knowledge base remains English-canonical. Every Danish translation must preserve the source action’s safety meaning; all 21 bundled actions currently include Danish content.
 - Manufacturer and installer instructions override generic app guidance. Higher-risk entries require trade/manufacturer review before the pilot.
 - The app does not diagnose defects, direct repairs, recommend contractors, make insurance/warranty claims, or include ads, affiliate links, or sponsorship.
 - Future cloud work will use stable UUIDs, UTC timestamps, soft deletes, repository contracts, versioned exports, and separate media handling; synchronization remains out of scope for the MVP.
