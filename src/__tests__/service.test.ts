@@ -110,4 +110,10 @@ describe('maintenance service', () => {
     await updateFrequency('dishwasher-filter-clean', { interval: 3, unit: 'month' });
     expect(db.upsertConfiguration).toHaveBeenCalledWith(expect.objectContaining({ frequencyOverride: { interval: 3, unit: 'month' }, snoozedUntil: undefined, nextDueAt: expect.any(String) }));
   });
+
+  it('recalculates the bundled default date when resetting a custom frequency', async () => {
+    jest.mocked(db.loadConfigurations).mockResolvedValue([{ actionId: 'dishwasher-filter-clean', enabled: true, notificationsEnabled: true, nextDueAt: '2099-08-20T09:00:00.000Z', snoozedUntil: '2099-09-20T09:00:00.000Z', frequencyOverride: { interval: 6, unit: 'month' } }]);
+    await updateFrequency('dishwasher-filter-clean', undefined);
+    expect(db.upsertConfiguration).toHaveBeenCalledWith(expect.objectContaining({ frequencyOverride: undefined, snoozedUntil: undefined, nextDueAt: expect.not.stringMatching(/^2099-/) }));
+  });
 });
