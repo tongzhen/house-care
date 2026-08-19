@@ -126,7 +126,7 @@
       "category": "appliance",
       "target": "tumble-dryer",
       "profileConditions": { "appliances": ["tumble-dryer"] },
-      "trigger": { "kind": "recurring", "defaultFrequency": { "interval": 1, "unit": "cycle" } },
+      "trigger": { "kind": "habit", "frequencyNote": "After every drying cycle." },
       "estimatedMinutes": 2,
       "safetyLevel": "DIY",
       "content": {

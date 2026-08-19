@@ -1,7 +1,8 @@
 import source from '../knowledge-base/maintenance-actions-v0.1.json';
 import type { MaintenanceAction } from './types';
+import { parseCatalog } from './catalogSchema';
 
-export const actions = source.actions as MaintenanceAction[];
+export const actions = parseCatalog(source).actions;
 export const getAction = (actionId: string) => actions.find((action) => action.id === actionId);
 export function actionApplies(action: MaintenanceAction, profile: { appliances: string[]; features: string[]; variants: Record<string, string> }) {
   const condition = action.profileConditions;
