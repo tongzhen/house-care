@@ -16,8 +16,8 @@ function licenseFile(packagePath) {
 }
 
 const licenseTextByIdentifier = new Map();
-for (const [key] of Object.entries(lock.packages)) {
-  if (!key.startsWith('node_modules/') || !existsSync(join(root, key, 'package.json'))) continue;
+for (const [key, value] of Object.entries(lock.packages)) {
+  if (!key.startsWith('node_modules/') || value.optional || !existsSync(join(root, key, 'package.json'))) continue;
   const packagePath = join(root, key);
   const manifest = JSON.parse(readFileSync(join(packagePath, 'package.json'), 'utf8'));
   if (typeof manifest.license !== 'string') continue;
@@ -33,7 +33,7 @@ function textForLicense(license) {
 }
 
 const notices = Object.entries(lock.packages)
-  .filter(([key, value]) => key && key.startsWith('node_modules/') && !value.dev && existsSync(join(root, key, 'package.json')))
+  .filter(([key, value]) => key && key.startsWith('node_modules/') && !value.dev && !value.optional && existsSync(join(root, key, 'package.json')))
   .map(([key, value]) => {
     const packagePath = packagePathFromLockKey(key);
     if (!packagePath) throw new Error(`Invalid package path: ${key}`);
