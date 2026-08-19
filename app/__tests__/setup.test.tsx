@@ -7,7 +7,7 @@ jest.mock('../../src/db', () => ({}));
 
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import '../../src/i18n';
-import { ActionDetail, ActionOverview, Home, IssueForm, Setup } from '../index';
+import { ActionDetail, ActionOverview, History, Home, IssueForm, Setup } from '../index';
 import { getAction } from '../../src/catalog';
 
 describe('setup flow', () => {
@@ -94,6 +94,20 @@ describe('setup flow', () => {
     await render(<ActionDetail action={action} configuration={{ actionId: action.id, enabled: false, notificationsEnabled: true, nextDueAt: new Date(Date.now() + 86400000).toISOString() }} language="en" onBack={jest.fn()} onDone={jest.fn()} onSnooze={jest.fn()} onCustomSnooze={jest.fn(async () => undefined)} onNotRelevant={jest.fn()} onIssue={jest.fn()} onFrequency={jest.fn(async () => undefined)} onEnabled={onEnabled} />);
     await act(async () => { fireEvent.press(screen.getByText('Enable action')); });
     expect(onEnabled).toHaveBeenCalledWith(true);
+  });
+
+  it('filters history by action category', async () => {
+    const dishwasher = getAction('dishwasher-filter-clean')!;
+    const exterior = getAction('gutters-accessible-clean')!;
+    await render(<History state={{ profile: null, configurations: [], settings: { language: 'en', notificationsEnabled: true, notificationSchedule: {} as never }, outcomes: [
+      { id: 'done-dishwasher', actionId: dishwasher.id, type: 'done', occurredAt: new Date().toISOString() },
+      { id: 'done-exterior', actionId: exterior.id, type: 'done', occurredAt: new Date().toISOString() },
+    ] }} language="en" onOpenIssue={jest.fn()} />);
+    expect(screen.getByText('Clean the dishwasher filter')).toBeTruthy();
+    expect(screen.getByText('Clear accessible gutter debris')).toBeTruthy();
+    await act(async () => { fireEvent.press(screen.getByText('Appliance')); });
+    expect(screen.getByText('Clean the dishwasher filter')).toBeTruthy();
+    expect(screen.queryByText('Clear accessible gutter debris')).toBeNull();
   });
 
   it('requires an issue title before saving', async () => {
