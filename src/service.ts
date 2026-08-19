@@ -67,7 +67,6 @@ export async function recordOutcome(actionId: string, type: OutcomeType, options
     next.nextDueAt = atNineAM(nextDueDate(referenceDate, frequency)).toISOString();
   }
   if (type === 'snoozed') next.snoozedUntil = snoozedUntil;
-  if (type === 'not_relevant') next.enabled = false;
   await repository.upsertConfiguration(next);
   const nextState = await loadAppState();
   await rescheduleNotifications(nextState.configurations, actions, nextState.settings.notificationsEnabled, nextState.settings.language, nextState.settings.notificationSchedule);

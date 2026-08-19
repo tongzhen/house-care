@@ -1,6 +1,6 @@
 export type FrequencyUnit = 'day' | 'week' | 'month' | 'year';
 export type Weekday = 0 | 1 | 2 | 3 | 4 | 5 | 6;
-export type OutcomeType = 'done' | 'snoozed' | 'not_relevant' | 'issue_reported';
+export type OutcomeType = 'done' | 'snoozed' | 'issue_reported';
 export type SafetyLevel = 'DIY' | 'DIY with caution' | 'Professional required';
 export interface Frequency { interval: number; unit: FrequencyUnit; }
 export interface ActionContent { title: string; whyItMatters: string; steps: string[]; normalSigns: string[]; concerningSigns: string[]; escalationGuidance: string; safetyRestrictions: string[]; manualNote: string; }

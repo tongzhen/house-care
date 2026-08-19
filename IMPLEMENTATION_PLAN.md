@@ -24,7 +24,7 @@ The MVP is deliberately local-first:
 ### Confirmed behaviour
 
 - One primary due action and up to two upcoming actions appear on Home.
-- The user can mark an action Done, Snooze, Not relevant, or I noticed an issue.
+- The user can mark an action Done, Snooze, or I noticed an issue; actions can also be disabled temporarily.
 - A user can override any default frequency, reset it, or disable the action.
 - Notifications are local-device notifications, defaulting to 09:00 in the device timezone.
 - Snooze choices are Tomorrow, In one week, and Choose a date. Custom snooze uses native date and time pickers and stores the selected local datetime as UTC.
@@ -153,7 +153,7 @@ The UI must invoke use-case services rather than these interfaces directly. Serv
 | `HomeProfile` | Selected house systems and appliances | `id`, `createdAt`, `updatedAt`, `deletedAt` |
 | `MaintenanceAction` | Immutable bundled guidance record | stable `id`, `contentVersion` |
 | `ActionConfiguration` | User enablement, override, and next due date | `id`, `actionId`, timestamps |
-| `TaskOutcome` | Append-only Done, Snooze, Not relevant, or Issue outcome | `id`, `actionId`, `occurredAt` |
+| `TaskOutcome` | Append-only Done, Snooze, or Issue outcome | `id`, `actionId`, `occurredAt` |
 | `IssueReport` | Note, local media asset, and safe follow-up | `id`, `taskOutcomeId`, timestamps |
 | `MediaAsset` | App-private file reference and metadata | `id`, `localUri`, timestamps |
 | `AppSettings` | Language, notification time, consent/preferences | `id`, `updatedAt` |
@@ -347,7 +347,7 @@ The visual direction is calm, practical, and reassuring:
 - Done appends an outcome, clears snooze state, calculates the next due date, and replaces the local notification.
 - Snooze changes only `snoozedUntil` and reschedules the existing action; it does not alter frequency.
 - Add to calendar creates a one-time event in a user-selected writable device calendar using the current due or snooze time. It is a snapshot: later House Care changes never update or delete the calendar event.
-- Not relevant disables the configuration and records an outcome. Re-enabling is available in Settings.
+- Disable action pauses the configuration without recording a history outcome. Re-enabling is available in Settings.
 - Issue reporting accepts no attachment, note only, image only, or both. It always renders the action’s stored escalation guidance and never adds diagnostic content.
 - Database initialization, import, media copy, and notification failures produce a clear retry-safe UI state. Import failure must leave all existing data untouched.
 
@@ -397,15 +397,15 @@ Implement first-run setup for house type, age band, features, appliances, and op
 
 Implement the primary due action, two upcoming actions, full action list, category browsing, and no-action state.
 
-**Unit:** Dashboard ranking, one-primary/two-upcoming cap, due/upcoming ordering, disabled/snoozed/not-relevant filtering.  
+**Unit:** Dashboard ranking, one-primary/two-upcoming cap, due/upcoming ordering, disabled and snoozed filtering.
 **UI:** View current/upcoming actions and open detail.  
 **Exit:** The Home screen matches the approved UI direction.
 
 ### Delivery 6 — Safe action detail and outcome loop
 
-Implement safe action detail, Done, Snooze, Not relevant, and issue-start flows. Persist outcomes and recalculate the next due date where appropriate.
+Implement safe action detail, Done, Snooze, Disable action, and issue-start flows. Persist outcomes and recalculate the next due date where appropriate.
 
-**Unit:** Outcome transitions, append-only history, next-date calculation, snooze, disable/not-relevant rules, escalation-content guards.  
+**Unit:** Outcome transitions, append-only history, next-date calculation, snooze, disable rules, escalation-content guards.
 **UI:** Complete every outcome from a real action and observe Home/History updates.  
 **Exit:** Setup → action → outcome → history works offline.
 
@@ -500,7 +500,7 @@ Expo currently recommends Jest with `jest-expo`, React Native Testing Library, a
 2. Open an action → Done → next due date → History entry.
 3. Change frequency → restart → frequency persists → completion uses override.
 4. Snooze action → dashboard updates → reminder reschedules.
-5. Not relevant → action disappears → later re-enable works.
+5. Disable action → action disappears → later re-enable works.
 6. Issue report with note/photo → safe next step → history → deletion cleans up photo.
 7. Notification permission granted/denied → app remains correct in both states.
 8. Export → reset → import → profile, history, and overrides restore.
@@ -529,7 +529,7 @@ Do not add third-party analytics to the MVP. Store a minimal local event log, in
 
 - setup started/completed
 - action shown/opened
-- done/snooze/not-relevant/issue outcome
+- done/snooze/issue outcome
 - frequency changed
 - return visit
 
@@ -539,7 +539,6 @@ Do not log notes, photos, postcode, or other user-entered content.
 
 - Profile completion: at least 60% of invited users.
 - Preventative action: at least 40% complete one task they say they would otherwise have missed.
-- Relevance: fewer than 20% of alerts marked Not relevant.
 - Repeat engagement: at least half of activated users return after their first alert.
 - Issue signal: count and category only; no self-diagnosis prompt.
 
@@ -628,7 +627,7 @@ flowchart LR
 - Monthly schedules use the same calendar day where possible, otherwise the final valid day of the month.
 - User frequency changes apply immediately to future scheduling, never rewrite history, and can be reset to the bundled default.
 - Snooze options are tomorrow, one week, or a chosen date; snooze does not alter the recurring frequency.
-- Not relevant disables an action until manually re-enabled in Settings.
+- Disable action pauses an action until manually re-enabled in Settings.
 - Settings provides an Actions overview grouped by catalogue category. It shows enabled, disabled, and not-applicable status; enablement changes happen in action detail and use the same schedule and notification update flows as Home and Actions.
 - The MVP allows one optional issue image, selected from the system photo picker; direct camera capture is deferred.
 - Photos and structured data stay in app-private storage. Export is user initiated and produces a versioned ZIP backup.

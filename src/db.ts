@@ -21,6 +21,7 @@ export async function initialiseDatabase() {
   `);
   const outcomeColumns = await connection.getAllAsync<{ name: string }>('PRAGMA table_info(task_outcomes)');
   if (!outcomeColumns.some((column) => column.name === 'title')) await connection.execAsync('ALTER TABLE task_outcomes ADD COLUMN title TEXT;');
+  await connection.runAsync('DELETE FROM task_outcomes WHERE outcome_type = ?', ['not_relevant']);
 }
 
 export async function loadProfile(): Promise<Profile | null> {

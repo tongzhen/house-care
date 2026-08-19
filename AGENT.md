@@ -37,10 +37,10 @@ The bundled action catalogue is [knowledge-base/maintenance-actions-v0.1.json](k
 
 - Support one home profile per installation in the MVP.
 - Home shows at most one current action and two upcoming actions.
-- User outcomes are Done, Snooze, Not relevant, and I noticed an issue.
+- User outcomes are Done, Snooze, and I noticed an issue.
 - Done appends history, clears a snooze, calculates the next due date, and reschedules the notification.
 - Snooze changes only the current due date; it never changes frequency.
-- Not relevant disables an action until the user re-enables it in Settings.
+- Disable action pauses an action until the user re-enables it in Settings.
 - Frequency overrides take precedence over knowledge-base defaults and never rewrite history.
 - Monthly schedules use the same calendar day where possible; otherwise use the final valid day of the month.
 - Local notifications fire once at 09:00 device-local time; do not repeat overdue notifications.
