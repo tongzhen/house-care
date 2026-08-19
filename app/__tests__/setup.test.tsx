@@ -9,7 +9,7 @@ jest.mock('../../src/db', () => ({}));
 
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import '../../src/i18n';
-import { ActionDetail, ActionList, ActionOverview, History, Home, IssueForm, Setup } from '../index';
+import { ActionDetail, ActionList, ActionOverview, History, Home, IssueForm, ReportExport, Setup } from '../index';
 import { getAction } from '../../src/catalog';
 
 describe('setup flow', () => {
@@ -104,7 +104,7 @@ describe('setup flow', () => {
     await render(<History state={{ profile: null, configurations: [], settings: { language: 'en', notificationsEnabled: true, notificationSchedule: {} as never }, outcomes: [
       { id: 'done-dishwasher', actionId: dishwasher.id, type: 'done', occurredAt: new Date().toISOString() },
       { id: 'done-exterior', actionId: exterior.id, type: 'done', occurredAt: new Date().toISOString() },
-    ] }} language="en" onOpenIssue={jest.fn()} />);
+    ] }} language="en" onOpenReport={jest.fn()} onOpenIssue={jest.fn()} />);
     expect(screen.getByText('Clean the dishwasher filter')).toBeTruthy();
     expect(screen.getByText('Clear accessible gutter debris')).toBeTruthy();
     await act(async () => { fireEvent.press(screen.getByText('Appliance')); });
@@ -112,15 +112,35 @@ describe('setup flow', () => {
     expect(screen.queryByText('Clear accessible gutter debris')).toBeNull();
   });
 
-  it('offers PDF export periods from history and reveals native-date-picker controls for custom dates', async () => {
+  it('opens the compact maintenance-report entry from history', async () => {
     const dishwasher = getAction('dishwasher-filter-clean')!;
+    const onOpenReport = jest.fn();
     await render(<History state={{ profile: { id: 'home', appliances: ['dishwasher'], features: [], variants: {} }, configurations: [], settings: { language: 'en', notificationsEnabled: true, notificationSchedule: {} as never }, outcomes: [
       { id: 'done-dishwasher', actionId: dishwasher.id, type: 'done', occurredAt: new Date().toISOString() },
-    ] }} language="en" onOpenIssue={jest.fn()} />);
+    ] }} language="en" onOpenReport={onOpenReport} onOpenIssue={jest.fn()} />);
+    fireEvent.press(screen.getByText('Export maintenance report'));
+    expect(onOpenReport).toHaveBeenCalledTimes(1);
+  });
+
+  it('shows compact report periods and custom native-date-picker controls', async () => {
+    const dishwasher = getAction('dishwasher-filter-clean')!;
+    await render(<ReportExport state={{ profile: { id: 'home', appliances: ['dishwasher'], features: [], variants: {} }, configurations: [], settings: { language: 'en', notificationsEnabled: true, notificationSchedule: {} as never }, outcomes: [
+      { id: 'done-dishwasher', actionId: dishwasher.id, type: 'done', occurredAt: new Date().toISOString() },
+    ] }} language="en" onBack={jest.fn()} />);
+    expect(screen.getByText('Report period')).toBeTruthy();
     expect(screen.getByText('Export PDF report')).toBeTruthy();
     await act(async () => { fireEvent.press(screen.getByText('Custom')); });
     expect(screen.getByText(/Start date:/)).toBeTruthy();
     expect(screen.getByText(/End date:/)).toBeTruthy();
+  });
+
+  it('shows empty-period feedback and returns to history from report export', async () => {
+    const onBack = jest.fn();
+    await render(<ReportExport state={{ profile: { id: 'home', appliances: ['dishwasher'], features: [], variants: {} }, configurations: [], settings: { language: 'en', notificationsEnabled: true, notificationSchedule: {} as never }, outcomes: [] }} language="en" onBack={onBack} />);
+    expect(screen.getByText(/No completed maintenance or reported issues were found in this period/)).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Export PDF report' }).props.accessibilityState?.disabled).toBe(true);
+    fireEvent.press(screen.getByText('‹ History'));
+    expect(onBack).toHaveBeenCalledTimes(1);
   });
 
   it('filters the actions list by category', async () => {
