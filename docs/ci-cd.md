@@ -53,3 +53,10 @@ npm run lint
 npm test
 npm run validate:catalog
 ```
+# CI/CD and release checks
+
+The quality job runs type-checking, linting, unit/component tests, catalogue validation, and `npm run notices:check`. Dependency changes must run `npm run generate:notices` and commit the generated third-party notices before opening a pull request.
+
+The main-branch preview-build job submits a non-blocking Android EAS preview build. It requires the repository `EXPO_TOKEN` secret. The build command uses `pipefail`, so an EAS submission error fails the workflow instead of producing a false-success build job.
+
+See [release-readiness.md](release-readiness.md) for legal, policy, permission, content, versioning, and store-submission gates.

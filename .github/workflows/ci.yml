@@ -42,6 +42,9 @@ jobs:
       - name: Validate maintenance catalogue
         run: npm run validate:catalog
 
+      - name: Verify third-party notices
+        run: npm run notices:check
+
   preview-build:
     name: Create EAS preview builds
     needs: quality
@@ -67,7 +70,9 @@ jobs:
         run: npm ci
 
       - name: Start Android preview build
-        run: eas build --platform android --profile preview --non-interactive --no-wait --json | tee eas-builds.json
+        run: |
+          set -o pipefail
+          eas build --platform android --profile preview --non-interactive --no-wait --json | tee eas-builds.json
 
       - name: Publish EAS build links
         if: always() && hashFiles('eas-builds.json') != ''

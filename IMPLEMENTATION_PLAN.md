@@ -30,6 +30,7 @@ The MVP is deliberately local-first:
 - Snooze choices are Tomorrow, In one week, and Choose a date. Custom snooze uses native date and time pickers and stores the selected local datetime as UTC.
 - One photo may be attached to an issue; it remains in app-private local storage.
 - Export/import uses a versioned local format. No data leaves the device automatically.
+- Settings includes an offline About & legal area with installed version/build details, Privacy Policy, Terms of Use & Safety, acknowledgements, and Data & permissions. Matching canonical legal pages are published separately from the private app source; legal identity and contact placeholders must be replaced before public release.
 
 ### Deliberate refinements
 
@@ -47,6 +48,7 @@ The MVP is deliberately local-first:
 - `expo-sqlite` for durable structured data.
 - `expo-file-system` for app-private issue photos and export files.
 - `expo-print` and `expo-sharing` for one-way, user-initiated PDF maintenance report export.
+- `expo-application` for installed app version and native build-number display.
 - `expo-notifications` for local scheduled reminders.
 - `react-i18next`/i18next for UI and knowledge-base localization.
 - Zod for runtime validation of knowledge-base content and imported data.
