@@ -7,7 +7,7 @@ jest.mock('../../src/db', () => ({}));
 
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import '../../src/i18n';
-import { ActionDetail, ActionOverview, History, Home, IssueForm, Setup } from '../index';
+import { ActionDetail, ActionList, ActionOverview, History, Home, IssueForm, Setup } from '../index';
 import { getAction } from '../../src/catalog';
 
 describe('setup flow', () => {
@@ -108,6 +108,17 @@ describe('setup flow', () => {
     await act(async () => { fireEvent.press(screen.getByText('Appliance')); });
     expect(screen.getByText('Clean the dishwasher filter')).toBeTruthy();
     expect(screen.queryByText('Clear accessible gutter debris')).toBeNull();
+  });
+
+  it('filters the actions list by category', async () => {
+    const appliance = getAction('dishwasher-filter-clean')!;
+    const exterior = getAction('gutters-accessible-clean')!;
+    await render(<ActionList actions={[appliance, exterior]} configurations={new Map()} language="en" onOpen={jest.fn()} />);
+    expect(screen.getByText('Clean the dishwasher filter')).toBeTruthy();
+    expect(screen.getByText('Clear accessible gutter debris')).toBeTruthy();
+    await act(async () => { fireEvent.press(screen.getByText('Exterior')); });
+    expect(screen.queryByText('Clean the dishwasher filter')).toBeNull();
+    expect(screen.getByText('Clear accessible gutter debris')).toBeTruthy();
   });
 
   it('requires an issue title before saving', async () => {

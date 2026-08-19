@@ -134,8 +134,9 @@ export function Home({ actions: items, configurations, language, now, onOpen, on
   </ScrollView>;
 }
 
-function ActionList({ actions: items, configurations, language, onOpen }: { actions: MaintenanceAction[]; configurations: Map<string, ActionConfiguration>; language: 'en' | 'da'; onOpen: (id: string) => void }) {
-  const { t } = useTranslation(); return <ScrollView contentContainerStyle={styles.page}><Text style={styles.h1}>{t('actions')}</Text>{items.map((action) => <ActionRow key={action.id} action={action} configuration={configurations.get(action.id)} language={language} onPress={() => onOpen(action.id)} />)}</ScrollView>;
+export function ActionList({ actions: items, configurations, language, onOpen }: { actions: MaintenanceAction[]; configurations: Map<string, ActionConfiguration>; language: 'en' | 'da'; onOpen: (id: string) => void }) {
+  const { t } = useTranslation(); const [category, setCategory] = useState('all'); const categories = Array.from(new Set(items.map((action) => action.category))).sort(); const categoryLabel = (item: string) => item === 'all' ? t('all') : t(`actionCategories.${item}`); const filtered = items.filter((action) => category === 'all' || action.category === category);
+  return <ScrollView contentContainerStyle={styles.page}><Text style={styles.h1}>{t('actions')}</Text><Text style={styles.label}>{t('category')}</Text><View style={styles.filterRow}><Choice label={categoryLabel('all')} selected={category === 'all'} onPress={() => setCategory('all')} />{categories.map((item) => <Choice key={item} label={categoryLabel(item)} selected={category === item} onPress={() => setCategory(item)} />)}</View>{filtered.map((action) => <ActionRow key={action.id} action={action} configuration={configurations.get(action.id)} language={language} onPress={() => onOpen(action.id)} />)}</ScrollView>;
 }
 
 type OverviewStatus = 'enabled' | 'disabled' | 'unavailable';
