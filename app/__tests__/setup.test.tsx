@@ -67,6 +67,12 @@ describe('setup flow', () => {
     expect(screen.queryByText('Add to calendar')).toBeNull();
   });
 
+  it('uses the Actions return destination when an action detail was opened from the Actions tab', async () => {
+    const action = getAction('dishwasher-filter-clean')!;
+    await render(<ActionDetail action={action} configuration={{ actionId: action.id, enabled: true, notificationsEnabled: true, nextDueAt: new Date(Date.now() + 86400000).toISOString() }} language="en" returnView="actions" onBack={jest.fn()} onDone={jest.fn()} onSnooze={jest.fn()} onCustomSnooze={jest.fn(async () => undefined)} onIssue={jest.fn()} onFrequency={jest.fn(async () => undefined)} onEnabled={jest.fn(async () => undefined)} />);
+    expect(screen.getByText('‹ Actions')).toBeTruthy();
+  });
+
   it('groups actions by category, filters status, and opens disabled details', async () => {
     const enabled = getAction('dishwasher-filter-clean')!;
     const disabled = getAction('dryer-lint-filter')!;

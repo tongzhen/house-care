@@ -24,6 +24,7 @@ The MVP is deliberately local-first:
 ### Confirmed behaviour
 
 - One primary due action and up to two upcoming actions appear on Home.
+- Opening an action from the Actions tab returns to that tab when the user uses the detail back control; Home and Actions overview retain their own return destinations.
 - The user can mark an action Done, Snooze, or I noticed an issue; actions can also be disabled temporarily.
 - A user can override any default frequency, reset it, or disable the action.
 - Notifications are local-device notifications, defaulting to 09:00 in the device timezone.
