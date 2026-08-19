@@ -66,7 +66,8 @@ The bundled action catalogue is [knowledge-base/maintenance-actions-v0.1.json](k
 - Add translation keys with every user-visible string; do not hard-code UI copy.
 - Keep action-detail safety content visible and separate from optional source/manual information.
 - Update the relevant documentation whenever behavior, architecture, persistence, user flows, or delivery scope changes. Keep `IMPLEMENTATION_PLAN.md` and other affected docs aligned with the implementation.
-- Always commit completed changes to Git after verification. Use a clear, focused commit message and do not leave requested work uncommitted unless the user explicitly asks not to commit.
+- Always use a dedicated `codex/` feature branch for completed changes; never commit implementation work directly to `main`.
+- After local verification, commit with a clear, focused message, push the feature branch, and open a pull request targeting `main` so the CI workflow runs. Do not merge the pull request unless the user explicitly asks.
 
 ## Engineering rules
 - Use TypeScript. Do not introduce `any`.
@@ -84,7 +85,7 @@ Before reporting complete:
 2. Add/update tests for behavior changes.
 3. Review the final diff for iOS/Android differences and accidental unrelated changes.
 4. Report files changed, commands executed, results, untested paths, and any platform-specific limitations.
-5. Update the relevant documentation and commit the verified change before reporting completion.
+5. Update the relevant documentation, commit the verified change on its feature branch, open a pull request, and report the CI result before reporting completion.
 
 ## Verification
 

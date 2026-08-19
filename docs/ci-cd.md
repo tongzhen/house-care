@@ -31,12 +31,17 @@ The `preview` EAS profile uses internal distribution. After a push to `main`, op
 summary and use its Android EAS build link to retrieve the install page. Android testers can
 install the distributed APK. An Apple Developer account is not required for this pipeline.
 
-## Branch rule and agent review
+## Branch, pull request, and agent review
 
 In GitHub repository settings, protect `main` by requiring the `Quality checks` status check and
 requiring the branch to be current before merge. Do not require a human approving review. Use an
 AI agent review as a manual pull-request step for implementation feedback, regression checks,
 and test coverage before merging.
+
+All implementation changes must start on a dedicated `codex/` feature branch. After the local
+checks pass, commit the focused change, push the branch, and open a pull request targeting
+`main`. GitHub Actions then runs the required checks. Do not commit directly to `main` or merge
+the pull request unless the user explicitly requests it.
 
 ## Local checks
 
