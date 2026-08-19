@@ -1,6 +1,6 @@
 /* eslint-disable import/first */
 
-jest.mock('expo-calendar', () => ({
+jest.mock('expo-calendar/legacy', () => ({
   EntityTypes: { EVENT: 'event' },
   isAvailableAsync: jest.fn(),
   getCalendarPermissionsAsync: jest.fn(),
@@ -9,7 +9,7 @@ jest.mock('expo-calendar', () => ({
   createEventAsync: jest.fn(),
 }));
 
-import * as Calendar from 'expo-calendar';
+import * as Calendar from 'expo-calendar/legacy';
 import { addCalendarEvent, CalendarAccessError, getWritableCalendars } from '../calendar';
 
 beforeEach(() => {
