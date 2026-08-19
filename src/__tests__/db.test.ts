@@ -22,6 +22,7 @@ describe('SQLite repository', () => {
     expect(mockExecAsync).toHaveBeenCalledWith(expect.stringContaining('CREATE TABLE IF NOT EXISTS home_profile'));
     expect(mockExecAsync).toHaveBeenCalledWith(expect.stringContaining('CREATE TABLE IF NOT EXISTS task_outcomes'));
     expect(mockExecAsync).not.toHaveBeenCalledWith(expect.stringContaining('ALTER TABLE task_outcomes'));
+    expect(mockRunAsync).toHaveBeenCalledWith('DELETE FROM task_outcomes WHERE outcome_type = ?', ['not_relevant']);
   });
 
   it('serialises a profile before writing it', async () => {

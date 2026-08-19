@@ -57,9 +57,10 @@ describe('setup flow', () => {
 
   it('offers calendar export for scheduled actions but not habit actions', async () => {
     const action = getAction('dishwasher-filter-clean')!;
-    const props = { configuration: { actionId: action.id, enabled: true, notificationsEnabled: true, nextDueAt: new Date(Date.now() + 86400000).toISOString() }, language: 'en' as const, onBack: jest.fn(), onDone: jest.fn(), onSnooze: jest.fn(), onCustomSnooze: jest.fn(async () => undefined), onNotRelevant: jest.fn(), onIssue: jest.fn(), onFrequency: jest.fn(async () => undefined), onEnabled: jest.fn(async () => undefined) };
+    const props = { configuration: { actionId: action.id, enabled: true, notificationsEnabled: true, nextDueAt: new Date(Date.now() + 86400000).toISOString() }, language: 'en' as const, onBack: jest.fn(), onDone: jest.fn(), onSnooze: jest.fn(), onCustomSnooze: jest.fn(async () => undefined), onIssue: jest.fn(), onFrequency: jest.fn(async () => undefined), onEnabled: jest.fn(async () => undefined) };
     const view = await render(<ActionDetail action={action} {...props} />);
     expect(screen.getByText('Add to calendar')).toBeTruthy();
+    expect(screen.queryByText('Not relevant')).toBeNull();
 
     await act(async () => { view.rerender(<ActionDetail action={{ ...action, trigger: { kind: 'habit' } }} {...props} />); });
     expect(screen.queryByText('Add to calendar')).toBeNull();
@@ -93,7 +94,7 @@ describe('setup flow', () => {
   it('opens disabled action details with the enable control', async () => {
     const action = getAction('dryer-lint-filter')!;
     const onEnabled = jest.fn(async () => undefined);
-    await render(<ActionDetail action={action} configuration={{ actionId: action.id, enabled: false, notificationsEnabled: true, nextDueAt: new Date(Date.now() + 86400000).toISOString() }} language="en" onBack={jest.fn()} onDone={jest.fn()} onSnooze={jest.fn()} onCustomSnooze={jest.fn(async () => undefined)} onNotRelevant={jest.fn()} onIssue={jest.fn()} onFrequency={jest.fn(async () => undefined)} onEnabled={onEnabled} />);
+    await render(<ActionDetail action={action} configuration={{ actionId: action.id, enabled: false, notificationsEnabled: true, nextDueAt: new Date(Date.now() + 86400000).toISOString() }} language="en" onBack={jest.fn()} onDone={jest.fn()} onSnooze={jest.fn()} onCustomSnooze={jest.fn(async () => undefined)} onIssue={jest.fn()} onFrequency={jest.fn(async () => undefined)} onEnabled={onEnabled} />);
     await act(async () => { fireEvent.press(screen.getByText('Enable action')); });
     expect(onEnabled).toHaveBeenCalledWith(true);
   });

@@ -73,11 +73,6 @@ describe('maintenance service', () => {
     }
   });
 
-  it('disables an action marked not relevant', async () => {
-    await recordOutcome('dishwasher-filter-clean', 'not_relevant');
-    expect(db.upsertConfiguration).toHaveBeenCalledWith(expect.objectContaining({ enabled: false }));
-  });
-
   it('records a standalone issue with a required trimmed title', async () => {
     await recordIssue('  Water under dishwasher  ', { note: 'After a cycle' });
 
