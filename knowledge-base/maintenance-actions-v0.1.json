@@ -27,7 +27,7 @@
         },
         "da": {"title":"Tjek opvaskemaskinens filter","whyItMatters":"Et hurtigt tjek hjælper med at opdage madrester, før de påvirker vask eller afløb.","steps":["Åbn opvaskemaskinen og træk den nederste kurv ud.","Se på det tilgængelige filterområde efter meget snavs eller stående vand.","Fortsæt med filterrengøringen, hvis filteret er meget snavset."],"normalSigns":["En lille mængde rester i grovfilteret."],"concerningSigns":["Gentagne forekomster af stående vand, en afløbsfejl eller et beskadiget filter."],"escalationGuidance":"Kontakt manualen eller en hvidevaretekniker, hvis afløbsproblemerne fortsætter, eller filteret er beskadiget.","safetyRestrictions":["Ræk ikke ned i skarpe genstande eller rester.","Afmonter ikke pumpen, slanger eller elektriske dele."],"manualNote":"Brug apparatets manual til oplysninger om filterets placering og afmontering."}
       },
-      "sources": ["https://www.bolius.dk/undgaa-en-klam-opvaskemaskine-98618"]
+      "sources": ["https://www.bosch-home.com/qa/en/service/get-support/26_support_selfhelp_dishwashers_cleaning_dishwasher_filter"]
     },
     {
       "id": "dishwasher-filter-clean",
@@ -50,7 +50,7 @@
         },
         "da": {"title":"Rengør opvaskemaskinens filter","whyItMatters":"Madrester og fedt kan forringe vasken, give lugt, blokere afløbet og belaste pumpen ekstra.","steps":["Sluk opvaskemaskinen og åbn lågen.","Træk den nederste kurv ud.","Fjern kun filtrene som vist i manualen; tving ikke en drejelås eller clips.","Skyl filtrene under varmt vand, og brug en blød børste.","Tør det tilgængelige filterhus og afløbsområde med en klud.","Sæt filtrene korrekt på plads og lås dem.","Kør et kort skylleprogram, og se efter stående vand eller lækager."],"normalSigns":["Filtrene kan skylles rene uden skader.","Spulearmene drejer frit.","Intet stående vand efter et program."],"concerningSigns":["Gentaget stående vand, pumpestøj, afløbsfejlkode, dårlig afledning, lækager eller et filter, der ikke kan fjernes normalt."],"escalationGuidance":"Stop og kontakt manualen eller en hvidevaretekniker, hvis problemet fortsætter, apparatet lækker, eller en pumpe-/afløbsfejl vender tilbage.","safetyRestrictions":["Brug ikke kemisk afløbsrens i opvaskemaskinen.","Afmonter ikke pumpen, slanger eller elektriske dele."],"manualNote":"Den præcise afmontering af filteret og skylleprogrammet varierer efter model."}
       },
-      "sources": ["https://www.bolius.dk/undgaa-en-klam-opvaskemaskine-98618"]
+      "sources": ["https://www.bosch-home.com/qa/en/service/get-support/26_support_selfhelp_dishwashers_cleaning_dishwasher_filter"]
     },
     {
       "id": "washing-machine-drawer-seal",
@@ -73,7 +73,7 @@
         },
         "da": {"title":"Rengør vaskemaskinens sæbeskuffe og lågepakning","whyItMatters":"Rester af vaskemiddel, fnug, hår og fugt kan give lugt, skimmel og dårligere vask.","steps":["Sluk maskinen.","Fjern sæbeskuffen med udløseren, og skyl den med varmt vand.","Rengør skufferummet med en fugtig klud uden at sprøjte ind i elektriske områder.","Tør gummipakningen, også i folderne, og fjern synligt fnug eller genstande.","Lad låge og skuffe stå lidt åbne, så de kan tørre."],"normalSigns":["Lette vaskemiddelrester eller små mængder fnug."],"concerningSigns":["Meget skimmel, en løs lågepakning, brændt lugt eller vedvarende lugt efter rengøring."],"escalationGuidance":"Kontakt en hvidevaretekniker, hvis pakningen er beskadiget, eller en usædvanlig lugt fortsætter.","safetyRestrictions":["Sprøjt ikke vand ind i elektriske områder.","Afmonter ikke paneler eller elektriske komponenter."],"manualNote":"Brug modelmanualen til instruktioner om afmontering af sæbeskuffen."}
       },
-      "sources": ["https://www.bolius.dk/saa-meget-kan-du-spare-paa-at-pleje-dine-haarde-hvidevarer-7916"]
+      "sources": ["https://www.bosch-home.com/us/owner-support/washing-machines/troubleshooting"]
     },
     {
       "id": "washing-machine-maintenance-wash",
@@ -96,7 +96,7 @@
         },
         "da": {"title":"Kør vaskemaskinens vedligeholdelsesprogram","whyItMatters":"Et egnet vedligeholdelsesprogram hjælper med at reducere vaskemiddelrester og lugt i maskinen.","steps":["Se manualen efter det anbefalede vedligeholdelsesprogram og rengøringsmiddel.","Kør det tomme program præcis som anvist.","Lad låge og skuffe stå åbne bagefter, så maskinen kan tørre."],"normalSigns":["Nogle rester eller lugt under den første rengøringscyklus."],"concerningSigns":["Vedvarende lugt, afløbsfejl, lækage eller usædvanlig støj."],"escalationGuidance":"Kontakt en hvidevaretekniker, hvis problemet fortsætter efter producentens anbefalede vedligeholdelsescyklus.","safetyRestrictions":["Bland ikke rengøringskemikalier.","Brug ikke et rengøringsmiddel, medmindre det er godkendt til modellen."],"manualNote":"Program og rengøringsmiddel afhænger af modellen."}
       },
-      "sources": ["https://www.bolius.dk/saa-meget-kan-du-spare-paa-at-pleje-dine-haarde-hvidevarer-7916"]
+      "sources": ["https://www.bosch-home.com/us/owner-support/washing-machines/troubleshooting"]
     },
     {
       "id": "washing-machine-pump-filter",
@@ -119,7 +119,7 @@
         },
         "da": {"title":"Tjek vaskemaskinens pumpefilter","whyItMatters":"Et tilstoppet pumpefilter kan give dårlig afledning, fejlmeddelelser, lækager eller ekstra belastning af pumpen.","steps":["Sluk maskinen, og læs først manualen.","Læg håndklæder og en lav bakke under serviceklappen.","Tøm restvand kun som beskrevet i manualen.","Fjern og skyl filteret uden at tvinge det.","Sæt filteret helt på plads, og se efter lækager ved næste korte program."],"normalSigns":["Små mængder vand, fnug, hår, mønter eller knapper i filteret."],"concerningSigns":["Vedvarende afløbsfejl, lækage efter genmontering, slibelyd eller et filter, der ikke kan drejes uden kraft."],"escalationGuidance":"Kontakt en hvidevaretekniker, hvis afløbsfejl fortsætter, maskinen lækker, eller filterhuset er beskadiget.","safetyRestrictions":["Åbn aldrig pumpefilteret under et aktivt eller varmt program.","Vip ikke en tung maskine alene.","Afmonter ikke paneler, slanger eller elektriske komponenter."],"manualNote":"Følg den præcise procedure for tømning og filterafmontering i modelmanualen."}
       },
-      "sources": ["https://www.bolius.dk/vedligeholdelse-af-afloeb-18468"]
+      "sources": ["https://www.bosch-home.com/us/owner-support/washing-machines/troubleshooting"]
     },
     {
       "id": "dryer-lint-filter",
@@ -142,7 +142,7 @@
         },
         "da": {"title":"Rengør tørretumblerens fnugfilter","whyItMatters":"Fnug begrænser luftgennemstrømningen, øger tørretid og energiforbrug samt risikoen for overophedning og brand.","steps":["Lad tørretumbleren køle af, og sluk den.","Fjern fnugfilteret.","Fjern fnug med hånden, og rengør begge sider med en blød børste efter behov.","Sæt filteret sikkert på plads før næste brug."],"normalSigns":["Fnug på filteret efter hver tørring."],"concerningSigns":["Brændt lugt, usædvanlig varme, gentagne luftstrømsfejl eller et beskadiget filter."],"escalationGuidance":"Stop brugen, og bestil service ved brændt lugt, overophedning, gentagne fejl eller beskadigede dele.","safetyRestrictions":["Brug ikke tørretumbleren uden fnugfilter.","Brug ikke skarpe genstande på filternettet."],"manualNote":"Brug modelmanualen til oplysninger om filterets placering og rengøring."}
       },
-      "sources": ["https://www.bolius.dk/saa-meget-kan-du-spare-paa-at-pleje-dine-haarde-hvidevarer-7916"]
+      "sources": ["https://www.bosch-home.com/us/owner-support/dryers/cleaning-maintenance"]
     },
     {
       "id": "dryer-condenser-filter",
@@ -165,7 +165,7 @@
         },
         "da": {"title":"Rengør tørretumblerens tilgængelige kondensator eller filter","whyItMatters":"En ren, tilgængelig kondensator eller varmevekslerfilter understøtter luftstrøm og tørreevne.","steps":["Sluk den afkølede tørretumbler.","Kontrollér, om modellen tillader brugerrengøring af kondensatoren eller varmevekslerfilteret.","Fjern kun det angivne dæksel eller filter.","Skyl eller støvsug kun som anvist, og tør og genmonter efter behov."],"normalSigns":["Noget fnug eller fugt nær det angivne filterområde."],"concerningSigns":["Usædvanlig varme, meget længere tørretid, brændt lugt eller gentagne luftstrømsfejl."],"escalationGuidance":"Stop brugen, og bestil service ved overophedning, brændt lugt eller gentagne fejl.","safetyRestrictions":["Afmonter ikke forseglede køle- eller varmepumpekomponenter.","Åbn ikke interne luftkanaler."],"manualNote":"Denne handling skal følge den præcise modelmanual."}
       },
-      "sources": ["https://www.bolius.dk/saa-meget-kan-du-spare-paa-at-pleje-dine-haarde-hvidevarer-7916"]
+      "sources": ["https://www.bosch-home.com/us/owner-support/dryers/cleaning-maintenance"]
     },
     {
       "id": "dryer-external-vent",
@@ -188,7 +188,7 @@
         },
         "da": {"title":"Efterse tørretumblerens udvendige aftræk","whyItMatters":"Et blokeret eller manglende åbent udvendigt aftræk kan reducere luftstrømmen og øge risikoen for overophedning.","steps":["Se på det udvendige aftræk fra et sikkert sted i jordhøjde, mens maskinen kører.","Kontrollér, at klappen åbner og er fri for fnug, blade og reder.","Fjern ikke utilgængelige kanaler, og klatr ikke for at nå aftrækket."],"normalSigns":["Den udvendige klap åbner under drift."],"concerningSigns":["Klappen åbner ikke, der er meget fnug, eller tørretumbleren bliver overophedet."],"escalationGuidance":"Bestil professionel kanalrensning eller service ved utilgængelige eller blokerede kanaler.","safetyRestrictions":["Klatr ikke, og afmonter ikke utilgængelige kanaler."],"manualNote":"Gælder kun tørretumblere med aftræk."}
       },
-      "sources": ["https://www.bolius.dk/saa-meget-kan-du-spare-paa-at-pleje-dine-haarde-hvidevarer-7916"]
+      "sources": ["https://www.bosch-home.com/us/owner-support/dryers/cleaning-maintenance"]
     },
     {
       "id": "cooker-hood-grease-filter",
@@ -211,7 +211,7 @@
         },
         "da": {"title":"Rengør emhættens fedtfilter","whyItMatters":"Ophobet fedt reducerer udsugningen og øger lugt, støj og brandbelastning.","steps":["Sluk emhætten, og sørg for, at kogepladen er kølig.","Fjern metalfedtfilteret, mens du støtter det.","Se manualen for, om det tåler opvaskemaskine.","Ved håndvask: brug varmt vand, fedtopløsende opvaskemiddel og en blød børste.","Skyl, tør helt, og sæt filteret sikkert på plads.","Hvis emhætten recirkulerer luften, så se manualen for udskiftning af kulfilter."],"normalSigns":["Misfarvning af filteret over tid."],"concerningSigns":["Dryppende fedt, dårlig udsugning, usædvanlige vibrationer eller støj, elektrisk lugt eller et løst filter."],"escalationGuidance":"Stop brugen ved elektrisk lugt, gnister, løse ledninger eller kraftige vibrationer. Brug en autoriseret tekniker ved fejl i motor, kanaler eller el.","safetyRestrictions":["Rengør aldrig over en tændt eller varm kogeplade.","Sprøjt ikke væske ind i kontakter, motoråbninger eller lamper.","Bland ikke rengøringskemikalier."],"manualNote":"Egnethed til opvaskemaskine og intervaller for kulfilter afhænger af modellen."}
       },
-      "sources": ["https://www.bolius.dk/saadan-renser-du-emhaettens-filter-30960"]
+      "sources": ["https://filters.electrolux.com/"]
     },
     {
       "id": "cooker-hood-carbon-filter",
@@ -234,7 +234,7 @@
         },
         "da": {"title":"Tjek emhættens kulfilter","whyItMatters":"Et mættet kulfilter fjerner lugt dårligere i en recirkulerende emhætte.","steps":["Kontrollér, om emhætten er en recirkulerende model.","Find kulfilteret i manualen, og kontrollér udskiftningsintervallet.","Udskift det kun med den angivne filtertype."],"normalSigns":["Lugtfjernelsen bliver gradvist mindre effektiv."],"concerningSigns":["Filteret kan ikke fastgøres, eller emhætten har en el- eller motorfejl."],"escalationGuidance":"Kontakt en hvidevaretekniker, hvis filterhuset eller emhætten er beskadiget.","safetyRestrictions":["Vask eller genbrug ikke et kulfilter, medmindre manualen udtrykkeligt tillader det."],"manualNote":"Gælder kun recirkulerende emhætter."}
       },
-      "sources": ["https://www.bolius.dk/saadan-renser-du-emhaettens-filter-30960"]
+      "sources": ["https://filters.electrolux.com/"]
     },
     {
       "id": "gutters-ground-check",
@@ -257,7 +257,7 @@
         },
         "da": {"title":"Efterse tagrender og nedløbsrør fra jordhøjde","whyItMatters":"Tilstoppede eller beskadigede tagrender kan lede vand mod facade eller fundament.","steps":["Efterse fra jordhøjde.","Se efter overløbsspor, hængende tagrender, manglende beslag, lækager og skader på nedløbsrør.","Efter regn: kontrollér, at vandet når jorden væk fra huset.","Notér forhold, der kræver professionel opmærksomhed."],"normalSigns":["Blade eller små aflejringer efter efteråret.","Vandet når jorden uden overløb."],"concerningSigns":["Overløb, hængende tagrender, løse beslag eller vandansamling ved fundamentet."],"escalationGuidance":"Brug en tagrende- eller tagarbejder ved høj, vanskelig eller usikker adgang eller ved vedvarende vandskader.","safetyRestrictions":["Klatr ikke op på tage.","Brug ikke stige i blæst, regn eller is."],"manualNote":"Denne handling er med vilje begrænset til sikker observation fra jordhøjde."}
       },
-      "sources": ["https://www.bolius.dk/bortledning-af-regnvand-og-forebyggelse-af-oversvoemmelse-19267"]
+      "sources": ["https://byg-erfa.dk/afloebsinstallationer-smaahuse"]
     },
     {
       "id": "gutters-accessible-clean",
@@ -280,7 +280,7 @@
         },
         "da": {"title":"Fjern tilgængeligt snavs fra tagrender","whyItMatters":"Blade, nåle, mos og slam kan nedsætte vandgennemstrømningen og give overløb.","steps":["Arbejd kun fra en sikker, tilgængelig position i jordhøjde eller med udstyr, du er oplært i at bruge sikkert.","Brug handsker, og fjern synligt snavs med en lille skovl.","Børst rester ned i en beholder i stedet for nedløbsrøret.","Bestil professionel hjælp, hvis adgangen er høj eller usikker."],"normalSigns":["Blade og små aflejringer, især efter efteråret."],"concerningSigns":["Vedvarende tilstopning, konstruktionsskader eller vand, der trænger ind i bygningen."],"escalationGuidance":"Brug en tagrende- eller tagarbejder ved høj, vanskelig eller usikker adgang.","safetyRestrictions":["Arbejd aldrig på et tag.","Brug ikke stige i blæst, regn eller is."],"manualNote":"Appen bør ikke instruere brugere i at klatre for at udføre denne handling."}
       },
-      "sources": ["https://www.bolius.dk/bortledning-af-regnvand-og-forebyggelse-af-oversvoemmelse-19267"]
+      "sources": ["https://byg-erfa.dk/afloebsinstallationer-smaahuse"]
     },
     {
       "id": "faskine-inlet-check",
@@ -303,7 +303,7 @@
         },
         "da": {"title":"Efterse det tilgængelige indløb til faskinen","whyItMatters":"Blade, sediment og beskadigede forbindelser kan nedsætte nedsivningen af regnvand og give overløb.","steps":["Find indløbet ved hjælp af tegninger eller dokumentation for ejendommen.","Fjern først blade fra tagrender og overfladeindløb.","Åbn kun et tilgængeligt sandfangs- eller inspektionsdæksel.","Fjern løse blade og sediment med en skovl.","Kontrollér synlige indløbsdele for revner eller afkoblede samlinger.","Læg dækslet sikkert på igen, og observer området under regn."],"normalSigns":["Noget sediment i et sandfang.","Vandstanden stiger midlertidigt ved kraftig regn og falder derefter."],"concerningSigns":["Gentagne overløb, vedvarende stående vand, et sunket område, beskadiget dæksel eller vand mod fundamentet."],"escalationGuidance":"Kontakt en autoriseret kloakmester ved gentagne oversvømmelser, mistanke om sammenfaldne eller tilstoppede rør, beskadigede brønde eller sunket jord.","safetyRestrictions":["Gå ikke ned i brønde.","Grav ikke nær nedgravede rør.","Ændr ikke afløbsforbindelser."],"manualNote":"Brug tegninger eller installationsdokumentation, hvis de findes."}
       },
-      "sources": ["https://www.bolius.dk/bliv-klogere-paa-hvad-en-faskine-er-19268"]
+      "sources": ["https://www.bygningsreglementet.dk/media/l1qi502c/regnvand-a.pdf"]
     },
     {
       "id": "pump-well-visual-check",
@@ -326,7 +326,7 @@
         },
         "da": {"title":"Foretag et visuelt tjek af pumpebrønd og alarm","whyItMatters":"Tidlig opmærksomhed på alarmer, overløb eller usædvanlig drift kan hjælpe med at forhindre oversvømmelse.","steps":["Find brønden, alarmtavlen, strømforsyningen og kontaktoplysninger til service.","Efterse det lukkede dæksel og jorden omkring det.","Kontrollér alarm- eller styrepanelet for advarselslamper eller beskeder.","Notér usædvanlig lyd, lugt, vand eller alarmoplysninger.","Brug kun en sikker testprocedure fra producenten."],"normalSigns":["Et sikkert dæksel og tør jord omkring brønden.","Kortvarig pumpedrift afhængigt af systemets udformning."],"concerningSigns":["Alarm, udløst sikring, konstant drift, overløb, kloaklugt eller vand i kælderområder."],"escalationGuidance":"Betragt alarm, overløb eller risiko for kældervand som akut. Kontakt pumpe-/servicefirmaet eller en autoriseret kloakmester.","safetyRestrictions":["Gå aldrig ned i en brønd.","Fjern ikke et tungt dæksel alene.","Rør ikke ved elektriske forbindelser med våde hænder."],"manualNote":"Åbn eller test ikke brønden, medmindre installatørens manual udtrykkeligt beskriver en sikker brugerprocedure."}
       },
-      "sources": ["https://www.bolius.dk/bortledning-af-regnvand-og-forebyggelse-af-oversvoemmelse-19267"]
+      "sources": ["https://byg-erfa.dk/afloebsinstallationer-smaahuse"]
     },
     {
       "id": "outdoor-tap-winter-check",
@@ -349,7 +349,7 @@
         },
         "da": {"title":"Gør den udvendige vandhane klar til frost","whyItMatters":"Vand i udsatte rør eller fittings kan fryse, udvide sig og forårsage skader.","steps":["Find ud af, om hanen er frostsikker, og om der er en indvendig afspærrings- eller aftapningsventil.","Afbryd slanger, fordelere, timere og sprøjtepistoler.","Luk kun den indvendige afspærring, hvis installationsvejledningen kræver det.","Åbn den udvendige hane for at aftappe restvand som anvist.","Lad udløbet stå i den anbefalede position for hanetypen."],"normalSigns":["En lille mængde vand løber ud, efter den indvendige afspærring er lukket."],"concerningSigns":["Vedvarende dryp, en revnet fitting, fugtig væg, nedsat vandtryk eller indvendig lækage."],"escalationGuidance":"Luk for vandet, hvis det er sikkert, og kontakt en VVS-installatør ved lækager, mistanke om frostskade eller en defekt afspærringsventil.","safetyRestrictions":["Antag ikke, at en hane er frostsikker.","Brug ikke åben ild eller stærk varme.","Tving ikke frosne greb eller fittings."],"manualNote":"Brug husets dokumentation, eller spørg en VVS-installatør, hvis hanetypen er ukendt."}
       },
-      "sources": ["https://www.bolius.dk/hold-husets-roer-varme-og-undgaa-frostspraengninger-14197"]
+      "sources": ["https://www.oras.com/dk/for-professionelle/support/produktdokumenter"]
     },
     {
       "id": "ventilation-grilles",
@@ -372,7 +372,7 @@
         },
         "da": {"title":"Rengør tilgængelige ventilationsriste","whyItMatters":"Rene riste understøtter luftgennemstrømning, fugtfjernelse og et godt indeklima.","steps":["Støvsug eller tør tilgængelige riste af.","Ændr ikke deres indstillinger.","Se efter synligt støv, muggen lugt eller blokeret luftstrøm.","Notér problemer til professionel opfølgning."],"normalSigns":["Støv på ristene."],"concerningSigns":["Vedvarende alarm, muggen lugt, ingen luftstrøm eller usædvanlige vibrationer."],"escalationGuidance":"Kontakt en ventilationstekniker ved problemer med luftstrøm, indregulering, kanaler, ventilator eller vedvarende alarmer.","safetyRestrictions":["Ændr ikke kanalindstillinger, og bloker ikke ventilationsåbninger permanent."],"manualNote":"Fjern ikke faste riste, medmindre manualen angiver, at brugeren må gøre det."}
       },
-      "sources": ["https://www.bolius.dk/saadan-renser-du-filtrene-i-dit-ventilationsanlaeg-30880"]
+      "sources": ["https://www.bygningsreglementet.dk/historisk/version-9/tekniske-bestemmelser/22/krav/451_452/"]
     },
     {
       "id": "ventilation-filters",
@@ -395,7 +395,7 @@
         },
         "da": {"title":"Tjek eller udskift tilgængelige ventilationsfiltre","whyItMatters":"Snavsede filtre kan reducere ventilationens effektivitet og øge problemer med støv og fugt.","steps":["Find systemets model.","Sluk kun enheden, hvis manualen instruerer dig i det.","Åbn kun filterpanelet, der er beregnet til brugerservice.","Bemærk filterets retning, før det fjernes.","Støvsug eller udskift kun efter producentens anvisninger.","Monter den korrekte filtertype og retning igen.","Nulstil kun filtertimeren, hvis manualen instruerer dig i det."],"normalSigns":["Støv på filtre og riste."],"concerningSigns":["Vedvarende alarm, vandlækage, brændt lugt, usædvanlige vibrationer, beskadiget kabel eller ingen luftstrøm efter filterskift."],"escalationGuidance":"Kontakt en ventilationstekniker ved vedvarende alarmer, lækager, beskadigede ventilatorer eller kanaler eller service uden for de tilgængelige dele.","safetyRestrictions":["Åbn ikke el- eller motorrum.","Kør ikke systemet uden filtre, medmindre producenten udtrykkeligt tillader det."],"manualNote":"Mange engangsfiltre skal udskiftes i stedet for at blive vasket."}
       },
-      "sources": ["https://www.bolius.dk/saadan-renser-du-filtrene-i-dit-ventilationsanlaeg-30880"]
+      "sources": ["https://www.bygningsreglementet.dk/historisk/version-9/tekniske-bestemmelser/22/krav/451_452/"]
     },
     {
       "id": "floor-drain-clean",
@@ -418,7 +418,7 @@
         },
         "da": {"title":"Rengør gulvafløb og vandlås","whyItMatters":"Hår, sæbe og snavs kan give lugt, langsomt afløb og overløb. Sjældent brugte afløb kan tørre ud.","steps":["Tag handsker på, og udluft rummet efter behov.","Fjern risten og kun synlige fastgørelsesdele, der er beregnet til brugerafmontering.","Løft afløbskoppen eller vandlåsen, hvis den er beregnet til at kunne tages ud.","Fjern hår og snavs, og vask tilgængelige dele med varmt vand og mildt rengøringsmiddel.","Sæt vandlåsen korrekt på plads, og læg risten tilbage.","Løb vand igennem, og se efter, om afløbet fungerer."],"normalSigns":["Hår og sæberester i koppen.","En mild lugt, der forsvinder efter rengøring."],"concerningSigns":["Vedvarende kloaklugt, gentagne langsomme afløb, vand der stiger et andet sted, lækage eller blødt gulv i nærheden."],"escalationGuidance":"Brug en VVS-installatør eller kloakmester ved gentagne tilstopninger, kloaktilbageløb, lækage eller mistanke om skade på vådrumskonstruktionen.","safetyRestrictions":["Brug ikke stærke kemiske afløbsrensere som rutinemæssig vedligeholdelse.","Skub ikke værktøj dybt ned i afløbet, og afmonter ikke faste forbindelser."],"manualNote":"Hæld vand i sjældent brugte afløb hver 1–3 måned for at genskabe vandlåsen."}
       },
-      "sources": ["https://www.bolius.dk/vedligeholdelse-af-afloeb-18468"]
+      "sources": ["https://byg-erfa.dk/afloebsinstallationer-smaahuse"]
     },
     {
       "id": "underfloor-heating-visual-check",
@@ -441,7 +441,7 @@
         },
         "da": {"title":"Tjek gulvvarmen ved starten af fyringssæsonen","whyItMatters":"Et visuelt tjek kan afsløre lækager, alarmer eller ujævn varme uden at kræve ændringer af systemet.","steps":["Find ud af, om systemet er vandbaseret eller elektrisk.","Brug kun rumtermostater inden for det normale område.","Kontrollér, at rummene reagerer gradvist over 24–48 timer.","Efterse tilgængelige områder visuelt for fugt, alarmer, usædvanlig støj eller synlige skader.","Notér rum, der bliver ved med at være for kolde eller varme."],"normalSigns":["Langsom reaktion efter en ændring.","Små forskelle mellem rum."],"concerningSigns":["Synlig lækage, vedvarende fejl, pludseligt trykfald, overophedning, udløst sikring eller et rum, der stadig er koldt efter et døgn."],"escalationGuidance":"Kontakt en varme-/VVS-installatør ved problemer med vandbaserede systemer eller en autoriseret elektriker ved fejl i elektriske systemer.","safetyRestrictions":["Udluft, påfyld, åbn eller juster ikke manifoldventiler.","Fjern ikke elafdækninger, og bor ikke i gulve."],"manualNote":"Systemtyper varierer. Begræns handlingen til visuel observation, hvis systemet er ukendt."}
       },
-      "sources": []
+      "sources": ["https://www.danfoss.com/da-dk/service-and-support/"]
     },
     {
       "id": "wood-floor-routine-clean",
@@ -464,7 +464,7 @@
         },
         "da": {"title":"Rengør og beskyt trægulve","whyItMatters":"Træ er følsomt over for fugt, slid og uegnede rengøringsmidler.","steps":["Find om muligt overfladen: lakeret, olieret, sæbebehandlet, vokset eller ukendt.","Støvsug med en blød børste eller fej med en blød kost.","Fjern spild hurtigt med en let fugtig klud, og tør området.","Fugt rengør med mindst muligt vand og et middel, der er godkendt til overfladen.","Brug filtpuder, og løft møbler i stedet for at trække dem."],"normalSigns":["Fine overfladeridser i områder med meget trafik.","Lette farveændringer fra lys."],"concerningSigns":["Krumning, deformering, sorte pletter, blødt træ, vedvarende fugtlugt eller fugt under gulvet."],"escalationGuidance":"Undersøg først fugtproblemer. Kontakt en gulvmand ved omfattende overfladeskader, deformering, dybe skader eller mistanke om fugt i undergulvet.","safetyRestrictions":["Brug så lidt vand som muligt.","Undgå stærke eller uegnede rengøringsmidler."],"manualNote":"Følg den præcise rengøringsvejledning fra producenten af overfladen."}
       },
-      "sources": ["https://www.bolius.dk/vedligeholdelse-af-gulve-19427"]
+      "sources": ["https://www.trae.dk/leksikon/gulve-af-trae/"]
     },
     {
       "id": "wood-floor-care-review",
@@ -487,7 +487,7 @@
         },
         "da": {"title":"Vurder overfladebehandlingen af trægulvet","whyItMatters":"Et tjek af overfladen hjælper med at opdage slid, før fugt eller slid giver dybere skader.","steps":["Kontrollér overfladen og producentens vejledning.","Se efter slidte områder, afskalning, ridser eller mindre vandafvisning.","Afprøv altid et plejeprodukt på et diskret område først.","Brug kun det anbefalede olie-, sæbe-, voks- eller laksystem.","Følg produktets anvisninger om tørring, ventilation og hærdning."],"normalSigns":["Mindre glans eller vandperling, efterhånden som en olieret overflade slides."],"concerningSigns":["Omfattende afskalning, deformering, dybe skader, fugtlugt eller fugt under gulvet."],"escalationGuidance":"Kontakt en gulvmand ved slibning, større istandsættelse eller mistanke om fugtskade.","safetyRestrictions":["Brug ikke uegnede behandlinger.","Olieholdige klude kan selvantænde: læg dem fladt til tørre udendørs, eller følg produktets bortskaffelsesvejledning; læg dem aldrig sammenkrøllede i en skraldespand."],"manualNote":"Overfladebehandling afhænger af produkt og overflade."}
       },
-      "sources": ["https://www.bolius.dk/hvilken-behandling-skal-du-give-dit-traegulv-11256"]
+      "sources": ["https://www.trae.dk/leksikon/gulve-af-trae/"]
     }
   ]
 }

@@ -4,6 +4,7 @@ jest.mock('expo-file-system/legacy', () => ({}));
 jest.mock('expo-print', () => ({ printToFileAsync: jest.fn() }));
 jest.mock('expo-sharing', () => ({ isAvailableAsync: jest.fn(), shareAsync: jest.fn() }));
 jest.mock('expo-image-picker', () => ({}));
+jest.mock('expo-application', () => ({ nativeApplicationVersion: '0.1.0', nativeBuildVersion: '42' }));
 jest.mock('expo-notifications', () => ({ setNotificationHandler: jest.fn(), addNotificationResponseReceivedListener: jest.fn(() => ({ remove: jest.fn() })), getLastNotificationResponseAsync: jest.fn(async () => null) }));
 jest.mock('../../src/db', () => ({}));
 
@@ -64,6 +65,12 @@ describe('setup flow', () => {
 
     await act(async () => { view.rerender(<ActionDetail action={{ ...action, trigger: { kind: 'habit' } }} {...props} />); });
     expect(screen.queryByText('Add to calendar')).toBeNull();
+  });
+
+  it('uses the Actions return destination when an action detail was opened from the Actions tab', async () => {
+    const action = getAction('dishwasher-filter-clean')!;
+    await render(<ActionDetail action={action} configuration={{ actionId: action.id, enabled: true, notificationsEnabled: true, nextDueAt: new Date(Date.now() + 86400000).toISOString() }} language="en" returnView="actions" onBack={jest.fn()} onDone={jest.fn()} onSnooze={jest.fn()} onCustomSnooze={jest.fn(async () => undefined)} onIssue={jest.fn()} onFrequency={jest.fn(async () => undefined)} onEnabled={jest.fn(async () => undefined)} />);
+    expect(screen.getByText('‹ Actions')).toBeTruthy();
   });
 
   it('groups actions by category, filters status, and opens disabled details', async () => {

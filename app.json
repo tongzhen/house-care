@@ -13,7 +13,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "Allow House Care to select an issue photo."
+          "photosPermission": "Allow House Care to select an issue photo.",
+          "microphonePermission": false
         }
       ],
       "expo-notifications",
@@ -29,11 +30,23 @@
     ],
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.housecare.app"
+      "bundleIdentifier": "com.housecare.app",
+      "buildNumber": "1",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.housecare.app",
-      "permissions": ["POST_NOTIFICATIONS"]
+      "versionCode": 1,
+      "permissions": [
+        "android.permission.POST_NOTIFICATIONS",
+        "android.permission.READ_CALENDAR",
+        "android.permission.WRITE_CALENDAR"
+      ],
+      "blockedPermissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "extra": {
       "router": {},

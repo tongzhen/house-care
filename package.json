@@ -11,11 +11,14 @@
     "typecheck": "tsc --noEmit",
     "test": "jest --runInBand",
     "validate:catalog": "jest src/__tests__/catalogValidation.test.ts --runInBand",
+    "generate:notices": "node scripts/generate-third-party-notices.mjs",
+    "notices:check": "node scripts/generate-third-party-notices.mjs --check",
     "lint": "expo lint"
   },
   "dependencies": {
     "@react-native-community/datetimepicker": "9.1.0",
     "expo": "~57.0.14",
+    "expo-application": "~57.0.2",
     "expo-calendar": "~57.0.2",
     "expo-document-picker": "~57.0.1",
     "expo-file-system": "~57.0.4",
