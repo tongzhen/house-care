@@ -79,13 +79,14 @@ export async function getSettings(): Promise<AppSettings> {
   if (values.notificationSchedule) {
     try { validateNotificationSchedule(notificationSchedule = { ...notificationSchedule, ...JSON.parse(values.notificationSchedule) }); } catch { notificationSchedule = defaultNotificationSchedule(); }
   }
-  return { language: values.language === 'da' ? 'da' : 'en', notificationsEnabled: values.notificationsEnabled !== 'false', notificationSchedule };
+  return { language: values.language === 'da' ? 'da' : 'en', notificationsEnabled: values.notificationsEnabled !== 'false', notificationsPermissionRequested: values.notificationsPermissionRequested === 'true', notificationSchedule };
 }
 
 export async function saveSettings(settings: AppSettings) {
   const connection = await db();
   await connection.runAsync('INSERT OR REPLACE INTO app_settings (key, value) VALUES (?, ?)', ['language', settings.language]);
   await connection.runAsync('INSERT OR REPLACE INTO app_settings (key, value) VALUES (?, ?)', ['notificationsEnabled', String(settings.notificationsEnabled)]);
+  await connection.runAsync('INSERT OR REPLACE INTO app_settings (key, value) VALUES (?, ?)', ['notificationsPermissionRequested', String(settings.notificationsPermissionRequested ?? false)]);
   await connection.runAsync('INSERT OR REPLACE INTO app_settings (key, value) VALUES (?, ?)', ['notificationSchedule', JSON.stringify(settings.notificationSchedule)]);
 }
 
@@ -109,6 +110,7 @@ export async function replaceLocalData(profile: Omit<Profile, 'id'>, configurati
     }
     await transaction.runAsync('INSERT INTO app_settings (key, value) VALUES (?, ?)', ['language', settings.language]);
     await transaction.runAsync('INSERT INTO app_settings (key, value) VALUES (?, ?)', ['notificationsEnabled', String(settings.notificationsEnabled)]);
+    await transaction.runAsync('INSERT INTO app_settings (key, value) VALUES (?, ?)', ['notificationsPermissionRequested', String(settings.notificationsPermissionRequested ?? false)]);
     await transaction.runAsync('INSERT INTO app_settings (key, value) VALUES (?, ?)', ['notificationSchedule', JSON.stringify(settings.notificationSchedule)]);
   });
 }

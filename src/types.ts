@@ -15,4 +15,4 @@ export interface ActionConfiguration { actionId: string; enabled: boolean; frequ
 export interface TaskOutcome { id: string; actionId: string; type: OutcomeType; occurredAt: string; title?: string; note?: string; photoUri?: string; }
 export interface NotificationDayPreference { enabled: boolean; startTime: string; endTime: string; }
 export type NotificationSchedule = Record<Weekday, NotificationDayPreference>;
-export interface AppSettings { language: 'en' | 'da'; notificationsEnabled: boolean; notificationSchedule: NotificationSchedule; }
+export interface AppSettings { language: 'en' | 'da'; notificationsEnabled: boolean; notificationsPermissionRequested?: boolean; notificationSchedule: NotificationSchedule; }

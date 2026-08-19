@@ -5,6 +5,7 @@
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
+    "icon": "./assets/icon.png",
     "scheme": "housecare",
     "plugins": [
       "expo-router",
@@ -31,7 +32,8 @@
       "bundleIdentifier": "com.housecare.app"
     },
     "android": {
-      "package": "com.housecare.app"
+      "package": "com.housecare.app",
+      "permissions": ["POST_NOTIFICATIONS"]
     }
   }
 }
