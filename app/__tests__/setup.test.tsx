@@ -7,7 +7,7 @@ jest.mock('../../src/db', () => ({}));
 
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import '../../src/i18n';
-import { ActionDetail, Home, IssueForm, Setup } from '../index';
+import { ActionDetail, ActionOverview, Home, IssueForm, Setup } from '../index';
 import { getAction } from '../../src/catalog';
 
 describe('setup flow', () => {
@@ -61,6 +61,39 @@ describe('setup flow', () => {
 
     await act(async () => { view.rerender(<ActionDetail action={{ ...action, trigger: { kind: 'habit' } }} {...props} />); });
     expect(screen.queryByText('Add to calendar')).toBeNull();
+  });
+
+  it('groups actions by category, filters status, and opens disabled details', async () => {
+    const enabled = getAction('dishwasher-filter-clean')!;
+    const disabled = getAction('dryer-lint-filter')!;
+    const onOpen = jest.fn();
+    await render(<ActionOverview actions={[enabled, disabled]} configurations={new Map([
+      [enabled.id, { actionId: enabled.id, enabled: true, notificationsEnabled: true, nextDueAt: new Date(Date.now() + 86400000).toISOString() }],
+      [disabled.id, { actionId: disabled.id, enabled: false, notificationsEnabled: true, nextDueAt: new Date(Date.now() + 86400000).toISOString() }],
+    ])} profile={{ id: 'primary-home', appliances: ['dishwasher', 'tumble-dryer'], features: [], variants: {} }} language="en" onBack={jest.fn()} onOpen={onOpen} />);
+    expect(screen.getAllByText('Appliance').length).toBeGreaterThan(0);
+    expect(screen.getByText('Clean the tumble-dryer lint filter')).toBeTruthy();
+    await act(async () => { fireEvent.press(screen.getByText('Disabled')); });
+    await act(async () => { fireEvent.press(screen.getByText('Clean the tumble-dryer lint filter')); });
+    expect(onOpen).toHaveBeenCalledWith(disabled.id);
+    expect(screen.queryByText('Enable action')).toBeNull();
+  });
+
+  it('shows non-applicable actions without making them tappable', async () => {
+    const action = getAction('dryer-lint-filter')!;
+    const onOpen = jest.fn();
+    await render(<ActionOverview actions={[action]} configurations={new Map()} profile={{ id: 'primary-home', appliances: ['dishwasher'], features: [], variants: {} }} language="en" onBack={jest.fn()} onOpen={onOpen} />);
+    expect(screen.getByText(/Not available for this home/)).toBeTruthy();
+    fireEvent.press(screen.getByText('Clean the tumble-dryer lint filter'));
+    expect(onOpen).not.toHaveBeenCalled();
+  });
+
+  it('opens disabled action details with the enable control', async () => {
+    const action = getAction('dryer-lint-filter')!;
+    const onEnabled = jest.fn(async () => undefined);
+    await render(<ActionDetail action={action} configuration={{ actionId: action.id, enabled: false, notificationsEnabled: true, nextDueAt: new Date(Date.now() + 86400000).toISOString() }} language="en" onBack={jest.fn()} onDone={jest.fn()} onSnooze={jest.fn()} onCustomSnooze={jest.fn(async () => undefined)} onNotRelevant={jest.fn()} onIssue={jest.fn()} onFrequency={jest.fn(async () => undefined)} onEnabled={onEnabled} />);
+    await act(async () => { fireEvent.press(screen.getByText('Enable action')); });
+    expect(onEnabled).toHaveBeenCalledWith(true);
   });
 
   it('requires an issue title before saving', async () => {

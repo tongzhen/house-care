@@ -327,7 +327,8 @@ The visual direction is calm, practical, and reassuring:
 | Frequency editor | Set, reset, or disable a personal schedule. |
 | Issue report | Add optional note/photo and receive safe next steps. |
 | History | Review completed tasks and issue records. |
-| Settings | Profile, language, reminder, data-export, and reset controls. |
+| Settings | Profile, actions overview, language, reminder, data-export, and reset controls. |
+| Actions overview | Browse all catalogue actions by category and status; open applicable enabled or disabled actions in detail. |
 
 ### Accessibility baseline
 
@@ -624,6 +625,7 @@ flowchart LR
 - User frequency changes apply immediately to future scheduling, never rewrite history, and can be reset to the bundled default.
 - Snooze options are tomorrow, one week, or a chosen date; snooze does not alter the recurring frequency.
 - Not relevant disables an action until manually re-enabled in Settings.
+- Settings provides an Actions overview grouped by catalogue category. It shows enabled, disabled, and not-applicable status; enablement changes happen in action detail and use the same schedule and notification update flows as Home and Actions.
 - The MVP allows one optional issue image, selected from the system photo picker; direct camera capture is deferred.
 - Photos and structured data stay in app-private storage. Export is user initiated and produces a versioned ZIP backup.
 - The bundled knowledge base remains English-canonical. Every Danish translation must preserve the source action’s safety meaning; all 21 bundled actions currently include Danish content.
