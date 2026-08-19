@@ -34,6 +34,13 @@
     "android": {
       "package": "com.housecare.app",
       "permissions": ["POST_NOTIFICATIONS"]
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "bacb1410-65d3-467f-917c-a673b25c4138"
+      }
+    },
+    "owner": "zhen.tong"
   }
 }
