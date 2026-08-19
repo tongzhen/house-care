@@ -46,6 +46,7 @@ The MVP is deliberately local-first:
 - React Native core components and a small design-system layer.
 - `expo-sqlite` for durable structured data.
 - `expo-file-system` for app-private issue photos and export files.
+- `expo-print` and `expo-sharing` for one-way, user-initiated PDF maintenance report export.
 - `expo-notifications` for local scheduled reminders.
 - `react-i18next`/i18next for UI and knowledge-base localization.
 - Zod for runtime validation of knowledge-base content and imported data.
@@ -476,6 +477,7 @@ Run accessibility, content-safety, data-migration, offline, upgrade, and device 
 #### Delivery 10–11: backup, language, and release quality
 
 - Export a versioned ZIP archive containing `manifest.json`, structured user data, and copied issue images.
+- From History, export a one-way PDF maintenance report for a selected period. Reports include completed work, issue notes, and available issue photos; they use the active app language and are shared through the device without changing House Care data.
 - Validate all archive data before one transactional import; malformed or unsupported exports must not partially write the database.
 - Add English/Danish selection in Settings and complete Danish translations for UI, knowledge-base text, notification copy, and accessibility labels.
 - Test both languages for visual overflow and equivalent safety meaning before pilot release.

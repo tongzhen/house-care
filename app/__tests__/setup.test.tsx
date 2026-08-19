@@ -1,6 +1,8 @@
 /* eslint-disable import/first */
 
 jest.mock('expo-file-system/legacy', () => ({}));
+jest.mock('expo-print', () => ({ printToFileAsync: jest.fn() }));
+jest.mock('expo-sharing', () => ({ isAvailableAsync: jest.fn(), shareAsync: jest.fn() }));
 jest.mock('expo-image-picker', () => ({}));
 jest.mock('expo-notifications', () => ({ setNotificationHandler: jest.fn(), addNotificationResponseReceivedListener: jest.fn(() => ({ remove: jest.fn() })), getLastNotificationResponseAsync: jest.fn(async () => null) }));
 jest.mock('../../src/db', () => ({}));
@@ -108,6 +110,17 @@ describe('setup flow', () => {
     await act(async () => { fireEvent.press(screen.getByText('Appliance')); });
     expect(screen.getByText('Clean the dishwasher filter')).toBeTruthy();
     expect(screen.queryByText('Clear accessible gutter debris')).toBeNull();
+  });
+
+  it('offers PDF export periods from history and reveals native-date-picker controls for custom dates', async () => {
+    const dishwasher = getAction('dishwasher-filter-clean')!;
+    await render(<History state={{ profile: { id: 'home', appliances: ['dishwasher'], features: [], variants: {} }, configurations: [], settings: { language: 'en', notificationsEnabled: true, notificationSchedule: {} as never }, outcomes: [
+      { id: 'done-dishwasher', actionId: dishwasher.id, type: 'done', occurredAt: new Date().toISOString() },
+    ] }} language="en" onOpenIssue={jest.fn()} />);
+    expect(screen.getByText('Export PDF report')).toBeTruthy();
+    await act(async () => { fireEvent.press(screen.getByText('Custom')); });
+    expect(screen.getByText(/Start date:/)).toBeTruthy();
+    expect(screen.getByText(/End date:/)).toBeTruthy();
   });
 
   it('filters the actions list by category', async () => {
