@@ -1,6 +1,6 @@
 import type { NotificationDayPreference, NotificationSchedule, Weekday } from './types';
 
-export const weekdays: Weekday[] = [0, 1, 2, 3, 4, 5, 6];
+export const weekdays: Weekday[] = [1, 2, 3, 4, 5, 6, 0];
 
 export function defaultNotificationSchedule(): NotificationSchedule {
   return Object.fromEntries(weekdays.map((weekday) => [weekday, { enabled: true, startTime: '00:00', endTime: '24:00' }])) as NotificationSchedule;

@@ -1,10 +1,14 @@
-import { defaultNotificationSchedule, timeToMinutes, validateNotificationDayPreference } from '../notificationSchedule';
+import { defaultNotificationSchedule, timeToMinutes, validateNotificationDayPreference, weekdays } from '../notificationSchedule';
 
 describe('notification schedule rules', () => {
   it('defaults every weekday to enabled all-day timing', () => {
     const schedule = defaultNotificationSchedule();
     expect(Object.values(schedule)).toHaveLength(7);
     expect(Object.values(schedule).every((day) => day.enabled && day.startTime === '00:00' && day.endTime === '24:00')).toBe(true);
+  });
+
+  it('orders notification timing Monday through Sunday', () => {
+    expect(weekdays).toEqual([1, 2, 3, 4, 5, 6, 0]);
   });
 
   it('accepts 24:00 as the end of a full-day window', () => {

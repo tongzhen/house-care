@@ -327,7 +327,7 @@ The visual direction is calm, practical, and reassuring:
 | Frequency editor | Set, reset, or disable a personal schedule. |
 | Issue report | Add optional note/photo and receive safe next steps. |
 | History | Review completed tasks and issue records. |
-| Settings | Profile, actions overview, language, reminder, data-export, and reset controls. |
+| Settings | Profile, actions overview, language, notification settings, data-export, and reset controls. |
 | Actions overview | Browse all catalogue actions by category and status; open applicable enabled or disabled actions in detail. |
 
 ### Accessibility baseline
@@ -621,6 +621,7 @@ flowchart LR
 - The app is fully usable offline. No authentication, backend, cloud sync, API, weather integration, remote content update, or push notification is included.
 - Postcode is not collected in the MVP because it has no approved offline use; it may be added later with explicit purpose and consent.
 - Local reminders occur once at 09:00 device-local time on the due date. No repeated overdue reminders are sent.
+- Notification settings combine the local-notifications switch and weekly timing. Timing is ordered Monday through Sunday and is unavailable while local notifications are off.
 - Monthly schedules use the same calendar day where possible, otherwise the final valid day of the month.
 - User frequency changes apply immediately to future scheduling, never rewrite history, and can be reset to the bundled default.
 - Snooze options are tomorrow, one week, or a chosen date; snooze does not alter the recurring frequency.
