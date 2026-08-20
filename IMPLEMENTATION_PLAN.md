@@ -32,6 +32,9 @@ The MVP is deliberately local-first:
 - One photo may be attached to an issue; it remains in app-private local storage.
 - Export/import uses a versioned local format. No data leaves the device automatically.
 - Settings includes an offline About & legal area with installed version/build details, Privacy Policy, Terms of Use & Safety, acknowledgements, and Data & permissions. Matching canonical legal pages are published separately from the private app source; legal identity and contact placeholders must be replaced before public release.
+- On first launch, Danish is selected only when the device system language is Danish; every other system language defaults to English. A language selected in Settings is persisted and takes precedence over later system-language changes.
+- Profile and notification settings use local drafts when opened from Settings. Their changes are validated and committed, including action recalculation and notification rescheduling, only when the user leaves with the visible Back control or a deliberate left-edge swipe.
+- Secondary screens support deliberate left-edge swipe-back navigation. Primary tabs do not respond to swipe-back gestures.
 
 ### Deliberate refinements
 
