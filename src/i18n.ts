@@ -1,5 +1,6 @@
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
+import { defaultAppLanguage } from './language';
 
 const resources = {
   en: { translation: {
@@ -20,6 +21,9 @@ const resources = {
   }}
 };
 
+Object.assign(resources.en.translation, { profileVariantRequired: 'Choose a type for each selected appliance before leaving.', pickerDone: 'Done' });
+Object.assign(resources.da.translation, { profileVariantRequired: 'Vælg en type for hvert valgt apparat, før du forlader siden.', pickerDone: 'Færdig' });
+
 // eslint-disable-next-line import/no-named-as-default-member
-i18n.use(initReactI18next).init({ resources, lng: 'en', fallbackLng: 'en', interpolation: { escapeValue: false } });
+i18n.use(initReactI18next).init({ resources, lng: defaultAppLanguage(), fallbackLng: 'en', interpolation: { escapeValue: false } });
 export default i18n;

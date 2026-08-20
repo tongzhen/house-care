@@ -1,5 +1,6 @@
 import * as SQLite from 'expo-sqlite';
 import { defaultNotificationSchedule, validateNotificationSchedule } from './notificationSchedule';
+import { defaultAppLanguage } from './language';
 import type { ActionConfiguration, AppSettings, FrequencyUnit, Profile, TaskOutcome } from './types';
 
 let database: SQLite.SQLiteDatabase | undefined;
@@ -80,7 +81,8 @@ export async function getSettings(): Promise<AppSettings> {
   if (values.notificationSchedule) {
     try { validateNotificationSchedule(notificationSchedule = { ...notificationSchedule, ...JSON.parse(values.notificationSchedule) }); } catch { notificationSchedule = defaultNotificationSchedule(); }
   }
-  return { language: values.language === 'da' ? 'da' : 'en', notificationsEnabled: values.notificationsEnabled !== 'false', notificationsPermissionRequested: values.notificationsPermissionRequested === 'true', notificationSchedule };
+  const language = values.language === 'da' || values.language === 'en' ? values.language : defaultAppLanguage();
+  return { language, notificationsEnabled: values.notificationsEnabled !== 'false', notificationsPermissionRequested: values.notificationsPermissionRequested === 'true', notificationSchedule };
 }
 
 export async function saveSettings(settings: AppSettings) {

@@ -10,8 +10,9 @@ jest.mock('../../src/db', () => ({}));
 
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import '../../src/i18n';
-import { ActionDetail, ActionList, ActionOverview, History, Home, IssueForm, ReportExport, Setup } from '../index';
+import { ActionDetail, ActionList, ActionOverview, History, Home, IssueForm, NotificationSettings, ReportExport, Setup, isSwipeBackGesture } from '../index';
 import { getAction } from '../../src/catalog';
+import { defaultNotificationSchedule } from '../../src/notificationSchedule';
 
 describe('setup flow', () => {
   it('saves a selected dishwasher profile', async () => {
@@ -30,13 +31,34 @@ describe('setup flow', () => {
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ variants: { tumbleDryer: 'vented' } }));
   });
 
-  it('shows a Settings back button and Save action when editing a profile', async () => {
+  it('commits an edited profile only when leaving Settings', async () => {
     const onBack = jest.fn();
-    await render(<Setup initial={{ id: 'primary-home', houseType: 'detached', appliances: ['dishwasher'], features: [], variants: {} }} onBack={onBack} onSave={jest.fn(async () => undefined)} />);
-    fireEvent.press(screen.getByText('‹ Settings'));
+    const onCommit = jest.fn(async () => undefined);
+    await render(<Setup initial={{ id: 'primary-home', houseType: 'detached', appliances: ['dishwasher'], features: [], variants: {} }} onBack={onBack} onCommit={onCommit} />);
+    await act(async () => { fireEvent.press(screen.getByText('Washing machine')); });
+    expect(onCommit).not.toHaveBeenCalled();
+    await act(async () => { fireEvent.press(screen.getByText('‹ Settings')); });
     expect(onBack).toHaveBeenCalledTimes(1);
-    expect(screen.getByText('Save')).toBeTruthy();
+    expect(onCommit).toHaveBeenCalledWith(expect.objectContaining({ appliances: ['dishwasher', 'washing-machine'] }));
+    expect(screen.queryByText('Save')).toBeNull();
     expect(screen.queryByText('Continue')).toBeNull();
+  });
+
+  it('commits notification settings only when leaving', async () => {
+    const onSettings = jest.fn(async () => undefined);
+    const onBack = jest.fn();
+    const settings = { language: 'en' as const, notificationsEnabled: true, notificationSchedule: defaultNotificationSchedule() };
+    await render(<NotificationSettings settings={settings} onSettings={onSettings} onBack={onBack} />);
+    expect(onSettings).not.toHaveBeenCalled();
+    await act(async () => { fireEvent.press(screen.getByText('‹ Settings')); });
+    expect(onSettings).toHaveBeenCalledWith(settings);
+    expect(onBack).toHaveBeenCalledTimes(1);
+  });
+
+  it('recognizes only deliberate edge swipe-back gestures', () => {
+    expect(isSwipeBackGesture(10, 90, 5)).toBe(true);
+    expect(isSwipeBackGesture(40, 90, 5)).toBe(false);
+    expect(isSwipeBackGesture(10, 90, 100)).toBe(false);
   });
 
   it('does not label an upcoming dishwasher task as due now', async () => {

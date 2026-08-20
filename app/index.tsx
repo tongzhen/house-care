@@ -3,9 +3,9 @@ import DateTimePicker, { type DateTimePickerChangeEvent } from '@react-native-co
 import * as Application from 'expo-application';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as ImagePicker from 'expo-image-picker';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Alert, Image, Linking, Modal, Platform, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, Linking, Modal, PanResponder, Platform, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { actionApplies, actions, getAction } from '../src/catalog';
 import { addCalendarEvent, CalendarAccessError, getWritableCalendars, type WritableCalendar } from '../src/calendar';
@@ -27,6 +27,23 @@ const applianceChoices = [
 ] as const;
 const featureChoices = ['gutters', 'drainage-faskine', 'pump-well', 'outdoor-tap', 'ventilation', 'underfloor-heating', 'wood-floors', 'floor-drains'];
 const presets: Frequency[] = [{ interval: 1, unit: 'week' }, { interval: 1, unit: 'month' }, { interval: 3, unit: 'month' }, { interval: 6, unit: 'month' }, { interval: 1, unit: 'year' }];
+
+const swipeBackEdgeWidth = 32;
+const swipeBackDistance = 80;
+
+export function isSwipeBackGesture(startX: number, distanceX: number, distanceY: number) {
+  return startX <= swipeBackEdgeWidth && distanceX >= swipeBackDistance && Math.abs(distanceX) > Math.abs(distanceY);
+}
+
+function SwipeBack({ onBack, children }: { onBack?: () => void | Promise<void>; children: ReactNode }) {
+  const responder = PanResponder.create({
+    onMoveShouldSetPanResponder: (_event, gesture) => gesture.x0 <= swipeBackEdgeWidth && gesture.dx > 12 && Math.abs(gesture.dx) > Math.abs(gesture.dy),
+    onPanResponderRelease: (_event, gesture) => {
+      if (isSwipeBackGesture(gesture.x0, gesture.dx, gesture.dy)) void onBack?.();
+    },
+  });
+  return <View style={styles.flex} {...responder.panHandlers}>{children}</View>;
+}
 
 export default function Index() {
   const { i18n } = useTranslation();
@@ -83,7 +100,7 @@ export default function Index() {
   const selectedOutcome = selectedOutcomeId ? state?.outcomes.find((outcome) => outcome.id === selectedOutcomeId) : undefined;
 
   if (!state) return <SafeAreaView style={styles.loading}><ActivityIndicator color={colors.green} /></SafeAreaView>;
-  if (!state.profile || view === 'setup') return <Setup initial={state.profile} onBack={state.profile ? () => setView('settings') : undefined} onSave={async (profile) => { const nextState = await saveHomeProfile(profile); setState(nextState); setView(nextState.profile ? 'settings' : 'home'); }} />;
+  if (!state.profile || view === 'setup') return <Setup initial={state.profile} onBack={state.profile ? () => setView('settings') : undefined} onSave={!state.profile ? async (profile) => { const nextState = await saveHomeProfile(profile); setState(nextState); setView('home'); } : undefined} onCommit={state.profile ? async (profile) => { setState(await saveHomeProfile(profile)); } : undefined} />;
 
   const openAction = (actionId: string, returnView: ViewName = 'home') => { setSelectedActionId(actionId); setDetailReturnView(returnView); setView('detail'); };
   const outcome = async (type: 'done' | 'snoozed', snoozeDays?: number, snoozedUntil?: string) => {
@@ -101,23 +118,23 @@ export default function Index() {
       {view === 'home' && <Home actions={orderedActions} configurations={configurations} language={state.settings.language} now={currentTime} onOpen={openAction} onReportIssue={() => setView('issue')} />}
       {view === 'actions' && <ActionList actions={orderedActions} configurations={configurations} language={state.settings.language} onOpen={(actionId) => openAction(actionId, 'actions')} />}
       {view === 'history' && <History state={state} language={state.settings.language} onOpenReport={() => setView('report-export')} onOpenIssue={(outcome) => { setSelectedOutcomeId(outcome.id); setView('issue-detail'); }} />}
-      {view === 'report-export' && <ReportExport state={state} language={state.settings.language} onBack={() => setView('history')} />}
+      {view === 'report-export' && <SwipeBack onBack={() => setView('history')}><ReportExport state={state} language={state.settings.language} onBack={() => setView('history')} /></SwipeBack>}
       {view === 'settings' && <Settings state={state} onState={setState} onEditProfile={() => setView('setup')} onOpenActions={() => setView('actions-overview')} onOpenNotifications={() => setView('notification-timing')} onOpenAbout={() => setView('about')} onOpenDebug={() => setView('notification-debug')} onReset={async () => { setState(await resetAppData()); setView('setup'); }} />}
-      {view === 'about' && <About language={state.settings.language} onBack={() => setView('settings')} onOpenDocument={(id) => { setLegalDocumentId(id); setView('legal-document'); }} />}
-      {view === 'legal-document' && <LegalDocumentView language={state.settings.language} documentId={legalDocumentId} onBack={() => setView('about')} />}
-      {view === 'actions-overview' && <ActionOverview actions={actions} configurations={configurations} profile={profile ?? null} language={state.settings.language} onBack={() => setView('settings')} onOpen={(actionId) => openAction(actionId, 'actions-overview')} />}
+      {view === 'about' && <SwipeBack onBack={() => setView('settings')}><About language={state.settings.language} onBack={() => setView('settings')} onOpenDocument={(id) => { setLegalDocumentId(id); setView('legal-document'); }} /></SwipeBack>}
+      {view === 'legal-document' && <SwipeBack onBack={() => setView('about')}><LegalDocumentView language={state.settings.language} documentId={legalDocumentId} onBack={() => setView('about')} /></SwipeBack>}
+      {view === 'actions-overview' && <SwipeBack onBack={() => setView('settings')}><ActionOverview actions={actions} configurations={configurations} profile={profile ?? null} language={state.settings.language} onBack={() => setView('settings')} onOpen={(actionId) => openAction(actionId, 'actions-overview')} /></SwipeBack>}
       {view === 'notification-timing' && <NotificationSettings settings={state.settings} onBack={() => setView('settings')} onSettings={async (settings) => setState(await updateSettings(settings))} />}
-      {view === 'notification-debug' && <NotificationDebug state={state} onBack={() => setView('settings')} onState={setState} />}
-      {view === 'detail' && selected && configurations.get(selected.id) && <ActionDetail action={selected} configuration={configurations.get(selected.id)!} language={state.settings.language} returnView={detailReturnView === 'actions' || detailReturnView === 'actions-overview' ? detailReturnView : 'home'} onBack={() => setView(detailReturnView)} onDone={() => outcome('done')} onSnooze={(days) => outcome('snoozed', days)} onCustomSnooze={customSnooze} onIssue={() => setView('issue')} onFrequency={async (frequency) => setState(await updateFrequency(selected.id, frequency))} onEnabled={async (enabled) => setState(await setActionEnabled(selected.id, enabled))} />}
-      {view === 'issue' && <IssueForm title={issueTitle} note={issueNote} photo={issuePhoto} actions={orderedActions} language={state.settings.language} actionId={issueActionId} onChooseAction={() => setView('issue-select')} onTitle={setIssueTitle} onNote={setIssueNote} onPhoto={setIssuePhoto} onBack={() => setView('home')} onSubmit={async () => { setState(await recordIssue(issueTitle, { actionId: issueActionId, note: issueNote, photoUri: issuePhoto })); setIssueTitle(''); setIssueNote(''); setIssuePhoto(undefined); setIssueActionId(undefined); setView('history'); }} />}
-      {view === 'issue-select' && <IssueActionSelect actions={orderedActions} language={state.settings.language} onBack={() => setView('issue')} onSelect={(actionId) => { setIssueActionId(actionId); setView('issue'); }} />}
-      {view === 'issue-detail' && selectedOutcome && <IssueDetail outcome={selectedOutcome} language={state.settings.language} onBack={() => setView('history')} onDeletePhoto={async () => setState(await deleteIssuePhoto(selectedOutcome))} onDeleteIssue={async () => { setState(await deleteIssueRecord(selectedOutcome)); setSelectedOutcomeId(null); setView('history'); }} />}
+      {view === 'notification-debug' && <SwipeBack onBack={() => setView('settings')}><NotificationDebug state={state} onBack={() => setView('settings')} onState={setState} /></SwipeBack>}
+      {view === 'detail' && selected && configurations.get(selected.id) && <SwipeBack onBack={() => setView(detailReturnView)}><ActionDetail action={selected} configuration={configurations.get(selected.id)!} language={state.settings.language} returnView={detailReturnView === 'actions' || detailReturnView === 'actions-overview' ? detailReturnView : 'home'} onBack={() => setView(detailReturnView)} onDone={() => outcome('done')} onSnooze={(days) => outcome('snoozed', days)} onCustomSnooze={customSnooze} onIssue={() => setView('issue')} onFrequency={async (frequency) => setState(await updateFrequency(selected.id, frequency))} onEnabled={async (enabled) => setState(await setActionEnabled(selected.id, enabled))} /></SwipeBack>}
+      {view === 'issue' && <SwipeBack onBack={() => setView('home')}><IssueForm title={issueTitle} note={issueNote} photo={issuePhoto} actions={orderedActions} language={state.settings.language} actionId={issueActionId} onChooseAction={() => setView('issue-select')} onTitle={setIssueTitle} onNote={setIssueNote} onPhoto={setIssuePhoto} onBack={() => setView('home')} onSubmit={async () => { setState(await recordIssue(issueTitle, { actionId: issueActionId, note: issueNote, photoUri: issuePhoto })); setIssueTitle(''); setIssueNote(''); setIssuePhoto(undefined); setIssueActionId(undefined); setView('history'); }} /></SwipeBack>}
+      {view === 'issue-select' && <SwipeBack onBack={() => setView('issue')}><IssueActionSelect actions={orderedActions} language={state.settings.language} onBack={() => setView('issue')} onSelect={(actionId) => { setIssueActionId(actionId); setView('issue'); }} /></SwipeBack>}
+      {view === 'issue-detail' && selectedOutcome && <SwipeBack onBack={() => setView('history')}><IssueDetail outcome={selectedOutcome} language={state.settings.language} onBack={() => setView('history')} onDeletePhoto={async () => setState(await deleteIssuePhoto(selectedOutcome))} onDeleteIssue={async () => { setState(await deleteIssueRecord(selectedOutcome)); setSelectedOutcomeId(null); setView('history'); }} /></SwipeBack>}
       {['home', 'actions', 'history', 'settings'].includes(view) && <TabBar active={view as Tab} onChange={setView} />}
     </SafeAreaView>
   );
 }
 
-export function Setup({ initial, onBack, onSave }: { initial: Profile | null; onBack?: () => void; onSave: (profile: Omit<Profile, 'id'>) => Promise<void> }) {
+export function Setup({ initial, onBack, onSave, onCommit }: { initial: Profile | null; onBack?: () => void; onSave?: (profile: Omit<Profile, 'id'>) => Promise<void>; onCommit?: (profile: Omit<Profile, 'id'>) => Promise<void> }) {
   const { t } = useTranslation();
   const [appliances, setAppliances] = useState<string[]>(initial?.appliances ?? ['dishwasher']);
   const [features, setFeatures] = useState<string[]>(initial?.features ?? []);
@@ -126,16 +143,23 @@ export function Setup({ initial, onBack, onSave }: { initial: Profile | null; on
   const [hoodVariant, setHoodVariant] = useState<string | undefined>(initial?.variants.cookerHood);
   const [saving, setSaving] = useState(false);
   const toggle = (value: string, values: string[], setter: (items: string[]) => void) => setter(values.includes(value) ? values.filter((item) => item !== value) : [...values, value]);
-  return <SafeAreaView style={styles.safe}><ScrollView contentContainerStyle={styles.page}>
-    {onBack && <Pressable onPress={onBack}><Text style={styles.back}>‹ {t('settings')}</Text></Pressable>}
+  const profile = (): Omit<Profile, 'id'> => ({ houseType, ageBand: 'new-build', appliances, features, variants: { ...(appliances.includes('tumble-dryer') && dryerVariant ? { tumbleDryer: dryerVariant } : {}), ...(appliances.includes('cooker-hood') && hoodVariant ? { cookerHood: hoodVariant } : {}) } });
+  const leave = async () => {
+    if (appliances.length === 0 || (appliances.includes('tumble-dryer') && !dryerVariant) || (appliances.includes('cooker-hood') && !hoodVariant)) { Alert.alert(t('editHome'), t('profileVariantRequired')); return; }
+    setSaving(true);
+    try { await onCommit?.(profile()); onBack?.(); } finally { setSaving(false); }
+  };
+  const toggleAppliance = (id: string) => { toggle(id, appliances, setAppliances); if (id === 'tumble-dryer' && appliances.includes(id)) setDryerVariant(undefined); if (id === 'cooker-hood' && appliances.includes(id)) setHoodVariant(undefined); };
+  return <SafeAreaView style={styles.safe}><SwipeBack onBack={onBack && leave}><ScrollView contentContainerStyle={styles.page}>
+    {onBack && <Pressable onPress={() => { void leave(); }}><Text style={styles.back}>‹ {t('settings')}</Text></Pressable>}
     <Text style={styles.kicker}>HOUSE CARE</Text><Text style={styles.h1}>{t('welcome')}</Text><Text style={styles.sub}>{t('setupHint')}</Text>
     <Text style={styles.label}>House type</Text><View style={styles.choiceRow}>{(['detached', 'terraced'] as const).map((item) => <Choice key={item} label={item === 'detached' ? 'Detached' : 'Terraced'} selected={houseType === item} onPress={() => setHouseType(item)} />)}</View>
-    <Text style={styles.label}>Appliances</Text><View style={styles.choiceGrid}>{applianceChoices.map(([id, label]) => <Choice key={id} label={t(label)} selected={appliances.includes(id)} onPress={() => toggle(id, appliances, setAppliances)} />)}</View>
+    <Text style={styles.label}>Appliances</Text><View style={styles.choiceGrid}>{applianceChoices.map(([id, label]) => <Choice key={id} label={t(label)} selected={appliances.includes(id)} onPress={() => toggleAppliance(id)} />)}</View>
     {appliances.includes('tumble-dryer') && <><Text style={styles.label}>Tumble dryer type</Text><View style={styles.choiceRow}><Choice label="Vented" selected={dryerVariant === 'vented'} onPress={() => setDryerVariant('vented')} /><Choice label="Condenser / heat pump" selected={dryerVariant === 'condenser'} onPress={() => setDryerVariant('condenser')} /></View></>}
     {appliances.includes('cooker-hood') && <><Text style={styles.label}>Cooker hood type</Text><View style={styles.choiceRow}><Choice label="Recirculating" selected={hoodVariant === 'recirculating'} onPress={() => setHoodVariant('recirculating')} /><Choice label="Vented outside" selected={hoodVariant === 'vented-outside'} onPress={() => setHoodVariant('vented-outside')} /></View></>}
     <Text style={styles.label}>Home features</Text><View style={styles.choiceGrid}>{featureChoices.map((id) => <Choice key={id} label={id.replaceAll('-', ' ')} selected={features.includes(id)} onPress={() => toggle(id, features, setFeatures)} />)}</View>
-    <Pressable style={[styles.primary, saving && styles.dim]} disabled={saving || appliances.length === 0 || (appliances.includes('tumble-dryer') && !dryerVariant) || (appliances.includes('cooker-hood') && !hoodVariant)} onPress={async () => { setSaving(true); await onSave({ houseType, ageBand: 'new-build', appliances, features, variants: { ...(appliances.includes('tumble-dryer') && dryerVariant ? { tumbleDryer: dryerVariant } : {}), ...(appliances.includes('cooker-hood') && hoodVariant ? { cookerHood: hoodVariant } : {}) } }); setSaving(false); }}><Text style={styles.primaryText}>{saving ? '…' : t(onBack ? 'save' : 'continue')}</Text></Pressable>
-  </ScrollView></SafeAreaView>;
+    {!onBack && <Pressable style={[styles.primary, saving && styles.dim]} disabled={saving || appliances.length === 0 || (appliances.includes('tumble-dryer') && !dryerVariant) || (appliances.includes('cooker-hood') && !hoodVariant)} onPress={async () => { setSaving(true); try { await onSave?.(profile()); } finally { setSaving(false); } }}><Text style={styles.primaryText}>{saving ? '…' : t('continue')}</Text></Pressable>}
+  </ScrollView></SwipeBack></SafeAreaView>;
 }
 
 export function Home({ actions: items, configurations, language, now, onOpen, onReportIssue }: { actions: MaintenanceAction[]; configurations: Map<string, ActionConfiguration>; language: 'en' | 'da'; now: number; onOpen: (id: string) => void; onReportIssue: () => void }) {
@@ -292,13 +316,18 @@ export function LegalDocumentView({ language, documentId, onBack }: { language: 
 }
 
 export function NotificationSettings({ settings, onBack, onSettings }: { settings: AppState['settings']; onBack: () => void; onSettings: (settings: AppState['settings']) => Promise<void> }) {
-  const { t, i18n } = useTranslation(); const [draft, setDraft] = useState<NotificationSchedule>(() => ({ ...defaultNotificationSchedule(), ...settings.notificationSchedule })); const [picker, setPicker] = useState<{ weekday: Weekday; field: 'startTime' | 'endTime' } | null>(null); const enabled = settings.notificationsEnabled; const weekdayName = (weekday: Weekday) => new Intl.DateTimeFormat(i18n.language === 'da' ? 'da-DK' : 'en-US', { weekday: 'long' }).format(new Date(2021, 0, 3 + weekday));
-  const updateDay = (weekday: Weekday, patch: Partial<NotificationSchedule[Weekday]>) => setDraft((current) => ({ ...current, [weekday]: { ...current[weekday], ...patch } }));
-  const pickerValue = () => { const value = picker ? draft[picker.weekday][picker.field] : '00:00'; const [hours, minutes] = (value === '24:00' ? '23:59' : value).split(':').map(Number); const date = new Date(); date.setHours(hours, minutes, 0, 0); return date; };
+  const { t, i18n } = useTranslation();
+  const [draft, setDraft] = useState<AppState['settings']>(() => ({ ...settings, notificationSchedule: { ...defaultNotificationSchedule(), ...settings.notificationSchedule } }));
+  const [picker, setPicker] = useState<{ weekday: Weekday; field: 'startTime' | 'endTime' } | null>(null);
+  const [saving, setSaving] = useState(false);
+  const enabled = draft.notificationsEnabled;
+  const weekdayName = (weekday: Weekday) => new Intl.DateTimeFormat(i18n.language === 'da' ? 'da-DK' : 'en-US', { weekday: 'long' }).format(new Date(2021, 0, 3 + weekday));
+  const updateDay = (weekday: Weekday, patch: Partial<NotificationSchedule[Weekday]>) => setDraft((current) => ({ ...current, notificationSchedule: { ...current.notificationSchedule, [weekday]: { ...current.notificationSchedule[weekday], ...patch } } }));
+  const pickerValue = () => { const value = picker ? draft.notificationSchedule[picker.weekday][picker.field] : '00:00'; const [hours, minutes] = (value === '24:00' ? '23:59' : value).split(':').map(Number); const date = new Date(); date.setHours(hours, minutes, 0, 0); return date; };
   const changeTime = (_event: DateTimePickerChangeEvent, value: Date) => { if (picker) updateDay(picker.weekday, { [picker.field]: `${String(value.getHours()).padStart(2, '0')}:${String(value.getMinutes()).padStart(2, '0')}` }); if (Platform.OS === 'android') setPicker(null); };
-  const toggleNotifications = async (nextEnabled: boolean) => { if (!nextEnabled) { await onSettings({ ...settings, notificationsEnabled: false }); return; } const granted = await requestNotificationPermission(); if (!granted) { Alert.alert('Notifications are disabled in system settings.'); return; } await onSettings({ ...settings, notificationsEnabled: true, notificationsPermissionRequested: true }); };
-  const saveTiming = async () => { try { await onSettings({ ...settings, notificationSchedule: draft }); onBack(); } catch (error) { Alert.alert(t('notificationTiming'), error instanceof Error ? error.message : t('timingInvalid')); } };
-  return <ScrollView contentContainerStyle={styles.page}><Pressable onPress={onBack}><Text style={styles.back}>‹ {t('settings')}</Text></Pressable><Text style={styles.h1}>{t('notificationSettings')}</Text><View style={styles.setting}><Text style={styles.rowTitle}>{t('notifications')}</Text><Switch value={enabled} onValueChange={(nextEnabled) => { void toggleNotifications(nextEnabled); }} /></View><View pointerEvents={enabled ? 'auto' : 'none'} style={!enabled && styles.dim}><Text style={styles.sectionTitle}>{t('notificationTiming')}</Text><Text style={styles.sub}>{t('notificationTimingHint')}</Text>{weekdays.map((weekday) => { const preference = draft[weekday]; return <View style={styles.setting} key={weekday}><View style={formStyles.daySetting}><Text style={styles.rowTitle}>{weekdayName(weekday)}</Text><View style={formStyles.timeRow}><Pressable style={formStyles.timeSelector} onPress={() => setPicker({ weekday, field: 'startTime' })}><Text style={formStyles.timeText}>{preference.startTime}</Text></Pressable><Text style={formStyles.rangeDash}>–</Text><Pressable style={formStyles.timeSelector} onPress={() => setPicker({ weekday, field: 'endTime' })}><Text style={formStyles.timeText}>{preference.endTime}</Text></Pressable></View></View><Switch value={preference.enabled} onValueChange={(dayEnabled) => updateDay(weekday, { enabled: dayEnabled })} /></View>; })}<Pressable style={styles.primary} onPress={() => { void saveTiming(); }}><Text style={styles.primaryText}>{t('saveTiming')}</Text></Pressable></View>{picker && (Platform.OS === 'ios' ? <Modal transparent animationType="slide" visible onRequestClose={() => setPicker(null)}><View style={formStyles.pickerOverlay}><View style={formStyles.pickerCard}><DateTimePicker value={pickerValue()} mode="time" display="spinner" onValueChange={changeTime} onDismiss={() => setPicker(null)} /><Pressable style={styles.primary} onPress={() => setPicker(null)}><Text style={styles.primaryText}>{t('save')}</Text></Pressable></View></View></Modal> : <DateTimePicker value={pickerValue()} mode="time" display="default" onValueChange={changeTime} onDismiss={() => setPicker(null)} />)}</ScrollView>;
+  const toggleNotifications = async (nextEnabled: boolean) => { if (!nextEnabled) { setDraft((current) => ({ ...current, notificationsEnabled: false })); return; } const granted = await requestNotificationPermission(); if (!granted) { Alert.alert('Notifications are disabled in system settings.'); return; } setDraft((current) => ({ ...current, notificationsEnabled: true, notificationsPermissionRequested: true })); };
+  const leave = async () => { setSaving(true); try { await onSettings(draft); onBack(); } catch (error) { Alert.alert(t('notificationTiming'), error instanceof Error ? error.message : t('timingInvalid')); } finally { setSaving(false); } };
+  return <SwipeBack onBack={leave}><ScrollView contentContainerStyle={styles.page}><Pressable disabled={saving} onPress={() => { void leave(); }}><Text style={styles.back}>‹ {t('settings')}</Text></Pressable><Text style={styles.h1}>{t('notificationSettings')}</Text><View style={styles.setting}><Text style={styles.rowTitle}>{t('notifications')}</Text><Switch value={enabled} onValueChange={(nextEnabled) => { void toggleNotifications(nextEnabled); }} /></View><View pointerEvents={enabled ? 'auto' : 'none'} style={!enabled && styles.dim}><Text style={styles.sectionTitle}>{t('notificationTiming')}</Text><Text style={styles.sub}>{t('notificationTimingHint')}</Text>{weekdays.map((weekday) => { const preference = draft.notificationSchedule[weekday]; return <View style={styles.setting} key={weekday}><View style={formStyles.daySetting}><Text style={styles.rowTitle}>{weekdayName(weekday)}</Text><View style={formStyles.timeRow}><Pressable style={formStyles.timeSelector} onPress={() => setPicker({ weekday, field: 'startTime' })}><Text style={formStyles.timeText}>{preference.startTime}</Text></Pressable><Text style={formStyles.rangeDash}>–</Text><Pressable style={formStyles.timeSelector} onPress={() => setPicker({ weekday, field: 'endTime' })}><Text style={formStyles.timeText}>{preference.endTime}</Text></Pressable></View></View><Switch value={preference.enabled} onValueChange={(dayEnabled) => updateDay(weekday, { enabled: dayEnabled })} /></View>; })}</View>{picker && (Platform.OS === 'ios' ? <Modal transparent animationType="slide" visible onRequestClose={() => setPicker(null)}><View style={formStyles.pickerOverlay}><View style={formStyles.pickerCard}><DateTimePicker value={pickerValue()} mode="time" display="spinner" onValueChange={changeTime} onDismiss={() => setPicker(null)} /><Pressable style={styles.primary} onPress={() => setPicker(null)}><Text style={styles.primaryText}>{t('pickerDone')}</Text></Pressable></View></View></Modal> : <DateTimePicker value={pickerValue()} mode="time" display="default" onValueChange={changeTime} onDismiss={() => setPicker(null)} />)}</ScrollView></SwipeBack>;
 }
 
 function NotificationDebug({ state, onBack, onState }: { state: AppState; onBack: () => void; onState: (state: AppState) => void }) {
@@ -318,6 +347,7 @@ function outcomeLabel(type: TaskOutcome['type'], t: (key: string) => string) { r
 
 const colors = { ink: '#17352C', muted: '#687B72', green: '#2F7563', deep: '#1F5547', sage: '#DCEEE4', line: '#DCE7DF', yellow: '#F6EAD0', warning: '#B65145', background: '#F5F8F5' };
 const styles = StyleSheet.create({
+  flex: { flex: 1 },
   safe: { flex: 1, backgroundColor: colors.background }, loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colors.background }, page: { padding: 22, paddingBottom: 96, gap: 12 }, reportEntry: { backgroundColor: '#fff', borderColor: colors.line, borderWidth: 1, borderRadius: 12, padding: 12, flexDirection: 'row', alignItems: 'center', gap: 10 }, reportEntryIcon: { width: 32, height: 32, borderRadius: 9, backgroundColor: colors.sage, alignItems: 'center', justifyContent: 'center' }, reportEntryIconText: { color: colors.deep, fontWeight: '800', fontSize: 17 }, reportPeriodCard: { backgroundColor: '#fff', borderColor: colors.line, borderWidth: 1, borderRadius: 13, padding: 12, gap: 10 }, reportPeriodGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   kicker: { color: colors.green, fontWeight: '800', letterSpacing: 1.5, fontSize: 11, marginTop: 8 }, h1: { color: colors.ink, fontSize: 30, lineHeight: 34, fontWeight: '800', marginTop: 4 }, sub: { color: colors.muted, fontSize: 14, lineHeight: 20 }, label: { color: colors.ink, fontSize: 13, fontWeight: '800', marginTop: 12 },
   selector: { borderWidth: 1, borderColor: colors.line, backgroundColor: '#fff', padding: 13, borderRadius: 12, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }, selectorText: { color: colors.ink, fontSize: 15 }, selectorChevron: { color: colors.green, fontSize: 22 }, choiceRow: { flexDirection: 'row', gap: 8 }, choiceGrid: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' }, choice: { borderWidth: 1, borderColor: colors.line, paddingVertical: 11, paddingHorizontal: 12, borderRadius: 11, backgroundColor: '#fff' }, choiceSelected: { backgroundColor: colors.sage, borderColor: colors.green }, choiceText: { color: colors.ink, textTransform: 'capitalize', fontSize: 13 }, choiceTextSelected: { color: colors.deep, fontWeight: '800' },
