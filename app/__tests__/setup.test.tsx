@@ -9,6 +9,7 @@ jest.mock('expo-notifications', () => ({ setNotificationHandler: jest.fn(), addN
 jest.mock('../../src/db', () => ({}));
 
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
+import { Alert } from 'react-native';
 import '../../src/i18n';
 import { ActionDetail, ActionList, ActionOverview, History, Home, IssueForm, NotificationSettings, ReportExport, Setup, isSwipeBackGesture } from '../index';
 import { getAction } from '../../src/catalog';
@@ -20,6 +21,17 @@ describe('setup flow', () => {
     await render(<Setup initial={null} onSave={onSave} />);
     fireEvent.press(screen.getByText('Continue'));
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ appliances: ['dishwasher'], houseType: 'detached' }));
+  });
+
+  it('explains missing required profile details instead of silently disabling setup', async () => {
+    const onSave = jest.fn(async () => undefined);
+    const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
+    await render(<Setup initial={null} onSave={onSave} />);
+    await act(async () => { fireEvent.press(screen.getByText('Dishwasher')); });
+    await act(async () => { fireEvent.press(screen.getByText('Continue')); });
+    expect(alert).toHaveBeenCalledWith('Make care fit your home.', 'Choose at least one appliance to continue.');
+    expect(onSave).not.toHaveBeenCalled();
+    alert.mockRestore();
   });
 
   it('stores a selected appliance variant for catalogue eligibility', async () => {
@@ -68,6 +80,18 @@ describe('setup flow', () => {
     expect(screen.getByText('Nothing needs your attention right now.')).toBeTruthy();
     expect(screen.queryByText('DUE NOW')).toBeNull();
     expect(screen.getByText('Clean the dishwasher filter')).toBeTruthy();
+  });
+
+  it('shows after-use actions separately from scheduled attention', async () => {
+    const scheduled = getAction('dishwasher-filter-clean')!;
+    const habit = getAction('dryer-lint-filter')!;
+    await render(<Home actions={[scheduled, habit]} configurations={new Map([
+      [scheduled.id, { actionId: scheduled.id, enabled: true, notificationsEnabled: true, nextDueAt: new Date(Date.now() + 86400000).toISOString() }],
+      [habit.id, { actionId: habit.id, enabled: true, notificationsEnabled: false }],
+    ])} language="en" now={Date.now()} onOpen={jest.fn()} onReportIssue={jest.fn()} />);
+    expect(screen.getByText('After each use')).toBeTruthy();
+    expect(screen.getByText('Clean the tumble-dryer lint filter')).toBeTruthy();
+    expect(screen.queryByText('DUE NOW')).toBeNull();
   });
 
   it('opens the Home-level report-issue entry point', async () => {

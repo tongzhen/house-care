@@ -34,7 +34,7 @@
       "category": "appliance",
       "target": "dishwasher",
       "profileConditions": { "appliances": ["dishwasher"] },
-      "trigger": { "kind": "recurring", "defaultFrequency": { "interval": 2, "unit": "month" }, "frequencyNote": "Typically every 1–3 months depending on use." },
+      "trigger": { "kind": "recurring", "defaultFrequency": { "interval": 1, "unit": "month" }, "frequencyNote": "Typically every 1–3 months depending on use." },
       "estimatedMinutes": 10,
       "safetyLevel": "DIY",
       "content": {

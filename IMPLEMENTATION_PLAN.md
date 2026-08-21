@@ -28,7 +28,7 @@ The MVP is deliberately local-first:
 - The user can mark an action Done, Snooze, or I noticed an issue; actions can also be disabled temporarily.
 - A user can override any default frequency, reset it, or disable the action.
 - Notifications are local-device notifications, defaulting to 09:00 in the device timezone.
-- Snooze choices are Tomorrow, In one week, and Choose a date. Custom snooze uses native date and time pickers and stores the selected local datetime as UTC.
+- Snooze choices are Tomorrow, In one week, and Choose a date. Custom snooze uses a native date picker and stores the selected date at 09:00 device-local time as UTC.
 - One photo may be attached to an issue; it remains in app-private local storage.
 - Export/import uses a versioned local format. No data leaves the device automatically.
 - Settings includes an offline About & legal area with installed version/build details, Privacy Policy, Terms of Use & Safety, acknowledgements, and Data & permissions. Matching canonical legal pages are published separately from the private app source; legal identity and contact placeholders must be replaced before public release.
