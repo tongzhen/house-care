@@ -1,6 +1,6 @@
 import { actionApplies, actions, getAction } from './catalog';
 import { clearData, importBackup, removeIssue, removeIssuePhoto } from './backup';
-import { atNineAM, nextDueDate } from './date';
+import { atNineAM, nextDueAfterCompletion, nextDueDate } from './date';
 import * as repository from './db';
 import { cancelScheduledNotifications, rescheduleNotifications } from './notifications';
 import { validateNotificationSchedule } from './notificationSchedule';
@@ -60,11 +60,8 @@ export async function recordOutcome(actionId: string, type: OutcomeType, options
   await repository.addOutcome(outcome);
   const frequency = current.frequencyOverride ?? action.trigger.defaultFrequency;
   const next: ActionConfiguration = { ...current, snoozedUntil: undefined };
-  if (type === 'done' && frequency) {
-    const scheduledOccurrence = current.snoozedUntil ?? current.nextDueAt;
-    const scheduledDate = scheduledOccurrence ? new Date(scheduledOccurrence) : now;
-    const referenceDate = scheduledDate > now ? scheduledDate : now;
-    next.nextDueAt = atNineAM(nextDueDate(referenceDate, frequency)).toISOString();
+  if (type === 'done') {
+    next.nextDueAt = nextDueAfterCompletion(now, frequency);
   }
   if (type === 'snoozed') next.snoozedUntil = snoozedUntil;
   await repository.upsertConfiguration(next);

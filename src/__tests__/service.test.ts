@@ -8,10 +8,14 @@ jest.mock('../catalog', () => ({
   actions: [
     { id: 'dishwasher-filter-clean', trigger: { kind: 'recurring', defaultFrequency: { interval: 1, unit: 'month' } }, profileConditions: { appliances: ['dishwasher'] } },
     { id: 'floor-drain-clean', trigger: { kind: 'recurring', defaultFrequency: { interval: 1, unit: 'month' } }, profileConditions: { features: ['floor-drains'] } },
+    { id: 'dryer-lint-filter', trigger: { kind: 'habit' }, profileConditions: { appliances: ['tumble-dryer'] } },
+    { id: 'gutters-ground-check', trigger: { kind: 'seasonal' }, profileConditions: { features: ['gutters'] } },
   ],
   getAction: (id: string) => ({
     'dishwasher-filter-clean': { id, trigger: { kind: 'recurring', defaultFrequency: { interval: 1, unit: 'month' } } },
     'floor-drain-clean': { id, trigger: { kind: 'recurring', defaultFrequency: { interval: 1, unit: 'month' } } },
+    'dryer-lint-filter': { id, trigger: { kind: 'habit' } },
+    'gutters-ground-check': { id, trigger: { kind: 'seasonal' } },
   })[id],
   actionApplies: (action: { profileConditions: { appliances?: string[]; features?: string[] } }, profile: { appliances: string[]; features: string[] }) =>
     (!action.profileConditions.appliances || action.profileConditions.appliances.some((item) => profile.appliances.includes(item))) &&
@@ -57,7 +61,17 @@ describe('maintenance service', () => {
     expect(rescheduleNotifications).toHaveBeenCalled();
   });
 
-  it('removes a future occurrence and schedules the next one after that occurrence', async () => {
+  it('clears due dates after completing a habit or unconfigured seasonal action', async () => {
+    jest.mocked(db.loadConfigurations).mockResolvedValue([{ actionId: 'dryer-lint-filter', enabled: true, notificationsEnabled: false, nextDueAt: '2026-08-17T09:00:00.000Z' }]);
+    await recordOutcome('dryer-lint-filter', 'done');
+    expect(db.upsertConfiguration).toHaveBeenCalledWith(expect.objectContaining({ nextDueAt: undefined, snoozedUntil: undefined }));
+
+    jest.mocked(db.loadConfigurations).mockResolvedValue([{ actionId: 'gutters-ground-check', enabled: true, notificationsEnabled: true, nextDueAt: '2026-08-17T09:00:00.000Z' }]);
+    await recordOutcome('gutters-ground-check', 'done');
+    expect(db.upsertConfiguration).toHaveBeenLastCalledWith(expect.objectContaining({ nextDueAt: undefined, snoozedUntil: undefined }));
+  });
+
+  it('schedules the next occurrence from an early completion', async () => {
     jest.useFakeTimers().setSystemTime(new Date('2026-08-18T10:00:00.000Z'));
     jest.mocked(db.loadConfigurations).mockResolvedValue([{ actionId: 'dishwasher-filter-clean', enabled: true, notificationsEnabled: true, nextDueAt: '2026-08-25T09:00:00.000Z' }]);
 
@@ -67,7 +81,7 @@ describe('maintenance service', () => {
       const savedConfiguration = jest.mocked(db.upsertConfiguration).mock.calls[0][0];
       expect(savedConfiguration.snoozedUntil).toBeUndefined();
       expect(savedConfiguration.nextDueAt).toBeDefined();
-      expect(new Date(savedConfiguration.nextDueAt!).getTime()).toBe(new Date('2026-09-25T09:00:00').getTime());
+      expect(new Date(savedConfiguration.nextDueAt!).getTime()).toBe(new Date('2026-09-18T09:00:00').getTime());
     } finally {
       jest.useRealTimers();
     }

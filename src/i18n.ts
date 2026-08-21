@@ -21,8 +21,8 @@ const resources = {
   }}
 };
 
-Object.assign(resources.en.translation, { profileVariantRequired: 'Choose a type for each selected appliance before leaving.', pickerDone: 'Done' });
-Object.assign(resources.da.translation, { profileVariantRequired: 'Vælg en type for hvert valgt apparat, før du forlader siden.', pickerDone: 'Færdig' });
+Object.assign(resources.en.translation, { profileVariantRequired: 'Choose a type for each selected appliance before leaving.', profileApplianceRequired: 'Choose at least one appliance to continue.', profileDryerTypeRequired: 'Choose a type for the selected tumble dryer.', profileHoodTypeRequired: 'Choose a type for the selected cooker hood.', afterUse: 'After each use', afterUseHint: 'A quick habit — no reminder is scheduled.', snoozeFutureDateRequired: 'Choose a future date.', pickerDone: 'Done' });
+Object.assign(resources.da.translation, { profileVariantRequired: 'Vælg en type for hvert valgt apparat, før du forlader siden.', profileApplianceRequired: 'Vælg mindst ét apparat for at fortsætte.', profileDryerTypeRequired: 'Vælg en type for den valgte tørretumbler.', profileHoodTypeRequired: 'Vælg en type for den valgte emhætte.', afterUse: 'Efter hver brug', afterUseHint: 'En hurtig vane – der planlægges ingen påmindelse.', snoozeFutureDateRequired: 'Vælg en dato i fremtiden.', pickerDone: 'Færdig' });
 
 // eslint-disable-next-line import/no-named-as-default-member
 i18n.use(initReactI18next).init({ resources, lng: defaultAppLanguage(), fallbackLng: 'en', interpolation: { escapeValue: false } });

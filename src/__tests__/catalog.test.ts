@@ -7,4 +7,8 @@ describe('action eligibility', () => {
     expect(actionApplies(action!, { appliances: ['dishwasher'], features: [], variants: {} })).toBe(true);
     expect(actionApplies(action!, { appliances: [], features: [], variants: {} })).toBe(false);
   });
+
+  it('defaults dishwasher filter cleaning to every month', () => {
+    expect(getAction('dishwasher-filter-clean')?.trigger.defaultFrequency).toEqual({ interval: 1, unit: 'month' });
+  });
 });
