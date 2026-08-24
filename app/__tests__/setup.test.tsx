@@ -16,6 +16,15 @@ import { getAction } from '../../src/catalog';
 import { defaultNotificationSchedule } from '../../src/notificationSchedule';
 
 describe('setup flow', () => {
+  it('provides Danish translations for all shared Index screen copy', async () => {
+    await i18n.changeLanguage('da');
+    try {
+      ['homeHeadline', 'minutesShort', 'resetAppData', 'resetConfirmTitle', 'resetConfirmBody', 'notificationPermissionDenied', 'development', 'languages.english', 'languages.danish', 'frequencyUnits.day.one', 'frequencyUnits.day.other', 'frequencyUnits.week.one', 'frequencyUnits.week.other', 'frequencyUnits.month.one', 'frequencyUnits.month.other', 'frequencyUnits.year.one', 'frequencyUnits.year.other', 'accessibility.dishwasherFilterIcon', 'accessibility.actionIcon', 'backup.export', 'backup.import', 'backup.exportFailedTitle', 'backup.exportFailed', 'backup.importFailedTitle', 'backup.importFailed', 'permissionStates.unknown', 'permissionStates.granted', 'permissionStates.denied', 'legal.copyrightFallback'].forEach((key) => expect(i18n.t(key)).not.toBe(key));
+    } finally {
+      await i18n.changeLanguage('en');
+    }
+  });
+
   it('localizes every Home Profile label and option in Danish', async () => {
     await i18n.changeLanguage('da');
     const view = await render(<Setup initial={null} onSave={jest.fn(async () => undefined)} />);
