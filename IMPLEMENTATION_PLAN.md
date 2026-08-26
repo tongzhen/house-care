@@ -65,6 +65,8 @@ Expo SQLite persists data across app restarts and Expo Notifications supports lo
 
 Use a **feature-first modular monolith** with clean dependency boundaries. This is simpler than microservices or a full domain framework, while preserving an API/cloud path later.
 
+Expo Router owns application navigation. Primary destinations are file-based tab routes; action details, issue flows, settings subflows, reports, and legal documents use explicit routes and route parameters for identifiers and return destinations.
+
 ```text
 Screens and components
         ↓
