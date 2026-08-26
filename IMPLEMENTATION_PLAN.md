@@ -65,6 +65,8 @@ Expo SQLite persists data across app restarts and Expo Notifications supports lo
 
 Use a **feature-first modular monolith** with clean dependency boundaries. This is simpler than microservices or a full domain framework, while preserving an API/cloud path later.
 
+Expo Router owns application navigation. Primary destinations are file-based tab routes; action details, issue flows, settings subflows, reports, and legal documents use explicit routes and route parameters for identifiers and return destinations.
+
 ```text
 Screens and components
         ↓
@@ -486,7 +488,7 @@ Run accessibility, content-safety, data-migration, offline, upgrade, and device 
 - Keep the local backup import/export controls development-build-only; the user-facing report export remains available in production builds.
 - From the compact History report-export screen, export a one-way PDF maintenance report for a selected period. Reports include completed work, issue notes, and available issue photos; they use the active app language and are shared through the device without changing House Care data.
 - Validate all archive data before one transactional import; malformed or unsupported exports must not partially write the database.
-- Add English/Danish selection in Settings and complete Danish translations for UI, knowledge-base text, notification copy, and accessibility labels.
+- Add English/Danish selection in Settings and complete Danish translations for UI, including all user-visible Home, action, profile, Settings, and notification text; Home Profile headings and every home, appliance-type, and feature option; knowledge-base text; notification copy; and accessibility labels.
 - Test both languages for visual overflow and equivalent safety meaning before pilot release.
 
 ## 7. Test strategy

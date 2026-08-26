@@ -10,12 +10,40 @@ jest.mock('../../src/db', () => ({}));
 
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { Alert } from 'react-native';
-import '../../src/i18n';
+import i18n from '../../src/i18n';
 import { ActionDetail, ActionList, ActionOverview, History, Home, IssueForm, NotificationSettings, ReportExport, Setup, isSwipeBackGesture } from '../index';
 import { getAction } from '../../src/catalog';
 import { defaultNotificationSchedule } from '../../src/notificationSchedule';
 
 describe('setup flow', () => {
+  it('provides Danish translations for all shared Index screen copy', async () => {
+    await i18n.changeLanguage('da');
+    try {
+      ['homeHeadline', 'minutesShort', 'resetAppData', 'resetConfirmTitle', 'resetConfirmBody', 'notificationPermissionDenied', 'development', 'languages.english', 'languages.danish', 'frequencyUnits.day.one', 'frequencyUnits.day.other', 'frequencyUnits.week.one', 'frequencyUnits.week.other', 'frequencyUnits.month.one', 'frequencyUnits.month.other', 'frequencyUnits.year.one', 'frequencyUnits.year.other', 'accessibility.dishwasherFilterIcon', 'accessibility.actionIcon', 'backup.export', 'backup.import', 'backup.exportFailedTitle', 'backup.exportFailed', 'backup.importFailedTitle', 'backup.importFailed', 'permissionStates.unknown', 'permissionStates.granted', 'permissionStates.denied', 'legal.copyrightFallback'].forEach((key) => expect(i18n.t(key)).not.toBe(key));
+    } finally {
+      await i18n.changeLanguage('en');
+    }
+  });
+
+  it('localizes every Home Profile label and option in Danish', async () => {
+    await i18n.changeLanguage('da');
+    const view = await render(<Setup initial={null} onSave={jest.fn(async () => undefined)} />);
+
+    try {
+      ['Boligtype', 'Fritstående hus', 'Rækkehus', 'Apparater', 'Boligens funktioner', 'Tagrender', 'Faskine', 'Pumpebrønd', 'Udendørs vandhane', 'Ventilation', 'Gulvvarme', 'Trægulve', 'Gulvafløb'].forEach((label) => expect(screen.getByText(label)).toBeTruthy());
+      await act(async () => { fireEvent.press(screen.getByText('Tørretumbler')); });
+      expect(await screen.findByText('Type af tørretumbler')).toBeTruthy();
+      expect(screen.getByText('Med aftræk')).toBeTruthy();
+      await act(async () => { fireEvent.press(screen.getByText('Emhætte')); });
+      expect(await screen.findByText('Type af emhætte')).toBeTruthy();
+      expect(screen.getByText('Recirkulerende')).toBeTruthy();
+      expect(screen.getByText('Med aftræk til det fri')).toBeTruthy();
+    } finally {
+      view.unmount();
+      await i18n.changeLanguage('en');
+    }
+  });
+
   it('saves a selected dishwasher profile', async () => {
     const onSave = jest.fn(async () => undefined);
     await render(<Setup initial={null} onSave={onSave} />);

@@ -3,7 +3,10 @@ import { catalogSchema, parseCatalog } from '../catalogSchema';
 
 describe('maintenance catalogue validation', () => {
   it('accepts the bundled maintenance catalogue', () => {
-    expect(parseCatalog(source).actions).toHaveLength(21);
+    const catalog = parseCatalog(source);
+
+    expect(catalog.actions).toHaveLength(21);
+    expect(catalog.actions.every((action) => action.content.da !== null)).toBe(true);
   });
 
   it('rejects duplicate action IDs', () => {
@@ -22,5 +25,14 @@ describe('maintenance catalogue validation', () => {
     };
 
     expect(catalogSchema.safeParse(incompleteCatalog).success).toBe(false);
+  });
+
+  it('rejects an action without Danish localization', () => {
+    const untranslatedCatalog = {
+      ...source,
+      actions: [{ ...source.actions[0], content: { ...source.actions[0].content, da: null } }],
+    };
+
+    expect(catalogSchema.safeParse(untranslatedCatalog).success).toBe(false);
   });
 });

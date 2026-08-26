@@ -37,7 +37,7 @@ const maintenanceActionSchema = z.object({
   }).strict(),
   content: z.object({
     en: actionContentSchema,
-    da: actionContentSchema.nullable(),
+    da: actionContentSchema,
   }).strict(),
   sources: z.array(z.string().url()),
 }).strict();
