@@ -24,7 +24,7 @@ jest.mock('../catalog', () => ({
 
 import * as db from '../db';
 import { rescheduleNotifications } from '../notifications';
-import { recordIssue, recordOutcome, saveHomeProfile, setActionEnabled, updateFrequency } from '../service';
+import { recordIssue, recordOutcome, saveHomeProfile, setActionEnabled, updateFrequency, type RecordOutcomeDependencies } from '../service';
 import { defaultNotificationSchedule } from '../notificationSchedule';
 
 const settings = { language: 'en' as const, notificationsEnabled: true, notificationSchedule: defaultNotificationSchedule() };
@@ -59,6 +59,21 @@ describe('maintenance service', () => {
     expect(db.addOutcome).toHaveBeenCalledWith(expect.objectContaining({ actionId: 'dishwasher-filter-clean', type: 'done' }));
     expect(db.upsertConfiguration).toHaveBeenCalledWith(expect.objectContaining({ actionId: 'dishwasher-filter-clean', nextDueAt: expect.any(String), snoozedUntil: undefined }));
     expect(rescheduleNotifications).toHaveBeenCalled();
+  });
+
+  it('uses injected repository, clock, ID, and notification ports for an outcome', async () => {
+    const notificationScheduler = { reconcile: jest.fn(async () => undefined) };
+    const dependencies: RecordOutcomeDependencies = {
+      repository: db,
+      notificationScheduler,
+      clock: { now: () => new Date('2026-08-18T10:00:00.000Z') },
+      idGenerator: { next: () => 'outcome-from-port' },
+    };
+
+    await recordOutcome('dishwasher-filter-clean', 'done', {}, dependencies);
+
+    expect(db.addOutcome).toHaveBeenCalledWith(expect.objectContaining({ id: 'outcome-from-port', occurredAt: '2026-08-18T10:00:00.000Z' }));
+    expect(notificationScheduler.reconcile).toHaveBeenCalledWith(expect.any(Array), expect.any(Array), settings);
   });
 
   it('clears due dates after completing a habit or unconfigured seasonal action', async () => {

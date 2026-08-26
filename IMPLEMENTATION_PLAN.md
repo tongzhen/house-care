@@ -67,6 +67,8 @@ Use a **feature-first modular monolith** with clean dependency boundaries. This 
 
 Expo Router owns application navigation. Primary destinations are file-based tab routes; action details, issue flows, settings subflows, reports, and legal documents use explicit routes and route parameters for identifiers and return destinations.
 
+Application workflows depend on repository and device-service interfaces. SQLite, local notifications, device time, and ID generation are production adapters; `recordOutcome` is the first migrated workflow and is tested with injected ports.
+
 ```text
 Screens and components
         ↓
