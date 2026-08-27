@@ -2,18 +2,38 @@ import { actionApplies, actions, getAction } from './catalog';
 import { clearData, importBackup, removeIssue, removeIssuePhoto } from './backup';
 import { atNineAM, nextDueAfterCompletion, nextDueDate } from './date';
 import * as repository from './db';
+import { deviceClock, expoNotificationScheduler, localIdGenerator, sqliteHomeRepository } from './deviceServices';
 import { cancelScheduledNotifications, rescheduleNotifications } from './notifications';
 import { validateNotificationSchedule } from './notificationSchedule';
+import type { Clock, HomeRepository, IdGenerator, NotificationScheduler } from './ports';
 import type { ActionConfiguration, AppSettings, Frequency, OutcomeType, Profile, TaskOutcome } from './types';
 
 export interface AppState { profile: Profile | null; configurations: ActionConfiguration[]; outcomes: TaskOutcome[]; settings: AppSettings; }
 
 const id = () => `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
-export async function loadAppState(): Promise<AppState> {
-  await repository.initialiseDatabase();
-  const [profile, configurations, outcomes, settings] = await Promise.all([repository.loadProfile(), repository.loadConfigurations(), repository.loadOutcomes(), repository.getSettings()]);
+export interface RecordOutcomeDependencies {
+  repository: HomeRepository;
+  notificationScheduler: NotificationScheduler;
+  clock: Clock;
+  idGenerator: IdGenerator;
+}
+
+const recordOutcomeDependencies: RecordOutcomeDependencies = {
+  repository: sqliteHomeRepository,
+  notificationScheduler: expoNotificationScheduler,
+  clock: deviceClock,
+  idGenerator: localIdGenerator,
+};
+
+export async function loadAppStateFrom(source: HomeRepository): Promise<AppState> {
+  await source.initialiseDatabase();
+  const [profile, configurations, outcomes, settings] = await Promise.all([source.loadProfile(), source.loadConfigurations(), source.loadOutcomes(), source.getSettings()]);
   return { profile, configurations, outcomes, settings };
+}
+
+export async function loadAppState(): Promise<AppState> {
+  return loadAppStateFrom(sqliteHomeRepository);
 }
 
 function initialConfiguration(actionId: string, position: number): ActionConfiguration {
@@ -44,29 +64,29 @@ export async function saveHomeProfile(profile: Omit<Profile, 'id'>): Promise<App
   return state;
 }
 
-export async function recordOutcome(actionId: string, type: OutcomeType, options: { note?: string; photoUri?: string; snoozeDays?: number; snoozedUntil?: string } = {}) {
-  const state = await loadAppState();
+export async function recordOutcome(actionId: string, type: OutcomeType, options: { note?: string; photoUri?: string; snoozeDays?: number; snoozedUntil?: string } = {}, dependencies: RecordOutcomeDependencies = recordOutcomeDependencies) {
+  const state = await loadAppStateFrom(dependencies.repository);
   const action = getAction(actionId);
   const current = state.configurations.find((config) => config.actionId === actionId);
   if (!action || !current) throw new Error('Action is not configured');
-  const now = new Date();
+  const now = dependencies.clock.now();
   let snoozedUntil: string | undefined;
   if (type === 'snoozed') {
     const requested = options.snoozedUntil ? new Date(options.snoozedUntil) : new Date(now.getTime() + (options.snoozeDays ?? 1) * 86400000);
     if (Number.isNaN(requested.getTime()) || requested <= now) throw new Error('Snooze time must be in the future.');
     snoozedUntil = options.snoozedUntil ?? atNineAM(requested).toISOString();
   }
-  const outcome: TaskOutcome = { id: id(), actionId, type, occurredAt: now.toISOString(), note: options.note, photoUri: options.photoUri };
-  await repository.addOutcome(outcome);
+  const outcome: TaskOutcome = { id: dependencies.idGenerator.next(), actionId, type, occurredAt: now.toISOString(), note: options.note, photoUri: options.photoUri };
+  await dependencies.repository.addOutcome(outcome);
   const frequency = current.frequencyOverride ?? action.trigger.defaultFrequency;
   const next: ActionConfiguration = { ...current, snoozedUntil: undefined };
   if (type === 'done') {
     next.nextDueAt = nextDueAfterCompletion(now, frequency);
   }
   if (type === 'snoozed') next.snoozedUntil = snoozedUntil;
-  await repository.upsertConfiguration(next);
-  const nextState = await loadAppState();
-  await rescheduleNotifications(nextState.configurations, actions, nextState.settings.notificationsEnabled, nextState.settings.language, nextState.settings.notificationSchedule);
+  await dependencies.repository.upsertConfiguration(next);
+  const nextState = await loadAppStateFrom(dependencies.repository);
+  await dependencies.notificationScheduler.reconcile(nextState.configurations, actions, nextState.settings);
   return nextState;
 }
 
