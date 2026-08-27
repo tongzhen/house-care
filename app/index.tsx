@@ -6,7 +6,7 @@ import * as FileSystem from 'expo-file-system/legacy';
 import * as ImagePicker from 'expo-image-picker';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, Alert, AppState as NativeAppState, Image, Linking, Modal, PanResponder, Platform, Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, AppState as NativeAppState, Image, Linking, Modal, PanResponder, Platform, Pressable, ScrollView as NativeScrollView, StyleSheet, Switch, Text, TextInput, type ScrollViewProps, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { actionApplies, actions, getAction } from '../src/catalog';
 import { CalendarComposerError, openCalendarEventEditor } from '../src/calendar';
@@ -34,6 +34,10 @@ function formatMinutes(minutes: number, t: (key: string) => string) { return `${
 
 const swipeBackEdgeWidth = 32;
 const swipeBackDistance = 80;
+
+function ScrollView({ contentContainerStyle, ...props }: ScrollViewProps) {
+  return <SafeAreaView edges={['top']} style={styles.flex}><NativeScrollView {...props} contentContainerStyle={contentContainerStyle} /></SafeAreaView>;
+}
 
 export function isSwipeBackGesture(startX: number, distanceX: number, distanceY: number) {
   return startX <= swipeBackEdgeWidth && distanceX >= swipeBackDistance && Math.abs(distanceX) > Math.abs(distanceY);
@@ -179,7 +183,7 @@ export function Setup({ initial, onBack, onSave, onCommit }: { initial: Profile 
     try { await onCommit?.(profile()); onBack?.(); } finally { setSaving(false); }
   };
   const toggleAppliance = (id: string) => { toggle(id, appliances, setAppliances); if (id === 'tumble-dryer' && appliances.includes(id)) setDryerVariant(undefined); if (id === 'cooker-hood' && appliances.includes(id)) setHoodVariant(undefined); };
-  return <SafeAreaView style={styles.safe}><SwipeBack onBack={onBack && leave}><ScrollView contentContainerStyle={styles.page}>
+  return <SwipeBack onBack={onBack && leave}><ScrollView contentContainerStyle={styles.page}>
     {onBack && <Pressable onPress={() => { void leave(); }}><Text style={styles.back}>‹ {t('settings')}</Text></Pressable>}
     <Text style={styles.kicker}>HOUSE CARE</Text><Text style={styles.h1}>{t('welcome')}</Text><Text style={styles.sub}>{t('setupHint')}</Text>
     <Text style={styles.label}>{t('profileHouseType')}</Text><View style={styles.choiceRow}>{(['detached', 'terraced'] as const).map((item) => <Choice key={item} label={t(`profileHouseTypes.${item}`)} selected={houseType === item} onPress={() => setHouseType(item)} />)}</View>
@@ -188,7 +192,7 @@ export function Setup({ initial, onBack, onSave, onCommit }: { initial: Profile 
     {appliances.includes('cooker-hood') && <><Text style={styles.label}>{t('profileHoodType')}</Text><View style={styles.choiceRow}><Choice label={t('profileHoodTypes.recirculating')} selected={hoodVariant === 'recirculating'} onPress={() => setHoodVariant('recirculating')} /><Choice label={t('profileHoodTypes.ventedOutside')} selected={hoodVariant === 'vented-outside'} onPress={() => setHoodVariant('vented-outside')} /></View></>}
     <Text style={styles.label}>{t('profileFeatures')}</Text><View style={styles.choiceGrid}>{featureChoices.map((id) => <Choice key={id} label={t(`profileFeaturesList.${id}`)} selected={features.includes(id)} onPress={() => toggle(id, features, setFeatures)} />)}</View>
     {!onBack && <Pressable style={[styles.primary, saving && styles.dim]} disabled={saving} onPress={async () => { const message = validationMessage(); if (message) { Alert.alert(t('welcome'), message); return; } setSaving(true); try { await onSave?.(profile()); } finally { setSaving(false); } }}><Text style={styles.primaryText}>{saving ? '…' : t('continue')}</Text></Pressable>}
-  </ScrollView></SwipeBack></SafeAreaView>;
+  </ScrollView></SwipeBack>;
 }
 
 export function Home({ actions: items, configurations, language, now, onOpen, onReportIssue }: { actions: MaintenanceAction[]; configurations: Map<string, ActionConfiguration>; language: 'en' | 'da'; now: number; onOpen: (id: string) => void; onReportIssue: () => void }) {
