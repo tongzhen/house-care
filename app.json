@@ -20,12 +20,6 @@
       "expo-notifications",
       "expo-localization",
       "expo-sharing",
-      [
-        "expo-calendar",
-        {
-          "calendarPermission": "Allow House Care to access your calendars so you can choose where to save a maintenance action."
-        }
-      ],
       "@react-native-community/datetimepicker"
     ],
     "ios": {
@@ -40,9 +34,7 @@
       "package": "com.housecare.app",
       "versionCode": 1,
       "permissions": [
-        "android.permission.POST_NOTIFICATIONS",
-        "android.permission.READ_CALENDAR",
-        "android.permission.WRITE_CALENDAR"
+        "android.permission.POST_NOTIFICATIONS"
       ],
       "blockedPermissions": [
         "android.permission.RECORD_AUDIO"

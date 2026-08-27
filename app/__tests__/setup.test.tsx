@@ -130,15 +130,15 @@ describe('setup flow', () => {
     expect(onReportIssue).toHaveBeenCalledTimes(1);
   });
 
-  it('offers calendar export for scheduled actions but not habit actions', async () => {
+  it('opens the calendar editor for scheduled actions but not habit actions', async () => {
     const action = getAction('dishwasher-filter-clean')!;
     const props = { configuration: { actionId: action.id, enabled: true, notificationsEnabled: true, nextDueAt: new Date(Date.now() + 86400000).toISOString() }, language: 'en' as const, onBack: jest.fn(), onDone: jest.fn(), onSnooze: jest.fn(), onCustomSnooze: jest.fn(async () => undefined), onIssue: jest.fn(), onFrequency: jest.fn(async () => undefined), onEnabled: jest.fn(async () => undefined) };
     const view = await render(<ActionDetail action={action} {...props} />);
-    expect(screen.getByText('Add to calendar')).toBeTruthy();
+    expect(screen.getByText('Open in calendar')).toBeTruthy();
     expect(screen.queryByText('Not relevant')).toBeNull();
 
     await act(async () => { view.rerender(<ActionDetail action={{ ...action, trigger: { kind: 'habit' } }} {...props} />); });
-    expect(screen.queryByText('Add to calendar')).toBeNull();
+    expect(screen.queryByText('Open in calendar')).toBeNull();
   });
 
   it('uses the Actions return destination when an action detail was opened from the Actions tab', async () => {

@@ -17,7 +17,7 @@ export const legalDocuments: Record<LegalLanguage, Record<LegalDocumentId, Legal
       sections: [
         { heading: 'Local-first', paragraphs: ['House Care has no account, analytics, advertising, or backend service. We do not collect or sell personal information.'] },
         { heading: 'Information stored on your device', paragraphs: ['Your selected home profile, action settings, completion history, issue notes, and optional issue photos stay in the app’s private storage on your device.'] },
-        { heading: 'Optional device services', paragraphs: ['Notifications are scheduled locally. If you choose Add to calendar, House Care writes one event to the calendar you select. If you export a backup or PDF report, you choose the destination through the device share sheet.'], bullets: ['Photo access is requested only when you attach an issue photo.', 'Calendar access is requested only when you add an action to a calendar.', 'Notification permission is requested only when local reminders are enabled.'] },
+        { heading: 'Optional device services', paragraphs: ['Notifications are scheduled locally. If you choose Open in calendar, House Care opens a prefilled event editor and you decide whether to save it. If you export a backup or PDF report, you choose the destination through the device share sheet.'], bullets: ['Photo access is requested only when you attach an issue photo.', 'House Care does not request access to your calendar.', 'Notification permission is requested only when local reminders are enabled.'] },
         { heading: 'Retention and deletion', paragraphs: ['Information remains on your device until you delete an issue, reset app data, or remove the app. Reset app data removes the local profile, history, and issue records; deleting the app is subject to your device backup settings.'] },
         { heading: 'Contact', paragraphs: [`House Care is currently published under a development identity. Before public release this policy will name the legal entity and postal address. Privacy questions: ${privacyEmail}.`] },
       ],
@@ -37,7 +37,7 @@ export const legalDocuments: Record<LegalLanguage, Record<LegalDocumentId, Legal
       sections: [
         { heading: 'Notifications', paragraphs: ['Used to show local maintenance reminders at the days and times you choose. Disable them in House Care or your device settings.'] },
         { heading: 'Photos', paragraphs: ['Used only when you choose an image for an issue report. The selected image is copied into House Care’s private storage and can be deleted from the issue.'] },
-        { heading: 'Calendar', paragraphs: ['Used only when you choose Add to calendar. House Care creates one event in the calendar you select and does not later edit or remove it.'] },
+        { heading: 'Calendar', paragraphs: ['Used only when you choose Open in calendar. House Care opens a prefilled event editor; you choose the calendar and decide whether to save. House Care cannot read, edit, or remove your calendar events.'] },
         { heading: 'Your controls', paragraphs: ['You can deny or revoke permissions in device settings. You can also reset app data from Settings to remove House Care’s local records.'] },
       ],
     },

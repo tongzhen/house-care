@@ -6,3 +6,5 @@ coverage/
 .DS_Store
 ios/
 android/
+!modules/calendar-event-composer/ios/
+!modules/calendar-event-composer/ios/**
