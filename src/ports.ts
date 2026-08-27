@@ -8,6 +8,14 @@ export interface HomeRepository {
   getSettings(): Promise<AppSettings>;
   addOutcome(outcome: TaskOutcome): Promise<void>;
   upsertConfiguration(configuration: ActionConfiguration): Promise<void>;
+  transaction<T>(work: (transaction: HomeRepositoryTransaction) => Promise<T>): Promise<T>;
+}
+
+export interface HomeRepositoryTransaction {
+  saveProfile(profile: Omit<Profile, 'id'>): Promise<void>;
+  deleteConfiguration(actionId: string): Promise<void>;
+  addOutcome(outcome: TaskOutcome): Promise<void>;
+  upsertConfiguration(configuration: ActionConfiguration): Promise<void>;
 }
 
 export interface NotificationScheduler {

@@ -11,7 +11,7 @@ const mockDatabase = { execAsync: mockExecAsync, runAsync: mockRunAsync, getFirs
 
 jest.mock('expo-sqlite', () => ({ openDatabaseAsync: jest.fn(async () => mockDatabase) }));
 
-import { initialiseDatabase, loadProfile, replaceLocalData, resetLocalData, saveProfile } from '../db';
+import { initialiseDatabase, loadProfile, replaceLocalData, resetLocalData, saveProfile, transaction } from '../db';
 import { defaultNotificationSchedule } from '../notificationSchedule';
 
 beforeEach(() => { jest.clearAllMocks(); mockGetAllAsync.mockResolvedValue([{ name: 'title' }]); });
@@ -43,5 +43,18 @@ describe('SQLite repository', () => {
     expect(mockWithExclusiveTransactionAsync).toHaveBeenCalledTimes(1);
     expect(mockExecAsync).toHaveBeenCalledWith(expect.stringContaining('DELETE FROM task_outcomes'));
     expect(mockRunAsync).toHaveBeenCalledWith(expect.stringContaining('INSERT INTO home_profile'), expect.anything());
+  });
+
+  it('provides transactional profile, outcome, and configuration writes', async () => {
+    await transaction(async (repository) => {
+      await repository.saveProfile({ appliances: ['dishwasher'], features: [], variants: {} });
+      await repository.addOutcome({ id: 'outcome-1', actionId: 'dishwasher-filter-clean', type: 'done', occurredAt: '2026-08-27T09:00:00.000Z' });
+      await repository.upsertConfiguration({ actionId: 'dishwasher-filter-clean', enabled: true, notificationsEnabled: true });
+    });
+
+    expect(mockWithExclusiveTransactionAsync).toHaveBeenCalledTimes(1);
+    expect(mockRunAsync).toHaveBeenCalledWith(expect.stringContaining('INSERT OR REPLACE INTO home_profile'), expect.anything());
+    expect(mockRunAsync).toHaveBeenCalledWith(expect.stringContaining('INSERT INTO task_outcomes'), expect.anything());
+    expect(mockRunAsync).toHaveBeenCalledWith(expect.stringContaining('INSERT OR REPLACE INTO action_configurations'), expect.anything());
   });
 });

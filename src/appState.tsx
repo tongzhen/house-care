@@ -3,7 +3,7 @@ import { AppState as NativeAppState } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { requestNotificationPermission, subscribeToNotificationResponses } from './notifications';
-import { loadAppState, updateSettings, type AppState } from './service';
+import { loadAppState, reconcileNotifications, updateSettings, type AppState } from './service';
 
 interface AppStateContextValue {
   state: AppState | null;
@@ -29,6 +29,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
   const refresh = useCallback(async () => {
     const nextState = await loadAppState();
+    void reconcileNotifications(nextState).catch(() => undefined);
     stateRef.current = nextState;
     setState(nextState);
     return nextState;
@@ -45,6 +46,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       stateRef.current = hydratedState;
       if (!active) return;
       setState(hydratedState);
+      void reconcileNotifications(hydratedState).catch(() => undefined);
       if (pendingActionId.current) router.replace({ pathname: '/actions/[actionId]', params: { actionId: pendingActionId.current, returnTo: '/home' } });
       pendingActionId.current = null;
     });
