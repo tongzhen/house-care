@@ -16,9 +16,9 @@ House Care is local-first: it has no account, analytics, advertising, telemetry,
 
 - Notifications, when local reminders are enabled.
 - Photos, only when the user adds an issue photo.
-- Calendar read/write access, only when the user selects Add to calendar.
+- No calendar access: the user’s calendar app owns the optional event editor and save decision.
 
-`RECORD_AUDIO` must not be present in Android permissions. Review the generated Expo configuration and the final Android manifest for every release. Reset app data deletes House Care-owned database and media data; exported backups, reports, and calendar events remain under the user’s chosen destination or calendar control.
+`RECORD_AUDIO`, `READ_CALENDAR`, and `WRITE_CALENDAR` must not be present in Android permissions. Review the generated Expo configuration and the final Android manifest for every release. Reset app data deletes House Care-owned database and media data; exported backups, reports, and calendar events remain under the user’s chosen destination or calendar control.
 
 ## Versioning and builds
 
