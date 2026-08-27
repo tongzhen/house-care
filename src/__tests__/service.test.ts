@@ -1,7 +1,7 @@
 /* eslint-disable import/first */
 
 jest.mock('../db', () => ({
-  initialiseDatabase: jest.fn(), loadProfile: jest.fn(), loadConfigurations: jest.fn(), loadOutcomes: jest.fn(), getSettings: jest.fn(), saveProfile: jest.fn(), upsertConfiguration: jest.fn(), deleteConfiguration: jest.fn(), addOutcome: jest.fn(), saveSettings: jest.fn(),
+  initialiseDatabase: jest.fn(), loadProfile: jest.fn(), loadConfigurations: jest.fn(), loadOutcomes: jest.fn(), getSettings: jest.fn(), saveProfile: jest.fn(), upsertConfiguration: jest.fn(), deleteConfiguration: jest.fn(), addOutcome: jest.fn(), saveSettings: jest.fn(), transaction: jest.fn(),
 }));
 jest.mock('../notifications', () => ({ rescheduleNotifications: jest.fn() }));
 jest.mock('../catalog', () => ({
@@ -41,6 +41,7 @@ beforeEach(() => {
   jest.mocked(db.deleteConfiguration).mockResolvedValue();
   jest.mocked(db.addOutcome).mockResolvedValue();
   jest.mocked(db.saveSettings).mockResolvedValue();
+  jest.mocked(db.transaction).mockImplementation(async (work) => work({ saveProfile: db.saveProfile, deleteConfiguration: db.deleteConfiguration, addOutcome: db.addOutcome, upsertConfiguration: db.upsertConfiguration }));
   jest.mocked(rescheduleNotifications).mockResolvedValue();
 });
 
@@ -74,6 +75,19 @@ describe('maintenance service', () => {
 
     expect(db.addOutcome).toHaveBeenCalledWith(expect.objectContaining({ id: 'outcome-from-port', occurredAt: '2026-08-18T10:00:00.000Z' }));
     expect(notificationScheduler.reconcile).toHaveBeenCalledWith(expect.any(Array), expect.any(Array), settings);
+  });
+
+  it('keeps a committed outcome when notification reconciliation is temporarily unavailable', async () => {
+    const dependencies: RecordOutcomeDependencies = {
+      repository: db,
+      notificationScheduler: { reconcile: jest.fn(async () => { throw new Error('Device service unavailable'); }) },
+      clock: { now: () => new Date('2026-08-18T10:00:00.000Z') },
+      idGenerator: { next: () => 'durable-outcome' },
+    };
+
+    await expect(recordOutcome('dishwasher-filter-clean', 'done', {}, dependencies)).resolves.toEqual(expect.objectContaining({ settings }));
+    expect(db.addOutcome).toHaveBeenCalledWith(expect.objectContaining({ id: 'durable-outcome' }));
+    expect(db.upsertConfiguration).toHaveBeenCalled();
   });
 
   it('clears due dates after completing a habit or unconfigured seasonal action', async () => {

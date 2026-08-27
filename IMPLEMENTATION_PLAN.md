@@ -69,6 +69,8 @@ Expo Router owns application navigation. Primary destinations are file-based tab
 
 Application workflows depend on repository and device-service interfaces. SQLite, local notifications, device time, and ID generation are production adapters; `recordOutcome` is the first migrated workflow and is tested with injected ports.
 
+Multi-record workflow changes commit inside an exclusive SQLite transaction. Notification scheduling is reconciled only after that durable commit and on app reload or foreground recovery, so a transient device-service failure never rolls back a completed maintenance action.
+
 ```text
 Screens and components
         ↓

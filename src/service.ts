@@ -5,7 +5,7 @@ import * as repository from './db';
 import { deviceClock, expoNotificationScheduler, localIdGenerator, sqliteHomeRepository } from './deviceServices';
 import { cancelScheduledNotifications, rescheduleNotifications } from './notifications';
 import { validateNotificationSchedule } from './notificationSchedule';
-import type { Clock, HomeRepository, IdGenerator, NotificationScheduler } from './ports';
+import type { Clock, HomeRepository, HomeRepositoryTransaction, IdGenerator, NotificationScheduler } from './ports';
 import type { ActionConfiguration, AppSettings, Frequency, OutcomeType, Profile, TaskOutcome } from './types';
 
 export interface AppState { profile: Profile | null; configurations: ActionConfiguration[]; outcomes: TaskOutcome[]; settings: AppSettings; }
@@ -45,20 +45,22 @@ function initialConfiguration(actionId: string, position: number): ActionConfigu
 }
 
 export async function saveHomeProfile(profile: Omit<Profile, 'id'>): Promise<AppState> {
-  await repository.saveProfile(profile);
   const existing = await repository.loadConfigurations();
   const existingById = new Map(existing.map((config) => [config.actionId, config]));
   const applicable = actions.filter((action) => actionApplies(action, profile));
   const applicableIds = new Set(applicable.map((action) => action.id));
-  await Promise.all(existing.filter((config) => !applicableIds.has(config.actionId)).map((config) => repository.deleteConfiguration(config.actionId)));
   const ordered = applicable.sort((a, b) => {
     if (a.id === 'dishwasher-filter-clean') return -1;
     if (b.id === 'dishwasher-filter-clean') return 1;
     return a.id.localeCompare(b.id);
   });
-  for (const [position, action] of ordered.entries()) {
-    await repository.upsertConfiguration(existingById.get(action.id) ?? initialConfiguration(action.id, position));
-  }
+  await repository.transaction(async (transaction) => {
+    await transaction.saveProfile(profile);
+    await Promise.all(existing.filter((config) => !applicableIds.has(config.actionId)).map((config) => transaction.deleteConfiguration(config.actionId)));
+    for (const [position, action] of ordered.entries()) {
+      await transaction.upsertConfiguration(existingById.get(action.id) ?? initialConfiguration(action.id, position));
+    }
+  });
   const state = await loadAppState();
   await rescheduleNotifications(state.configurations, actions, state.settings.notificationsEnabled, state.settings.language, state.settings.notificationSchedule);
   return state;
@@ -77,17 +79,25 @@ export async function recordOutcome(actionId: string, type: OutcomeType, options
     snoozedUntil = options.snoozedUntil ?? atNineAM(requested).toISOString();
   }
   const outcome: TaskOutcome = { id: dependencies.idGenerator.next(), actionId, type, occurredAt: now.toISOString(), note: options.note, photoUri: options.photoUri };
-  await dependencies.repository.addOutcome(outcome);
   const frequency = current.frequencyOverride ?? action.trigger.defaultFrequency;
   const next: ActionConfiguration = { ...current, snoozedUntil: undefined };
   if (type === 'done') {
     next.nextDueAt = nextDueAfterCompletion(now, frequency);
   }
   if (type === 'snoozed') next.snoozedUntil = snoozedUntil;
-  await dependencies.repository.upsertConfiguration(next);
+  await dependencies.repository.transaction(async (transaction: HomeRepositoryTransaction) => {
+    await transaction.addOutcome(outcome);
+    await transaction.upsertConfiguration(next);
+  });
   const nextState = await loadAppStateFrom(dependencies.repository);
-  await dependencies.notificationScheduler.reconcile(nextState.configurations, actions, nextState.settings);
+  await reconcileNotifications(nextState, dependencies.notificationScheduler).catch(() => undefined);
   return nextState;
+}
+
+export async function reconcileNotifications(state?: AppState, notificationScheduler: NotificationScheduler = expoNotificationScheduler) {
+  const currentState = state ?? await loadAppState();
+  await notificationScheduler.reconcile(currentState.configurations, actions, currentState.settings);
+  return currentState;
 }
 
 export async function recordIssue(title: string, options: { actionId?: string; note?: string; photoUri?: string } = {}) {
