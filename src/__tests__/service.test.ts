@@ -1,9 +1,9 @@
 /* eslint-disable import/first */
 
 jest.mock('../db', () => ({
-  initialiseDatabase: jest.fn(), loadProfile: jest.fn(), loadConfigurations: jest.fn(), loadOutcomes: jest.fn(), getSettings: jest.fn(), saveProfile: jest.fn(), upsertConfiguration: jest.fn(), deleteConfiguration: jest.fn(), addOutcome: jest.fn(), saveSettings: jest.fn(), transaction: jest.fn(),
+  initialiseDatabase: jest.fn(), loadProfile: jest.fn(), loadConfigurations: jest.fn(), loadOutcomes: jest.fn(), getSettings: jest.fn(), saveProfile: jest.fn(), upsertConfiguration: jest.fn(), deleteConfiguration: jest.fn(), addOutcome: jest.fn(), saveSettings: jest.fn(), resetLocalData: jest.fn(), transaction: jest.fn(),
 }));
-jest.mock('../notifications', () => ({ rescheduleNotifications: jest.fn() }));
+jest.mock('../notifications', () => ({ rescheduleNotifications: jest.fn(), cancelScheduledNotifications: jest.fn() }));
 jest.mock('../catalog', () => ({
   actions: [
     { id: 'dishwasher-filter-clean', trigger: { kind: 'recurring', defaultFrequency: { interval: 1, unit: 'month' } }, profileConditions: { appliances: ['dishwasher'] } },
@@ -23,8 +23,8 @@ jest.mock('../catalog', () => ({
 }));
 
 import * as db from '../db';
-import { rescheduleNotifications } from '../notifications';
-import { recordIssue, recordOutcome, saveHomeProfile, setActionEnabled, updateFrequency, type RecordOutcomeDependencies } from '../service';
+import { cancelScheduledNotifications, rescheduleNotifications } from '../notifications';
+import { recordIssue, recordOutcome, resetAppData, saveHomeProfile, setActionEnabled, updateFrequency, updateSettings, type RecordOutcomeDependencies } from '../service';
 import { defaultNotificationSchedule } from '../notificationSchedule';
 
 const settings = { language: 'en' as const, notificationsEnabled: true, notificationSchedule: defaultNotificationSchedule() };
@@ -41,8 +41,10 @@ beforeEach(() => {
   jest.mocked(db.deleteConfiguration).mockResolvedValue();
   jest.mocked(db.addOutcome).mockResolvedValue();
   jest.mocked(db.saveSettings).mockResolvedValue();
+  jest.mocked(db.resetLocalData).mockResolvedValue();
   jest.mocked(db.transaction).mockImplementation(async (work) => work({ saveProfile: db.saveProfile, deleteConfiguration: db.deleteConfiguration, addOutcome: db.addOutcome, upsertConfiguration: db.upsertConfiguration }));
   jest.mocked(rescheduleNotifications).mockResolvedValue();
+  jest.mocked(cancelScheduledNotifications).mockResolvedValue();
 });
 
 describe('maintenance service', () => {
@@ -155,6 +157,20 @@ describe('maintenance service', () => {
     await updateFrequency('dishwasher-filter-clean', { interval: 3, unit: 'month' });
     await setActionEnabled('dishwasher-filter-clean', false);
     expect(rescheduleNotifications).toHaveBeenCalledTimes(2);
+  });
+
+  it('persists a language choice even when notification scheduling is unavailable', async () => {
+    jest.mocked(rescheduleNotifications).mockRejectedValueOnce(new Error('Notifications unavailable'));
+
+    await expect(updateSettings({ ...settings, language: 'da' })).resolves.toEqual(expect.objectContaining({ settings }));
+    expect(db.saveSettings).toHaveBeenCalledWith({ ...settings, language: 'da' });
+  });
+
+  it('resets local data even when notification cancellation is unavailable', async () => {
+    jest.mocked(cancelScheduledNotifications).mockRejectedValueOnce(new Error('Notifications unavailable'));
+
+    await expect(resetAppData()).resolves.toEqual(expect.objectContaining({ profile: expect.anything() }));
+    expect(db.resetLocalData).toHaveBeenCalledTimes(1);
   });
 
   it('rejects an invalid custom frequency before persistence', async () => {

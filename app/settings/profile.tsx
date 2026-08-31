@@ -7,5 +7,5 @@ export default function ProfileRoute() {
   const { state, setState } = useAppState();
   if (!state) return null;
   if (!state.profile) return <Redirect href="/setup" />;
-  return <Setup initial={state.profile} onBack={() => router.back()} onCommit={async (profile) => { setState(await saveHomeProfile(profile)); }} />;
+  return <Setup initial={state.profile} onBack={() => router.replace('/settings')} onCommit={async (profile) => { setState(await saveHomeProfile(profile)); }} />;
 }

@@ -135,7 +135,11 @@ export async function updateSettings(settings: AppSettings) {
   validateNotificationSchedule(settings.notificationSchedule);
   await repository.saveSettings(settings);
   const state = await loadAppState();
-  await rescheduleNotifications(state.configurations, actions, settings.notificationsEnabled, settings.language, settings.notificationSchedule);
+  // Notification APIs are device services, not a prerequisite for saving a
+  // preference. In particular, they can be unavailable in Expo Go or on web.
+  // Keep the setting change responsive and let reminder reconciliation fail
+  // silently, just as it does when recording an outcome.
+  void rescheduleNotifications(state.configurations, actions, settings.notificationsEnabled, settings.language, settings.notificationSchedule).catch(() => undefined);
   return state;
 }
 
@@ -153,7 +157,9 @@ export function validateFrequency(frequency: Frequency) {
 }
 
 export async function resetAppData() {
-  await cancelScheduledNotifications();
+  // Clearing local data must not depend on notification support being present.
+  // Start cleanup when available, but always continue with the local reset.
+  void cancelScheduledNotifications().catch(() => undefined);
   await clearData();
   return loadAppState();
 }
