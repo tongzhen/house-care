@@ -11,7 +11,7 @@ jest.mock('../../src/db', () => ({}));
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { Alert } from 'react-native';
 import i18n from '../../src/i18n';
-import { ActionDetail, ActionList, ActionOverview, History, Home, IssueForm, NotificationSettings, ReportExport, Setup, isSwipeBackGesture } from '../index';
+import { ActionDetail, ActionList, ActionOverview, CustomFrequency, History, Home, IssueActionSelect, IssueForm, NotificationSettings, ReportExport, Setup, isSwipeBackGesture } from '../index';
 import { getAction } from '../../src/catalog';
 import { defaultNotificationSchedule } from '../../src/notificationSchedule';
 
@@ -244,4 +244,19 @@ describe('setup flow', () => {
     fireEvent.press(screen.getByText('Save issue'));
     expect(onSubmit).not.toHaveBeenCalled();
   });
+
+  it('renders custom frequency defaults', async () => {
+    const action = getAction('dishwasher-filter-clean')!;
+    await render(<CustomFrequency action={action} configuration={{ actionId: action.id, enabled: true, notificationsEnabled: true, nextDueAt: new Date().toISOString() }} language="en" onBack={jest.fn()} onSave={jest.fn(async () => undefined)} />);
+    expect(screen.getByText('Custom frequency')).toBeTruthy();
+    expect(screen.getByText(/Next reminder:/)).toBeTruthy();
+  });
+
+  it('renders related-action choices', async () => {
+    const action = getAction('dishwasher-filter-clean')!;
+    await render(<IssueActionSelect actions={[action]} language="en" onBack={jest.fn()} onSelect={jest.fn()} />);
+    expect(screen.getByText('None')).toBeTruthy();
+    expect(screen.getByText('Clean the dishwasher filter')).toBeTruthy();
+  });
+
 });
