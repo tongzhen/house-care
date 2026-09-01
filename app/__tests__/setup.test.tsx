@@ -4,6 +4,7 @@ jest.mock('expo-file-system/legacy', () => ({}));
 jest.mock('expo-print', () => ({ printToFileAsync: jest.fn() }));
 jest.mock('expo-sharing', () => ({ isAvailableAsync: jest.fn(), shareAsync: jest.fn() }));
 jest.mock('expo-image-picker', () => ({}));
+jest.mock('../../src/media', () => ({ selectIssuePhoto: jest.fn(async (uri?: string) => uri), discardIssuePhoto: jest.fn(async () => undefined) }));
 jest.mock('expo-application', () => ({ nativeApplicationVersion: '0.1.0', nativeBuildVersion: '42' }));
 jest.mock('expo-notifications', () => ({ setNotificationHandler: jest.fn(), addNotificationResponseReceivedListener: jest.fn(() => ({ remove: jest.fn() })), getLastNotificationResponseAsync: jest.fn(async () => null) }));
 jest.mock('../../src/db', () => ({}));
@@ -14,6 +15,7 @@ import i18n from '../../src/i18n';
 import { ActionDetail, ActionList, ActionOverview, CustomFrequency, History, Home, IssueActionSelect, IssueForm, NotificationSettings, ReportExport, Setup, isSwipeBackGesture } from '../index';
 import { getAction } from '../../src/catalog';
 import { defaultNotificationSchedule } from '../../src/notificationSchedule';
+import { discardIssuePhoto } from '../../src/media';
 
 describe('setup flow', () => {
   it('provides Danish translations for all shared Index screen copy', async () => {
@@ -243,6 +245,18 @@ describe('setup flow', () => {
     expect(screen.getByText('None')).toBeTruthy();
     fireEvent.press(screen.getByText('Save issue'));
     expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it('deletes a draft photo when issue entry is cancelled', async () => {
+    const onBack = jest.fn();
+    const onPhoto = jest.fn();
+    await render(<IssueForm title="Leak" note="" photo="file:///documents/issue-draft.jpg" actions={[]} language="en" onChooseAction={jest.fn()} onTitle={jest.fn()} onNote={jest.fn()} onPhoto={onPhoto} onBack={onBack} onSubmit={jest.fn(async () => undefined)} />);
+
+    await act(async () => { fireEvent.press(screen.getByText('‹ Cancel')); });
+
+    expect(discardIssuePhoto).toHaveBeenCalledWith('file:///documents/issue-draft.jpg');
+    expect(onPhoto).toHaveBeenCalledWith(undefined);
+    expect(onBack).toHaveBeenCalledTimes(1);
   });
 
   it('renders custom frequency defaults', async () => {

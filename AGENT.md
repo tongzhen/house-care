@@ -59,6 +59,7 @@ The bundled action catalogue is [knowledge-base/maintenance-actions-v0.1.json](k
 ## Implementation discipline
 
 - Work in the delivery order in `IMPLEMENTATION_PLAN.md` unless the user explicitly changes priorities.
+- Target production-ready implementations by default: use high-resolution or vector assets; include accessibility and localization; maintain type safety and error handling; provide unit, UI, and smoke-test coverage; verify platform-specific behavior; optimize for performance and maintainability; and keep diffs clean for review and release.
 - Prefer small vertical slices that end in a testable UI flow.
 - Add database migrations before changing persisted schemas.
 - Use parameterized SQLite statements and transactions for multi-record writes.

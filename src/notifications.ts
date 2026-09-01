@@ -15,8 +15,18 @@ export async function notificationPermissionGranted() {
   return (await Notifications.getPermissionsAsync()).granted;
 }
 
+let notificationOperation = Promise.resolve();
+let notificationGeneration = 0;
+
+function enqueueNotificationOperation<T>(operation: () => Promise<T>) {
+  const result = notificationOperation.catch(() => undefined).then(operation);
+  notificationOperation = result.then(() => undefined, () => undefined);
+  return result;
+}
+
 export async function cancelScheduledNotifications() {
-  await Notifications.cancelAllScheduledNotificationsAsync();
+  notificationGeneration += 1;
+  await enqueueNotificationOperation(() => Notifications.cancelAllScheduledNotificationsAsync());
 }
 
 function scheduledDate(base: Date, schedule?: NotificationSchedule, preserveTime = false) {
@@ -38,20 +48,23 @@ function scheduledDate(base: Date, schedule?: NotificationSchedule, preserveTime
 }
 
 export async function rescheduleNotifications(configurations: ActionConfiguration[], actions: MaintenanceAction[], enabled: boolean, language: 'en' | 'da' = 'en', schedule?: NotificationSchedule) {
-  await cancelScheduledNotifications();
-  if (!enabled) return;
-  const permission = await Notifications.getPermissionsAsync();
-  if (!permission.granted) return;
-  await Promise.all(configurations.filter((config) => config.enabled && config.notificationsEnabled && config.nextDueAt).map(async (config) => {
-    const action = actions.find((candidate) => candidate.id === config.actionId);
-    const date = config.snoozedUntil ?? config.nextDueAt;
-    if (!action || !date || action.trigger.kind === 'habit') return;
-    const trigger = scheduledDate(new Date(date), schedule, Boolean(config.snoozedUntil));
-    if (!trigger) return;
-    if (trigger <= new Date()) return;
-    const copy = language === 'da' && action.content.da ? action.content.da : action.content.en;
-    await Notifications.scheduleNotificationAsync({ content: { title: 'House Care', body: copy.title, data: { actionId: action.id } }, trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: trigger } });
-  }));
+  const generation = ++notificationGeneration;
+  await enqueueNotificationOperation(async () => {
+    if (generation !== notificationGeneration) return;
+    await Notifications.cancelAllScheduledNotificationsAsync();
+    if (!enabled) return;
+    const permission = await Notifications.getPermissionsAsync();
+    if (!permission.granted || generation !== notificationGeneration) return;
+    await Promise.all(configurations.filter((config) => config.enabled && config.notificationsEnabled && config.nextDueAt).map(async (config) => {
+      const action = actions.find((candidate) => candidate.id === config.actionId);
+      const date = config.snoozedUntil ?? config.nextDueAt;
+      if (!action || !date || action.trigger.kind === 'habit') return;
+      const trigger = scheduledDate(new Date(date), schedule, Boolean(config.snoozedUntil));
+      if (!trigger || trigger <= new Date() || generation !== notificationGeneration) return;
+      const copy = language === 'da' && action.content.da ? action.content.da : action.content.en;
+      await Notifications.scheduleNotificationAsync({ content: { title: 'House Care', body: copy.title, data: { actionId: action.id } }, trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: trigger } });
+    }));
+  });
 }
 
 export async function sendTestNotification(delaySeconds = 5) {

@@ -45,6 +45,20 @@ describe('local notifications', () => {
     expect(call.trigger.date.getMinutes()).toBe(0);
   });
 
+  it('coalesces overlapping reconciliations so only the latest state is scheduled', async () => {
+    mockGetPermissionsAsync.mockResolvedValue(granted);
+    const staleAction = { id: 'dishwasher-filter-clean', trigger: { kind: 'recurring' }, content: { en: { title: 'Stale title' } } } as never;
+    const latestAction = { id: 'dishwasher-filter-clean', trigger: { kind: 'recurring' }, content: { en: { title: 'Latest title' } } } as never;
+    const first = rescheduleNotifications([{ actionId: 'dishwasher-filter-clean', enabled: true, notificationsEnabled: true, nextDueAt: '2099-08-20T09:00:00.000Z' }], [staleAction], true);
+    const latest = rescheduleNotifications([{ actionId: 'dishwasher-filter-clean', enabled: true, notificationsEnabled: true, nextDueAt: '2099-08-20T09:00:00.000Z' }], [latestAction], true);
+
+    await Promise.all([first, latest]);
+
+    expect(mockCancelAllScheduledNotificationsAsync).toHaveBeenCalledTimes(1);
+    expect(mockScheduleNotificationAsync).toHaveBeenCalledTimes(1);
+    expect(mockScheduleNotificationAsync).toHaveBeenCalledWith(expect.objectContaining({ content: expect.objectContaining({ body: 'Latest title' }) }));
+  });
+
   it('requests permission only when it is not already granted', async () => {
     mockGetPermissionsAsync.mockResolvedValue(denied); mockRequestPermissionsAsync.mockResolvedValue(granted);
     await expect(requestNotificationPermission()).resolves.toBe(true);
