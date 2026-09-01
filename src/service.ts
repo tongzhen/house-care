@@ -5,12 +5,14 @@ import * as repository from './db';
 import { deviceClock, expoNotificationScheduler, localIdGenerator, sqliteHomeRepository } from './deviceServices';
 import { cancelScheduledNotifications, rescheduleNotifications } from './notifications';
 import { validateNotificationSchedule } from './notificationSchedule';
+import { finishIssuePhotoDraft, persistIssuePhoto, removePersistedIssuePhoto } from './media';
 import type { Clock, HomeRepository, HomeRepositoryTransaction, IdGenerator, NotificationScheduler } from './ports';
 import type { ActionConfiguration, AppSettings, Frequency, OutcomeType, Profile, TaskOutcome } from './types';
 
 export interface AppState { profile: Profile | null; configurations: ActionConfiguration[]; outcomes: TaskOutcome[]; settings: AppSettings; }
 
 const id = () => `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+const outcomeOperations = new Map<string, Promise<AppState>>();
 
 export interface RecordOutcomeDependencies {
   repository: HomeRepository;
@@ -25,6 +27,11 @@ const recordOutcomeDependencies: RecordOutcomeDependencies = {
   clock: deviceClock,
   idGenerator: localIdGenerator,
 };
+
+async function reconcileNotificationsAfterCommit(state: AppState) {
+  await rescheduleNotifications(state.configurations, actions, state.settings.notificationsEnabled, state.settings.language, state.settings.notificationSchedule).catch(() => undefined);
+  return state;
+}
 
 export async function loadAppStateFrom(source: HomeRepository): Promise<AppState> {
   await source.initialiseDatabase();
@@ -62,11 +69,12 @@ export async function saveHomeProfile(profile: Omit<Profile, 'id'>): Promise<App
     }
   });
   const state = await loadAppState();
-  await rescheduleNotifications(state.configurations, actions, state.settings.notificationsEnabled, state.settings.language, state.settings.notificationSchedule);
-  return state;
+  return reconcileNotificationsAfterCommit(state);
 }
 
-export async function recordOutcome(actionId: string, type: OutcomeType, options: { note?: string; photoUri?: string; snoozeDays?: number; snoozedUntil?: string } = {}, dependencies: RecordOutcomeDependencies = recordOutcomeDependencies) {
+type RecordOutcomeOptions = { note?: string; photoUri?: string; snoozeDays?: number; snoozedUntil?: string };
+
+async function recordOutcomeOnce(actionId: string, type: OutcomeType, options: RecordOutcomeOptions, dependencies: RecordOutcomeDependencies) {
   const state = await loadAppStateFrom(dependencies.repository);
   const action = getAction(actionId);
   const current = state.configurations.find((config) => config.actionId === actionId);
@@ -94,6 +102,16 @@ export async function recordOutcome(actionId: string, type: OutcomeType, options
   return nextState;
 }
 
+export function recordOutcome(actionId: string, type: OutcomeType, options: RecordOutcomeOptions = {}, dependencies: RecordOutcomeDependencies = recordOutcomeDependencies) {
+  const existing = outcomeOperations.get(actionId);
+  if (existing) return existing;
+  const operation = recordOutcomeOnce(actionId, type, options, dependencies);
+  outcomeOperations.set(actionId, operation);
+  const clear = () => { if (outcomeOperations.get(actionId) === operation) outcomeOperations.delete(actionId); };
+  operation.then(clear, clear);
+  return operation;
+}
+
 export async function reconcileNotifications(state?: AppState, notificationScheduler: NotificationScheduler = expoNotificationScheduler) {
   const currentState = state ?? await loadAppState();
   await notificationScheduler.reconcile(currentState.configurations, actions, currentState.settings);
@@ -103,7 +121,15 @@ export async function reconcileNotifications(state?: AppState, notificationSched
 export async function recordIssue(title: string, options: { actionId?: string; note?: string; photoUri?: string } = {}) {
   const trimmedTitle = title.trim();
   if (!trimmedTitle) throw new Error('Issue title is required');
-  await repository.addOutcome({ id: id(), actionId: options.actionId ?? 'general-issue', type: 'issue_reported', occurredAt: new Date().toISOString(), title: trimmedTitle, note: options.note?.trim() || undefined, photoUri: options.photoUri });
+  const outcomeId = id();
+  const photoUri = await persistIssuePhoto(options.photoUri, outcomeId);
+  try {
+    await repository.addOutcome({ id: outcomeId, actionId: options.actionId ?? 'general-issue', type: 'issue_reported', occurredAt: new Date().toISOString(), title: trimmedTitle, note: options.note?.trim() || undefined, photoUri });
+  } catch (error) {
+    await removePersistedIssuePhoto(photoUri).catch(() => undefined);
+    throw error;
+  }
+  await finishIssuePhotoDraft(options.photoUri).catch(() => undefined);
   return loadAppState();
 }
 
@@ -118,8 +144,7 @@ export async function updateFrequency(actionId: string, frequency?: Frequency) {
   const nextDueAt = effectiveFrequency ? atNineAM(nextDueDate(reference, effectiveFrequency)).toISOString() : config.nextDueAt;
   await repository.upsertConfiguration({ ...config, frequencyOverride: frequency, nextDueAt, snoozedUntil: undefined });
   const nextState = await loadAppState();
-  await rescheduleNotifications(nextState.configurations, actions, nextState.settings.notificationsEnabled, nextState.settings.language, nextState.settings.notificationSchedule);
-  return nextState;
+  return reconcileNotificationsAfterCommit(nextState);
 }
 
 export async function setActionEnabled(actionId: string, enabled: boolean) {
@@ -127,8 +152,7 @@ export async function setActionEnabled(actionId: string, enabled: boolean) {
   if (!config) throw new Error('Action is not configured');
   await repository.upsertConfiguration({ ...config, enabled, snoozedUntil: enabled ? undefined : config.snoozedUntil });
   const nextState = await loadAppState();
-  await rescheduleNotifications(nextState.configurations, actions, nextState.settings.notificationsEnabled, nextState.settings.language, nextState.settings.notificationSchedule);
-  return nextState;
+  return reconcileNotificationsAfterCommit(nextState);
 }
 
 export async function updateSettings(settings: AppSettings) {
@@ -146,8 +170,7 @@ export async function updateSettings(settings: AppSettings) {
 export async function importLocalBackup() {
   if (!(await importBackup())) return null;
   const state = await loadAppState();
-  await rescheduleNotifications(state.configurations, actions, state.settings.notificationsEnabled, state.settings.language, state.settings.notificationSchedule);
-  return state;
+  return reconcileNotificationsAfterCommit(state);
 }
 
 export function validateFrequency(frequency: Frequency) {

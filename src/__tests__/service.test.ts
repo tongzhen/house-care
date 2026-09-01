@@ -4,6 +4,7 @@ jest.mock('../db', () => ({
   initialiseDatabase: jest.fn(), loadProfile: jest.fn(), loadConfigurations: jest.fn(), loadOutcomes: jest.fn(), getSettings: jest.fn(), saveProfile: jest.fn(), upsertConfiguration: jest.fn(), deleteConfiguration: jest.fn(), addOutcome: jest.fn(), saveSettings: jest.fn(), resetLocalData: jest.fn(), transaction: jest.fn(),
 }));
 jest.mock('../notifications', () => ({ rescheduleNotifications: jest.fn(), cancelScheduledNotifications: jest.fn() }));
+jest.mock('../media', () => ({ persistIssuePhoto: jest.fn(async () => undefined), finishIssuePhotoDraft: jest.fn(async () => undefined), removePersistedIssuePhoto: jest.fn(async () => undefined) }));
 jest.mock('../catalog', () => ({
   actions: [
     { id: 'dishwasher-filter-clean', trigger: { kind: 'recurring', defaultFrequency: { interval: 1, unit: 'month' } }, profileConditions: { appliances: ['dishwasher'] } },
@@ -26,6 +27,7 @@ import * as db from '../db';
 import { cancelScheduledNotifications, rescheduleNotifications } from '../notifications';
 import { recordIssue, recordOutcome, resetAppData, saveHomeProfile, setActionEnabled, updateFrequency, updateSettings, type RecordOutcomeDependencies } from '../service';
 import { defaultNotificationSchedule } from '../notificationSchedule';
+import { finishIssuePhotoDraft, persistIssuePhoto, removePersistedIssuePhoto } from '../media';
 
 const settings = { language: 'en' as const, notificationsEnabled: true, notificationSchedule: defaultNotificationSchedule() };
 
@@ -45,6 +47,9 @@ beforeEach(() => {
   jest.mocked(db.transaction).mockImplementation(async (work) => work({ saveProfile: db.saveProfile, deleteConfiguration: db.deleteConfiguration, addOutcome: db.addOutcome, upsertConfiguration: db.upsertConfiguration }));
   jest.mocked(rescheduleNotifications).mockResolvedValue();
   jest.mocked(cancelScheduledNotifications).mockResolvedValue();
+  jest.mocked(persistIssuePhoto).mockResolvedValue(undefined);
+  jest.mocked(finishIssuePhotoDraft).mockResolvedValue();
+  jest.mocked(removePersistedIssuePhoto).mockResolvedValue();
 });
 
 describe('maintenance service', () => {
@@ -92,6 +97,24 @@ describe('maintenance service', () => {
     expect(db.upsertConfiguration).toHaveBeenCalled();
   });
 
+  it('coalesces concurrent outcome submissions for the same action', async () => {
+    let releaseTransaction: (() => void) | undefined;
+    const transactionGate = new Promise<void>((resolve) => { releaseTransaction = resolve; });
+    jest.mocked(db.transaction).mockImplementationOnce(async (work) => {
+      const result = await work({ saveProfile: db.saveProfile, deleteConfiguration: db.deleteConfiguration, addOutcome: db.addOutcome, upsertConfiguration: db.upsertConfiguration });
+      await transactionGate;
+      return result;
+    });
+
+    const first = recordOutcome('dishwasher-filter-clean', 'done');
+    const duplicate = recordOutcome('dishwasher-filter-clean', 'done');
+    releaseTransaction?.();
+    await Promise.all([first, duplicate]);
+
+    expect(db.addOutcome).toHaveBeenCalledTimes(1);
+    expect(db.upsertConfiguration).toHaveBeenCalledTimes(1);
+  });
+
   it('clears due dates after completing a habit or unconfigured seasonal action', async () => {
     jest.mocked(db.loadConfigurations).mockResolvedValue([{ actionId: 'dryer-lint-filter', enabled: true, notificationsEnabled: false, nextDueAt: '2026-08-17T09:00:00.000Z' }]);
     await recordOutcome('dryer-lint-filter', 'done');
@@ -130,6 +153,25 @@ describe('maintenance service', () => {
     expect(db.addOutcome).toHaveBeenCalledWith(expect.objectContaining({ actionId: 'dishwasher-filter-clean', title: 'Dishwasher leak' }));
   });
 
+  it('stores only the permanent issue-photo URI and removes the draft after persistence', async () => {
+    jest.mocked(persistIssuePhoto).mockResolvedValue('file:///documents/issue-outcome.jpg');
+
+    await recordIssue('Dishwasher leak', { photoUri: 'file:///documents/issue-draft.jpg' });
+
+    expect(db.addOutcome).toHaveBeenCalledWith(expect.objectContaining({ photoUri: 'file:///documents/issue-outcome.jpg' }));
+    expect(finishIssuePhotoDraft).toHaveBeenCalledWith('file:///documents/issue-draft.jpg');
+  });
+
+  it('removes a permanent photo copy when issue persistence fails', async () => {
+    jest.mocked(persistIssuePhoto).mockResolvedValue('file:///documents/issue-outcome.jpg');
+    jest.mocked(db.addOutcome).mockRejectedValueOnce(new Error('Database unavailable'));
+
+    await expect(recordIssue('Dishwasher leak', { photoUri: 'file:///documents/issue-draft.jpg' })).rejects.toThrow('Database unavailable');
+
+    expect(removePersistedIssuePhoto).toHaveBeenCalledWith('file:///documents/issue-outcome.jpg');
+    expect(finishIssuePhotoDraft).not.toHaveBeenCalled();
+  });
+
   it('rejects a standalone issue without a title', async () => {
     await expect(recordIssue('   ')).rejects.toThrow('Issue title is required');
     expect(db.addOutcome).not.toHaveBeenCalled();
@@ -164,6 +206,13 @@ describe('maintenance service', () => {
 
     await expect(updateSettings({ ...settings, language: 'da' })).resolves.toEqual(expect.objectContaining({ settings }));
     expect(db.saveSettings).toHaveBeenCalledWith({ ...settings, language: 'da' });
+  });
+
+  it('keeps a committed frequency change when notification scheduling is unavailable', async () => {
+    jest.mocked(rescheduleNotifications).mockRejectedValueOnce(new Error('Notifications unavailable'));
+
+    await expect(updateFrequency('dishwasher-filter-clean', { interval: 3, unit: 'month' })).resolves.toEqual(expect.objectContaining({ settings }));
+    expect(db.upsertConfiguration).toHaveBeenCalledWith(expect.objectContaining({ frequencyOverride: { interval: 3, unit: 'month' } }));
   });
 
   it('resets local data even when notification cancellation is unavailable', async () => {
