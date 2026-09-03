@@ -25,6 +25,16 @@ describe('SQLite repository', () => {
     expect(mockRunAsync).toHaveBeenCalledWith('DELETE FROM task_outcomes WHERE outcome_type = ?', ['not_relevant']);
   });
 
+  it('migrates action configurations created before notification preferences', async () => {
+    mockGetAllAsync
+      .mockResolvedValueOnce([{ name: 'title' }])
+      .mockResolvedValueOnce([{ name: 'action_id' }, { name: 'enabled' }]);
+
+    await initialiseDatabase();
+
+    expect(mockExecAsync).toHaveBeenCalledWith('ALTER TABLE action_configurations ADD COLUMN notifications_enabled INTEGER NOT NULL DEFAULT 1;');
+  });
+
   it('serialises a profile before writing it', async () => {
     await saveProfile({ appliances: ['dishwasher'], features: ['floor-drains'], variants: {} });
     expect(mockRunAsync).toHaveBeenCalledWith(expect.stringContaining('INSERT OR REPLACE INTO home_profile'), expect.arrayContaining([JSON.stringify(['floor-drains']), JSON.stringify(['dishwasher'])]));

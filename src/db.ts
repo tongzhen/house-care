@@ -37,6 +37,12 @@ export async function initialiseDatabase() {
   `);
   const outcomeColumns = await connection.getAllAsync<{ name: string }>('PRAGMA table_info(task_outcomes)');
   if (!outcomeColumns.some((column) => column.name === 'title')) await connection.execAsync('ALTER TABLE task_outcomes ADD COLUMN title TEXT;');
+  // Existing installations may predate per-action notification preferences.
+  // Add the column before any profile/action write attempts to upsert it.
+  const configurationColumns = await connection.getAllAsync<{ name: string }>('PRAGMA table_info(action_configurations)');
+  if (!configurationColumns.some((column) => column.name === 'notifications_enabled')) {
+    await connection.execAsync('ALTER TABLE action_configurations ADD COLUMN notifications_enabled INTEGER NOT NULL DEFAULT 1;');
+  }
   await connection.runAsync('DELETE FROM task_outcomes WHERE outcome_type = ?', ['not_relevant']);
 }
 
