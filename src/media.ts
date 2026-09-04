@@ -1,4 +1,5 @@
 import * as FileSystem from 'expo-file-system/legacy';
+import { File } from 'expo-file-system';
 import * as ImageManipulator from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
 
@@ -32,7 +33,9 @@ export async function selectIssuePhoto(previousDraftUri?: string) {
 }
 
 export async function discardIssuePhoto(uri?: string) {
-  if (uri) await FileSystem.deleteAsync(uri, { idempotent: true });
+  if (!uri) return;
+  const file = new File(uri);
+  if (file.exists) file.delete();
 }
 
 export async function persistIssuePhoto(draftUri: string | undefined, outcomeId: string) {

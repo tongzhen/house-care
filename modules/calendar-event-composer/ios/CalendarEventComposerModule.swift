@@ -2,9 +2,22 @@ import ExpoModulesCore
 import EventKit
 import EventKitUI
 
-public final class CalendarEventComposerModule: Module, EKEventEditViewDelegate {
+private final class CalendarEventComposerDelegate: NSObject, EKEventEditViewDelegate {
+  let onComplete: () -> Void
+
+  init(onComplete: @escaping () -> Void) {
+    self.onComplete = onComplete
+  }
+
+  func eventEditViewController(_ controller: EKEventEditViewController, didCompleteWith action: EKEventEditViewAction) {
+    controller.dismiss(animated: true, completion: onComplete)
+  }
+}
+
+public final class CalendarEventComposerModule: Module {
   private let eventStore = EKEventStore()
   private var completion: Promise?
+  private var editorDelegate: CalendarEventComposerDelegate?
 
   public func definition() -> ModuleDefinition {
     Name("CalendarEventComposer")
@@ -28,16 +41,15 @@ public final class CalendarEventComposerModule: Module, EKEventEditViewDelegate 
       let editor = EKEventEditViewController()
       editor.eventStore = self.eventStore
       editor.event = event
-      editor.editViewDelegate = self
       self.completion = promise
+      let editorDelegate = CalendarEventComposerDelegate {
+        self.completion?.resolve()
+        self.completion = nil
+        self.editorDelegate = nil
+      }
+      self.editorDelegate = editorDelegate
+      editor.editViewDelegate = editorDelegate
       viewController.present(editor, animated: true)
     }.runOnQueue(.main)
-  }
-
-  public func eventEditViewController(_ controller: EKEventEditViewController, didCompleteWith action: EKEventEditViewAction) {
-    controller.dismiss(animated: true) {
-      self.completion?.resolve()
-      self.completion = nil
-    }
   }
 }
