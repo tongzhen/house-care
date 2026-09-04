@@ -1,0 +1,6 @@
+appId: com.housecare.app
+---
+- assertVisible: "Make care fit your home."
+- assertVisible: "Dishwasher"
+- tapOn: "Continue"
+- assertVisible: "What matters now"

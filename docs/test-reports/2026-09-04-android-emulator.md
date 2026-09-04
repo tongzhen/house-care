@@ -2,17 +2,17 @@
 
 ## Summary
 
-Result: **NATIVE BUILD AND LAUNCH PASS; UI EXECUTION BLOCKED BY CONTROL SURFACE**
+Result: **NATIVE BUILD, LAUNCH, AND CRITICAL ACTION REGRESSIONS PASS**
 
 - Planned emulator cases: 42
-- Executed emulator/build cases: 4
-- Passed: 4
+- Executed emulator/build cases: 7
+- Passed: 7
 - Failed: 0
-- Blocked/not executed: 38
+- Blocked/not executed: 35
 - Automated regression result: 97/97 tests passed on the same source revision
 - Blocker or critical app defects observed: 0
 
-The Android APK built, installed, launched, remained alive, and became the visible fullscreen activity. The standalone Android emulator window was not exposed to the available desktop accessibility controller, and the repository has no Maestro or Android instrumentation suite. UI cases are therefore marked Blocked rather than reported as unverified passes.
+The Android APK built, installed, launched, remained alive, and became the visible fullscreen activity. Maestro 2.10.0 was then installed and a checked-in regression suite executed the previously failing Mark as done, Postpone, and Reset to default journeys against the Pixel 10 emulator. All three completed without `The action could not be updated`.
 
 ## Environment
 
@@ -37,16 +37,18 @@ The Android APK built, installed, launched, remained alive, and became the visib
 | AND-002 | PASS | Debug APK installed and House Care launched on Pixel 10 using Metro port 8082. |
 | AND-003 | PASS | App process remained active (`pid 12280`) and its task was visible, fullscreen, and requested visible. |
 | AND-004 | PASS WITH WARNING | No fatal crash or uncaught React Native JavaScript error appeared. One startup-only React Native soft exception occurred before context initialization; `Running "main"` followed normally. |
+| AND-020 | PASS | Maestro marked Clean the dishwasher filter complete and verified the Completed record in History without an update error. |
+| AND-021 | PASS | Maestro postponed Clean the dishwasher filter until tomorrow and verified the Snoozed record in History without an update error. |
+| AND-024 | PASS | Maestro changed the action frequency to three months, reset it, and verified the one-month default without an update error. |
 
-## Blocked cases
+## Remaining cases
 
-The remaining 38 cases were not executed. The reason is test-control infrastructure, not an observed application failure:
+The remaining 35 cases were not executed in this focused Maestro setup pass.
 
-- The standalone Android emulator is not available through the desktop accessibility automation surface.
-- No Maestro executable or checked-in Maestro flow exists.
 - No Android instrumentation/UI test target exists.
+- The initial Maestro suite intentionally covers only the three reported action-update regressions.
 
-The next complete Android UI pass should first add a reproducible Maestro suite for the critical journeys, then execute it against this AVD. Destructive reset/delete cases and OS permission changes should run on a disposable seeded emulator snapshot.
+The next complete Android UI pass should expand the reproducible Maestro suite across navigation, issues, settings, and device integrations. Destructive reset/delete cases and OS permission changes should run on a disposable seeded emulator snapshot.
 
 ## Observations
 
@@ -80,12 +82,13 @@ The next complete Android UI pass should first add a reproducible Maestro suite 
 | `JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home" npm run android -- --port 8082` | PASS |
 | ADB process/activity inspection | PASS |
 | Filtered app log inspection | PASS WITH STARTUP WARNING |
+| `npm run e2e:android` | PASS — 3/3 Maestro action-regression flows |
 
 ## Cross-platform regression risks to execute next
 
-- Done, Postpone, Reset to default, Enable, and Disable against a legacy upgraded database.
+- Enable and Disable against a legacy upgraded database. The new clean-install Maestro flows cover Done, Postpone, and Reset to default; a seeded legacy-database flow remains to be added.
 - Android custom-date picker behavior and system Back navigation.
 - Android calendar ACTION_INSERT intent.
 - Notification permission denied/allowed behavior.
 - Photo selection, stale-photo cleanup, and issue deletion.
-- The iOS-discovered related-action picker schedule-label defect (HC-IOS-001) is shared React Native UI code and is expected to affect Android until corrected.
+- HC-IOS-001 was fixed in shared React Native UI code and regression-tested on iOS; Android picker coverage remains to be added.

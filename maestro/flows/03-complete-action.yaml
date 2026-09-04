@@ -1,0 +1,21 @@
+appId: com.housecare.app
+name: Complete an action without an update error
+tags:
+  - regression
+  - actions
+---
+- launchApp:
+    clearState: true
+    permissions:
+      notifications: allow
+- runFlow: ../subflows/onboard-dishwasher.yaml
+- tapOn: "Actions"
+- tapOn: "Clean the dishwasher filter"
+- scrollUntilVisible:
+    element: "Mark as done"
+    direction: DOWN
+- tapOn: "Mark as done"
+- assertNotVisible: "The action could not be updated"
+- assertVisible: "History"
+- assertVisible: "Clean the dishwasher filter"
+- assertVisible: "Completed"

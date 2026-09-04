@@ -3,6 +3,7 @@ node_modules/
 dist/
 coverage/
 *.log
+.maestro-results/
 .DS_Store
 ios/
 android/

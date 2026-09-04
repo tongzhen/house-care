@@ -1,0 +1,22 @@
+appId: com.housecare.app
+name: Postpone an action without an update error
+tags:
+  - regression
+  - actions
+---
+- launchApp:
+    clearState: true
+    permissions:
+      notifications: allow
+- runFlow: ../subflows/onboard-dishwasher.yaml
+- tapOn: "Actions"
+- tapOn: "Clean the dishwasher filter"
+- scrollUntilVisible:
+    element: "Tomorrow"
+    direction: DOWN
+- tapOn: "Tomorrow"
+- assertNotVisible: "The action could not be updated"
+- assertVisible: "Actions"
+- tapOn: "History"
+- assertVisible: "Clean the dishwasher filter"
+- assertVisible: "Snoozed"
