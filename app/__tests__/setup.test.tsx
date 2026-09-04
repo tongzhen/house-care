@@ -271,6 +271,8 @@ describe('setup flow', () => {
     await render(<IssueActionSelect actions={[action]} language="en" onBack={jest.fn()} onSelect={jest.fn()} />);
     expect(screen.getByText('None')).toBeTruthy();
     expect(screen.getByText('Clean the dishwasher filter')).toBeTruthy();
+    expect(screen.getByText(`${action.estimatedMinutes} min`)).toBeTruthy();
+    expect(screen.queryByText(/After each use/)).toBeNull();
   });
 
 });

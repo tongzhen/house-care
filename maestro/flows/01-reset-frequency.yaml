@@ -1,0 +1,24 @@
+appId: com.housecare.app
+name: Reset action frequency without an update error
+tags:
+  - regression
+  - actions
+---
+- launchApp:
+    clearState: true
+    permissions:
+      notifications: allow
+- runFlow: ../subflows/onboard-dishwasher.yaml
+- tapOn: "Actions"
+- tapOn: "Clean the dishwasher filter"
+- scrollUntilVisible:
+    element: "3 Months"
+    direction: DOWN
+- tapOn: "3 Months"
+- assertNotVisible: "The action could not be updated"
+- scrollUntilVisible:
+    element: "Reset to default"
+    direction: DOWN
+- tapOn: "Reset to default"
+- assertNotVisible: "The action could not be updated"
+- assertVisible: "1 Month"
