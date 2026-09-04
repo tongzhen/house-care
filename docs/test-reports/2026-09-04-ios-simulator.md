@@ -2,15 +2,15 @@
 
 ## Summary
 
-Result: **PASS WITH ONE OPEN UI DEFECT**
+Result: **PASS**
 
 - Executed: 25 simulator cases
-- Passed: 24
-- Failed: 1
+- Passed: 25
+- Failed: 0
 - Blocked/not executed from the full plan: 15
 - Automated regression result: 97/97 tests passed
 - Blocker or critical defects: 0
-- Open defects: 1 medium-priority presentation defect
+- Open defects: 0
 
 The original action-update regression did not reproduce after the database migration fix. Done, Postpone, Reset to default, Enable, and Disable completed successfully in the simulator.
 
@@ -50,7 +50,7 @@ The original action-update regression did not reproduce after the database migra
 | IOS-041 | PASS | Issues filter displayed only issue outcomes. |
 | IOS-042 | PASS | Existing issue detail displayed title, note, escalation guidance, Delete photo, and Delete issue. |
 | IOS-043 | PASS | New issue Save control remained disabled with an empty title. |
-| IOS-044 | FAIL | Related action selection worked, but all picker rows incorrectly displayed `After each use` instead of their actual schedule. See HC-IOS-001. |
+| IOS-044 | PASS | Related action rows display their title and duration without incorrectly presenting recurring or seasonal actions as `After each use`. |
 | IOS-045 | PASS | Created `Simulator regression test`, related to Clean the dishwasher filter; it appeared in History. |
 | IOS-046 | PASS | `Simulator regression test` remained in History after a full Metro reload. |
 | IOS-050 | PASS | Settings and tab labels changed to Danish. |
@@ -73,7 +73,7 @@ The following cases remain for a dedicated integration pass:
 ### HC-IOS-001 — Related-action picker shows incorrect schedule text
 
 - Severity: Medium
-- Status: Open
+- Status: Fixed and regression-tested
 - Area: New issue → Related maintenance action
 - Steps:
   1. Open Home.
@@ -82,6 +82,8 @@ The following cases remain for a dedicated integration pass:
 - Actual: Recurring and seasonal action rows display `After each use`.
 - Expected: Each row displays its configured due date/frequency, or schedule copy should be omitted from this picker.
 - Impact: The selection succeeds, but schedule information is misleading.
+- Resolution: The related-action picker now intentionally omits schedule copy because it does not receive action configurations; it continues to display each action's duration.
+- Retest: PASS on the iPhone 17 Pro simulator. Recurring, seasonal, and habit rows displayed title plus duration without the incorrect schedule label.
 
 ## Automated verification
 
