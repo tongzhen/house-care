@@ -1,0 +1,12 @@
+appId: com.housecare.app
+---
+- assertVisible: "Make care fit your home."
+- scrollUntilVisible:
+    element: "Floor drains"
+    direction: DOWN
+- tapOn: "Floor drains"
+- scrollUntilVisible:
+    element: "Continue"
+    direction: DOWN
+- tapOn: "Continue"
+- assertVisible: "What matters now"

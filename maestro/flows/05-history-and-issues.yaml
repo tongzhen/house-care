@@ -1,0 +1,48 @@
+appId: com.housecare.app
+name: Create, filter, reopen, and inspect history and issues
+tags:
+  - regression
+  - issues
+---
+- launchApp:
+    clearState: true
+    permissions:
+      notifications: allow
+- runFlow: ../subflows/onboard-dishwasher.yaml
+- tapOn: "Actions"
+- tapOn: "Clean the dishwasher filter"
+- scrollUntilVisible:
+    element: "Mark as done"
+    direction: DOWN
+- tapOn: "Mark as done"
+- assertVisible: "Completed"
+- tapOn: "Home"
+- tapOn: "Report an issue"
+- assertVisible: "Record an issue"
+- assertVisible: "Title *"
+- tapOn:
+    id: "issue-title"
+- inputText: "Pixel 8 regression issue"
+- hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: "issue-save"
+    direction: DOWN
+- tapOn:
+    id: "issue-save"
+- assertVisible: "Pixel 8 regression issue"
+- tapOn: "Completed"
+- assertVisible: "Completed"
+- tapOn: "Issues"
+- assertVisible: "Pixel 8 regression issue"
+- launchApp
+- assertVisible: "Pixel 8 regression issue"
+- tapOn: "Pixel 8 regression issue"
+- assertVisible: "Stop and get help"
+- scrollUntilVisible:
+    element: "Delete issue and photo"
+    direction: DOWN
+- tapOn: "Delete issue and photo"
+- assertVisible: "Delete this issue and any attached photo?"
+- tapOn: "Cancel"
+- assertVisible: "Pixel 8 regression issue"

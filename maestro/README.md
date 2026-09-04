@@ -1,6 +1,6 @@
 # Maestro end-to-end tests
 
-These flows exercise House Care as a black-box app on an Android emulator or iOS simulator. Each action-regression flow clears application data, creates the default dishwasher profile, and independently verifies one of the mutations that previously showed `The action could not be updated`.
+These flows exercise House Care as a black-box app on an Android emulator, physical Android device, or iOS simulator. They cover action mutations, primary navigation, catalogue filtering, history and issues, localization, notification settings, and reset behavior. Each flow clears only House Care application data and creates its own profile.
 
 ## Prerequisites
 
@@ -27,6 +27,12 @@ Use `npm run e2e:maestro` when only one supported device is connected. Run a sin
 
 ```sh
 ./scripts/run-maestro.sh --platform android test maestro/flows/01-reset-frequency.yaml
+```
+
+When multiple Android devices are connected, target one by ADB serial:
+
+```sh
+./scripts/run-maestro.sh --device DEVICE_SERIAL --platform android test maestro/flows
 ```
 
 The flows use English visible text because English is the clean-install default. Prefer stable React Native `testID` selectors when flows begin covering localized screens or duplicate labels.

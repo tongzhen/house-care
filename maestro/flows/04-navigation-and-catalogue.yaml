@@ -1,0 +1,35 @@
+appId: com.housecare.app
+name: Navigate primary screens and filter the action catalogue
+tags:
+  - regression
+  - navigation
+---
+- launchApp:
+    clearState: true
+    permissions:
+      notifications: allow
+- runFlow: ../subflows/onboard-dishwasher-floor-drain.yaml
+- assertVisible: "Home"
+- tapOn: "Actions"
+- assertVisible: "Category"
+- assertVisible: "Appliance"
+- assertVisible: "Drainage"
+- tapOn: "Drainage"
+- assertVisible: "Clean the floor drain and water trap"
+- assertNotVisible: "Clean the dishwasher filter"
+- tapOn: "Clean the floor drain and water trap"
+- assertVisible: "Why this matters"
+- back
+- assertVisible: "Actions"
+- tapOn: "History"
+- assertVisible: "History"
+- tapOn: "Settings"
+- assertVisible: "Edit home profile"
+- tapOn: "Actions overview"
+- assertVisible: "Status"
+- scrollUntilVisible:
+    element: ".*Not available for this home.*"
+    direction: DOWN
+- assertVisible: ".*Not available for this home.*"
+- back
+- assertVisible: "Settings"

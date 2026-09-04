@@ -1,0 +1,32 @@
+appId: com.housecare.app
+name: Exercise settings, localization, notification settings, and reset
+tags:
+  - regression
+  - settings
+---
+- launchApp:
+    clearState: true
+    permissions:
+      notifications: allow
+- runFlow: ../subflows/onboard-dishwasher.yaml
+- tapOn: "Settings"
+- tapOn: "Dansk"
+- assertVisible: "Indstillinger"
+- assertVisible: "Hjem"
+- tapOn: "Engelsk"
+- assertVisible: "Settings"
+- tapOn: "Notification settings"
+- assertVisible: "Notification timing"
+- assertVisible: "Monday"
+- back
+- assertVisible: "Settings"
+- scrollUntilVisible:
+    element: "Reset app data"
+    direction: DOWN
+- tapOn: "Reset app data"
+- assertVisible: "Reset House Care?"
+- tapOn: "Cancel"
+- assertVisible: "Settings"
+- tapOn: "Reset app data"
+- tapOn: "Reset to default"
+- assertVisible: "Make care fit your home."
