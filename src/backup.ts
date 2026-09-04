@@ -4,6 +4,7 @@ import * as Sharing from 'expo-sharing';
 import JSZip from 'jszip';
 import { z } from 'zod';
 import { clearOutcomePhoto, deleteOutcome, loadOutcomes, replaceLocalData, resetLocalData } from './db';
+import { removePersistedIssuePhoto } from './media';
 import { defaultNotificationSchedule, validateNotificationSchedule } from './notificationSchedule';
 import type { AppState } from './service';
 import type { TaskOutcome } from './types';
@@ -19,7 +20,7 @@ const backupSchema = z.object({
 });
 
 async function removePhotos(outcomes: TaskOutcome[]) {
-  await Promise.all(outcomes.flatMap((outcome) => outcome.photoUri ? [FileSystem.deleteAsync(outcome.photoUri, { idempotent: true })] : []));
+  await Promise.all(outcomes.map((outcome) => removePersistedIssuePhoto(outcome.photoUri).catch(() => undefined)));
 }
 
 export async function exportBackup(state: AppState) {
@@ -74,7 +75,7 @@ export async function importBackup() {
     await removePhotos(existingOutcomes);
     return true;
   } catch (error) {
-    await Promise.all(createdPhotos.map((uri) => FileSystem.deleteAsync(uri, { idempotent: true })));
+    await Promise.all(createdPhotos.map((uri) => removePersistedIssuePhoto(uri).catch(() => undefined)));
     throw error;
   }
 }
@@ -86,11 +87,11 @@ export async function clearData() {
 }
 
 export async function removeIssuePhoto(outcome: TaskOutcome) {
-  if (outcome.photoUri) await FileSystem.deleteAsync(outcome.photoUri, { idempotent: true });
+  await removePersistedIssuePhoto(outcome.photoUri).catch(() => undefined);
   await clearOutcomePhoto(outcome.id);
 }
 
 export async function removeIssue(outcome: TaskOutcome) {
-  if (outcome.photoUri) await FileSystem.deleteAsync(outcome.photoUri, { idempotent: true });
+  await removePersistedIssuePhoto(outcome.photoUri).catch(() => undefined);
   await deleteOutcome(outcome.id);
 }

@@ -3,16 +3,20 @@
 jest.mock('expo-image-picker', () => ({ launchImageLibraryAsync: jest.fn() }));
 jest.mock('expo-image-manipulator', () => ({ manipulateAsync: jest.fn(), SaveFormat: { JPEG: 'jpeg' } }));
 jest.mock('expo-file-system/legacy', () => ({ documentDirectory: 'file:///documents/', copyAsync: jest.fn(), deleteAsync: jest.fn() }));
+const mockFileDelete = jest.fn();
+let mockFileExists = true;
+jest.mock('expo-file-system', () => ({ File: jest.fn().mockImplementation(() => ({ get exists() { return mockFileExists; }, delete: mockFileDelete })) }));
 
 import * as FileSystem from 'expo-file-system/legacy';
 import * as ImageManipulator from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
-import { persistIssuePhoto, selectIssuePhoto } from '../media';
+import { discardIssuePhoto, persistIssuePhoto, selectIssuePhoto } from '../media';
 
 beforeEach(() => {
   jest.clearAllMocks();
   jest.mocked(FileSystem.copyAsync).mockResolvedValue();
   jest.mocked(FileSystem.deleteAsync).mockResolvedValue();
+  mockFileExists = true;
 });
 
 describe('issue media storage', () => {
@@ -25,8 +29,16 @@ describe('issue media storage', () => {
     expect(ImageManipulator.manipulateAsync).toHaveBeenCalledWith('file:///picker/original.heic', [], { compress: 0.8, format: 'jpeg' });
     expect(FileSystem.copyAsync).toHaveBeenCalledWith({ from: 'file:///cache/reencoded.jpg', to: expect.stringContaining('issue-draft-') });
     expect(FileSystem.copyAsync).not.toHaveBeenCalledWith(expect.objectContaining({ from: 'file:///picker/original.heic' }));
-    expect(FileSystem.deleteAsync).toHaveBeenCalledWith('file:///documents/old-draft.jpg', { idempotent: true });
+    expect(mockFileDelete).toHaveBeenCalledTimes(1);
     expect(result).toContain('issue-draft-');
+  });
+
+  it('does not try to delete a photo that is already absent', async () => {
+    mockFileExists = false;
+
+    await expect(discardIssuePhoto('file:///documents/missing.jpg')).resolves.toBeUndefined();
+
+    expect(mockFileDelete).not.toHaveBeenCalled();
   });
 
   it('copies a draft to its permanent outcome path', async () => {
