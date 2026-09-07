@@ -243,6 +243,7 @@ describe('setup flow', () => {
     await render(<IssueForm title="" note="" actions={[]} language="en" onChooseAction={jest.fn()} onTitle={jest.fn()} onNote={jest.fn()} onPhoto={jest.fn()} onBack={jest.fn()} onSubmit={onSubmit} />);
     expect(screen.getByText('Related maintenance action')).toBeTruthy();
     expect(screen.getByText('None')).toBeTruthy();
+    expect(screen.getByTestId('issue-save')).toBeDisabled();
     fireEvent.press(screen.getByText('Save issue'));
     expect(onSubmit).not.toHaveBeenCalled();
   });

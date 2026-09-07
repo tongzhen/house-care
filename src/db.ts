@@ -4,12 +4,22 @@ import { defaultAppLanguage } from './language';
 import type { ActionConfiguration, AppSettings, FrequencyUnit, Profile, TaskOutcome } from './types';
 import type { HomeRepositoryTransaction } from './ports';
 
-let database: SQLite.SQLiteDatabase | undefined;
+let databasePromise: Promise<SQLite.SQLiteDatabase> | undefined;
 const profileId = 'primary-home';
 
 async function db() {
-  if (!database) database = await SQLite.openDatabaseAsync('house-care.db');
-  return database;
+  // Android can keep the native process alive while replacing the JavaScript
+  // runtime (for example after an external app-data reset). Expo SQLite's
+  // default connection cache can then return a wrapper for a closed native
+  // handle. A connection dedicated to this runtime avoids reusing that stale
+  // handle, while the promise prevents concurrent callers opening duplicates.
+  databasePromise ??= SQLite.openDatabaseAsync('house-care.db', { useNewConnection: true });
+  try {
+    return await databasePromise;
+  } catch (error) {
+    databasePromise = undefined;
+    throw error;
+  }
 }
 
 type StatementRunner = Pick<SQLite.SQLiteDatabase, 'runAsync'>;
