@@ -81,6 +81,9 @@ The next pass should isolate each destructive `clearState` run at the process/de
 - Reproduction context: USB Pixel 8 after several independent Maestro flows used `launchApp.clearState: true` against the same development process.
 - Control evidence: Clean-start action mutations and SQLite transactions passed on both Pixel 10 and Pixel 8; database integrity remained `ok`.
 - Impact: The issue suite cannot reliably validate AND-041 through AND-048 after repeated external data clears. A normal in-app reset uses SQL deletion rather than Android package-data clearing and passed AND-071.
+- Remediation (7 September 2026): Updated the database wrapper to open one connection dedicated to each JavaScript runtime with Expo SQLite's `useNewConnection` option. The connection is now cached as a promise so concurrent startup callers cannot create duplicate native wrappers, and a rejected open clears the promise for a later retry.
+- Local verification: PASS — all 17 Jest suites / 97 tests, TypeScript, lint, catalogue validation, and third-party notices validation.
+- Device retest: Pending — the USB Pixel 8 disconnected during the interrupted verification run and was no longer present in `adb devices`. Keep this defect open and AND-045 failed until `maestro/flows/05-history-and-issues.yaml` passes on the physical device.
 
 ## Observations
 
@@ -111,6 +114,8 @@ The next pass should isolate each destructive `clearState` run at the process/de
 | `npm test` | PASS — 17 suites, 97 tests |
 | `npm run typecheck` | PASS |
 | `npm run lint` | PASS |
+| `npm run validate:catalog` | PASS |
+| `npm run notices:check` | PASS |
 | `JAVA_HOME="/Applications/Android Studio.app/Contents/jbr/Contents/Home" npm run android -- --port 8082` | PASS |
 | ADB process/activity inspection | PASS |
 | Filtered app log inspection | PASS WITH STARTUP WARNING |
