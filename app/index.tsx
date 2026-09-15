@@ -124,7 +124,8 @@ export function LegacyAppController() {
   const selectedOutcome = selectedOutcomeId ? state?.outcomes.find((outcome) => outcome.id === selectedOutcomeId) : undefined;
 
   if (!state) return <SafeAreaView style={styles.loading}><ActivityIndicator color={colors.green} /></SafeAreaView>;
-  if (!state.profile || view === 'setup') return <Setup initial={state.profile} onBack={state.profile ? () => setView('settings') : undefined} onSave={!state.profile ? async (profile) => { const nextState = await saveHomeProfile(profile); setState(nextState); setView('home'); } : undefined} onCommit={state.profile ? async (profile) => { setState(await saveHomeProfile(profile)); } : undefined} />;
+  if (!state.profile) return <Setup onSave={async (profile) => { const nextState = await saveHomeProfile(profile); setState(nextState); setView('home'); }} />;
+  if (view === 'setup') return <ProfileEditor initial={state.profile} onBack={() => setView('settings')} onCommit={async (profile) => { setState(await saveHomeProfile(profile)); }} />;
 
   const openAction = (actionId: string, returnView: ViewName = 'home') => { setSelectedActionId(actionId); setDetailReturnView(returnView); setView('detail'); };
   const outcome = async (type: 'done' | 'snoozed', snoozeDays?: number, snoozedUntil?: string) => {
@@ -159,7 +160,7 @@ export function LegacyAppController() {
   );
 }
 
-export function Setup({ initial, onBack, onSave, onCommit }: { initial: Profile | null; onBack?: () => void; onSave?: (profile: Omit<Profile, 'id'>) => Promise<void>; onCommit?: (profile: Omit<Profile, 'id'>) => Promise<void> }) {
+function useProfileDraft(initial?: Profile) {
   const { t } = useTranslation();
   const [appliances, setAppliances] = useState<string[]>(initial?.appliances ?? ['dishwasher']);
   const [features, setFeatures] = useState<string[]>(initial?.features ?? []);
@@ -167,8 +168,6 @@ export function Setup({ initial, onBack, onSave, onCommit }: { initial: Profile 
   const [ageBand, setAgeBand] = useState<NonNullable<Profile['ageBand']>>(initial?.ageBand ?? 'new-build');
   const [dryerVariant, setDryerVariant] = useState<string | undefined>(initial?.variants.tumbleDryer);
   const [hoodVariant, setHoodVariant] = useState<string | undefined>(initial?.variants.cookerHood);
-  const [step, setStep] = useState<'welcome' | 'home' | 'appliances' | 'features'>(initial ? 'home' : 'welcome');
-  const [saving, setSaving] = useState(false);
   const toggle = (value: string, values: string[], setter: (items: string[]) => void) => setter(values.includes(value) ? values.filter((item) => item !== value) : [...values, value]);
   const profile = (): Omit<Profile, 'id'> => ({ houseType, ageBand, appliances, features, variants: { ...(appliances.includes('tumble-dryer') && dryerVariant ? { tumbleDryer: dryerVariant } : {}), ...(appliances.includes('cooker-hood') && hoodVariant ? { cookerHood: hoodVariant } : {}) } });
   const validationMessage = () => {
@@ -177,39 +176,53 @@ export function Setup({ initial, onBack, onSave, onCommit }: { initial: Profile 
     if (appliances.includes('cooker-hood') && !hoodVariant) return t('profileHoodTypeRequired');
     return undefined;
   };
-  const leave = async () => {
-    const message = validationMessage();
-    if (message) { Alert.alert(t('editHome'), message); return; }
-    setSaving(true);
-    try { await onCommit?.(profile()); onBack?.(); } catch { Alert.alert(t('editHome'), t('profileSaveFailed')); } finally { setSaving(false); }
-  };
   const toggleAppliance = (id: string) => { toggle(id, appliances, setAppliances); if (id === 'tumble-dryer' && appliances.includes(id)) setDryerVariant(undefined); if (id === 'cooker-hood' && appliances.includes(id)) setHoodVariant(undefined); };
+  return { appliances, features, houseType, ageBand, dryerVariant, hoodVariant, profile, validationMessage, setHouseType, setAgeBand, setDryerVariant, setHoodVariant, toggleAppliance, toggleFeature: (id: string) => toggle(id, features, setFeatures) };
+}
+
+export function Setup({ onSave }: { onSave: (profile: Omit<Profile, 'id'>) => Promise<void> }) {
+  const { t } = useTranslation();
+  const draft = useProfileDraft();
+  const [step, setStep] = useState<'welcome' | 'home' | 'appliances' | 'features'>('welcome');
+  const [saving, setSaving] = useState(false);
   const nextFromAppliances = () => {
-    const message = validationMessage();
+    const message = draft.validationMessage();
     if (message) { Alert.alert(t('profileAppliances'), message); return; }
     setStep('features');
   };
   const save = async () => {
-    const message = validationMessage();
+    const message = draft.validationMessage();
     if (message) { Alert.alert(t('profileFeatures'), message); return; }
     setSaving(true);
-    try { await onSave?.(profile()); await onCommit?.(profile()); } catch { Alert.alert(t('welcome'), t('profileSaveFailed')); } finally { setSaving(false); }
+    try { await onSave(draft.profile()); } catch { Alert.alert(t('welcome'), t('profileSaveFailed')); } finally { setSaving(false); }
   };
   const goBack = () => {
     if (step === 'features') { setStep('appliances'); return; }
     if (step === 'appliances') { setStep('home'); return; }
-    if (step === 'home' && onBack) { void leave(); return; }
     if (step === 'home') setStep('welcome');
   };
-  const actionCount = actions.filter((action) => actionApplies(action, profile())).length;
+  const actionCount = actions.filter((action) => actionApplies(action, draft.profile())).length;
   const progress = step === 'home' ? 1 : step === 'appliances' ? 2 : 3;
   return <SwipeBack onBack={goBack}><ScrollView contentContainerStyle={[styles.page, styles.setupPage]}>
     {step === 'welcome' && <View style={styles.setupWelcome}><Text style={styles.setupMark}>⌂</Text><Text style={styles.kicker}>{t('onboarding.brand')}</Text><Text style={styles.setupTitle}>{t('onboarding.welcomeTitle')}</Text><Text style={styles.setupIntro}>{t('onboarding.welcomeBody')}</Text><View style={styles.setupIllustration}><Text style={styles.setupIllustrationText}>⌂</Text><Text style={styles.setupSparkle}>✦</Text></View><Pressable accessibilityRole="button" style={styles.primary} onPress={() => setStep('home')}><Text style={styles.primaryText}>{t('onboarding.setupHome')}</Text></Pressable><Text style={styles.setupReassurance}>{t('onboarding.localOnly')}</Text></View>}
     {step !== 'welcome' && <><View style={styles.setupProgress}><Pressable accessibilityRole="button" accessibilityLabel={t('onboarding.back')} onPress={goBack}><Text style={styles.setupBack}>‹</Text></Pressable><View style={styles.setupProgressCopy}><Text style={styles.setupProgressText}>{t('onboarding.progress', { current: progress, total: 3 })}</Text><View style={styles.setupProgressBars}>{[1, 2, 3].map((item) => <View key={item} style={[styles.setupProgressBar, item <= progress && styles.setupProgressBarActive]} />)}</View></View></View>
-      {step === 'home' && <><Text style={styles.setupTitle}>{t('onboarding.homeTitle')}</Text><View style={styles.setupHomeCards}>{(['detached', 'terraced'] as const).map((item) => <ProfileCard key={item} glyph={item === 'detached' ? '⌂' : '⌂⌂'} label={t(`profileHouseTypes.${item}`)} selected={houseType === item} onPress={() => setHouseType(item)} />)}</View><Text style={styles.label}>{t('onboarding.homeAge')}</Text><View style={styles.setupAgeGrid}>{([['new-build', 'ageNew'], ['0-2', 'ageTwo'], ['3-10', 'ageTen'], ['10+', 'ageOlder']] as const).map(([value, label]) => <Choice key={value} label={t(`onboarding.${label}`)} selected={ageBand === value} onPress={() => setAgeBand(value)} />)}</View><SetupActions onBack={goBack} onNext={() => setStep('appliances')} /></>}
-      {step === 'appliances' && <><Text style={styles.setupTitle}>{t('onboarding.appliancesTitle')}</Text><Text style={styles.setupIntro}>{t('onboarding.appliancesHint')}</Text><View style={styles.setupOptionGrid}>{applianceChoices.map(([id, label]) => <ProfileCard key={id} glyph={id === 'dishwasher' ? '▤' : id === 'washing-machine' ? '◉' : id === 'tumble-dryer' ? '◌' : '⌑'} label={t(label)} selected={appliances.includes(id)} onPress={() => toggleAppliance(id)} />)}</View>{appliances.includes('tumble-dryer') && <><Text style={styles.label}>{t('profileDryerType')}</Text><View style={styles.choiceRow}><Choice label={t('profileDryerTypes.vented')} selected={dryerVariant === 'vented'} onPress={() => setDryerVariant('vented')} /><Choice label={t('profileDryerTypes.condenser')} selected={dryerVariant === 'condenser'} onPress={() => setDryerVariant('condenser')} /></View></>}{appliances.includes('cooker-hood') && <><Text style={styles.label}>{t('profileHoodType')}</Text><View style={styles.choiceRow}><Choice label={t('profileHoodTypes.recirculating')} selected={hoodVariant === 'recirculating'} onPress={() => setHoodVariant('recirculating')} /><Choice label={t('profileHoodTypes.ventedOutside')} selected={hoodVariant === 'vented-outside'} onPress={() => setHoodVariant('vented-outside')} /></View></>}<SetupActions onBack={goBack} onNext={nextFromAppliances} /></>}
-      {step === 'features' && <><Text style={styles.setupTitle}>{t('onboarding.featuresTitle')}</Text><Text style={styles.setupIntro}>{t('onboarding.featuresHint')}</Text><View style={styles.choiceGrid}>{featureChoices.map((id) => <Choice key={id} label={t(`profileFeaturesList.${id}`)} selected={features.includes(id)} onPress={() => toggle(id, features, setFeatures)} />)}</View><View style={styles.setupPlan}><View style={styles.setupPlanIcon}><Text style={styles.setupPlanIconText}>✓</Text></View><View style={styles.rowCopy}><Text style={styles.rowTitle}>{t('onboarding.planTitle')}</Text><Text style={styles.rowSub}>{t('onboarding.planCount', { count: actionCount })}</Text></View></View><SetupActions onBack={goBack} onNext={() => { void save(); }} nextLabel={saving ? '…' : t('onboarding.createPlan')} disabled={saving} /></>}</>}
+      {step === 'home' && <><Text style={styles.setupTitle}>{t('onboarding.homeTitle')}</Text><View style={styles.setupHomeCards}>{(['detached', 'terraced'] as const).map((item) => <ProfileCard key={item} glyph={item === 'detached' ? '⌂' : '⌂⌂'} label={t(`profileHouseTypes.${item}`)} selected={draft.houseType === item} onPress={() => draft.setHouseType(item)} />)}</View><Text style={styles.label}>{t('onboarding.homeAge')}</Text><View style={styles.setupAgeGrid}>{([['new-build', 'ageNew'], ['0-2', 'ageTwo'], ['3-10', 'ageTen'], ['10+', 'ageOlder']] as const).map(([value, label]) => <Choice key={value} label={t(`onboarding.${label}`)} selected={draft.ageBand === value} onPress={() => draft.setAgeBand(value)} />)}</View><SetupActions onBack={goBack} onNext={() => setStep('appliances')} /></>}
+      {step === 'appliances' && <><Text style={styles.setupTitle}>{t('onboarding.appliancesTitle')}</Text><Text style={styles.setupIntro}>{t('onboarding.appliancesHint')}</Text><View style={styles.setupOptionGrid}>{applianceChoices.map(([id, label]) => <ProfileCard key={id} glyph={id === 'dishwasher' ? '▤' : id === 'washing-machine' ? '◉' : id === 'tumble-dryer' ? '◌' : '⌑'} label={t(label)} selected={draft.appliances.includes(id)} onPress={() => draft.toggleAppliance(id)} />)}</View>{draft.appliances.includes('tumble-dryer') && <><Text style={styles.label}>{t('profileDryerType')}</Text><View style={styles.choiceRow}><Choice label={t('profileDryerTypes.vented')} selected={draft.dryerVariant === 'vented'} onPress={() => draft.setDryerVariant('vented')} /><Choice label={t('profileDryerTypes.condenser')} selected={draft.dryerVariant === 'condenser'} onPress={() => draft.setDryerVariant('condenser')} /></View></>}{draft.appliances.includes('cooker-hood') && <><Text style={styles.label}>{t('profileHoodType')}</Text><View style={styles.choiceRow}><Choice label={t('profileHoodTypes.recirculating')} selected={draft.hoodVariant === 'recirculating'} onPress={() => draft.setHoodVariant('recirculating')} /><Choice label={t('profileHoodTypes.ventedOutside')} selected={draft.hoodVariant === 'vented-outside'} onPress={() => draft.setHoodVariant('vented-outside')} /></View></>}<SetupActions onBack={goBack} onNext={nextFromAppliances} /></>}
+      {step === 'features' && <><Text style={styles.setupTitle}>{t('onboarding.featuresTitle')}</Text><Text style={styles.setupIntro}>{t('onboarding.featuresHint')}</Text><View style={styles.choiceGrid}>{featureChoices.map((id) => <Choice key={id} label={t(`profileFeaturesList.${id}`)} selected={draft.features.includes(id)} onPress={() => draft.toggleFeature(id)} />)}</View><View style={styles.setupPlan}><View style={styles.setupPlanIcon}><Text style={styles.setupPlanIconText}>✓</Text></View><View style={styles.rowCopy}><Text style={styles.rowTitle}>{t('onboarding.planTitle')}</Text><Text style={styles.rowSub}>{t('onboarding.planCount', { count: actionCount })}</Text></View></View><SetupActions onBack={goBack} onNext={() => { void save(); }} nextLabel={saving ? '…' : t('onboarding.createPlan')} disabled={saving} /></>}</>}
   </ScrollView></SwipeBack>;
+}
+
+export function ProfileEditor({ initial, onBack, onCommit }: { initial: Profile; onBack: () => void; onCommit: (profile: Omit<Profile, 'id'>) => Promise<void> }) {
+  const { t } = useTranslation();
+  const draft = useProfileDraft(initial);
+  const [saving, setSaving] = useState(false);
+  const leave = async () => {
+    const message = draft.validationMessage();
+    if (message) { Alert.alert(t('editHome'), message); return; }
+    setSaving(true);
+    try { await onCommit(draft.profile()); onBack(); } catch { Alert.alert(t('editHome'), t('profileSaveFailed')); } finally { setSaving(false); }
+  };
+  return <SwipeBack onBack={leave}><ScrollView contentContainerStyle={styles.page}><Pressable testID="profile-editor-back" accessibilityRole="button" disabled={saving} onPress={() => { void leave(); }}><Text style={styles.back}>‹ {t('settings')}</Text></Pressable><Text style={styles.h1}>{t('editHome')}</Text><Text style={styles.sub}>{t('profileEditorHint')}</Text><Text style={styles.label}>{t('profileHouseType')}</Text><View style={styles.choiceRow}>{(['detached', 'terraced'] as const).map((item) => <Choice key={item} label={t(`profileHouseTypes.${item}`)} selected={draft.houseType === item} onPress={() => draft.setHouseType(item)} />)}</View><Text style={styles.label}>{t('profileAge')}</Text><View style={styles.choiceGrid}>{([['new-build', 'ageNew'], ['0-2', 'ageTwo'], ['3-10', 'ageTen'], ['10+', 'ageOlder']] as const).map(([value, label]) => <Choice key={value} label={t(`onboarding.${label}`)} selected={draft.ageBand === value} onPress={() => draft.setAgeBand(value)} />)}</View><Text style={styles.label}>{t('profileAppliances')}</Text><View style={styles.choiceGrid}>{applianceChoices.map(([id, label]) => <Choice key={id} label={t(label)} selected={draft.appliances.includes(id)} onPress={() => draft.toggleAppliance(id)} />)}</View>{draft.appliances.includes('tumble-dryer') && <><Text style={styles.label}>{t('profileDryerType')}</Text><View style={styles.choiceRow}><Choice label={t('profileDryerTypes.vented')} selected={draft.dryerVariant === 'vented'} onPress={() => draft.setDryerVariant('vented')} /><Choice label={t('profileDryerTypes.condenser')} selected={draft.dryerVariant === 'condenser'} onPress={() => draft.setDryerVariant('condenser')} /></View></>}{draft.appliances.includes('cooker-hood') && <><Text style={styles.label}>{t('profileHoodType')}</Text><View style={styles.choiceRow}><Choice label={t('profileHoodTypes.recirculating')} selected={draft.hoodVariant === 'recirculating'} onPress={() => draft.setHoodVariant('recirculating')} /><Choice label={t('profileHoodTypes.ventedOutside')} selected={draft.hoodVariant === 'vented-outside'} onPress={() => draft.setHoodVariant('vented-outside')} /></View></>}<Text style={styles.label}>{t('profileFeatures')}</Text><View style={styles.choiceGrid}>{featureChoices.map((id) => <Choice key={id} label={t(`profileFeaturesList.${id}`)} selected={draft.features.includes(id)} onPress={() => draft.toggleFeature(id)} />)}</View></ScrollView></SwipeBack>;
 }
 
 export function Home({ actions: items, configurations, language, now, onOpen, onReportIssue }: { actions: MaintenanceAction[]; configurations: Map<string, ActionConfiguration>; language: 'en' | 'da'; now: number; onOpen: (id: string) => void; onReportIssue: () => void }) {

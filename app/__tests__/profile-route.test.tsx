@@ -21,7 +21,7 @@ import ProfileRoute from '../settings/profile';
 describe('profile route navigation', () => {
   it('returns to the settings tab from the top-left back button', async () => {
     await render(<ProfileRoute />);
-    await act(async () => { fireEvent.press(screen.getByLabelText('Back')); });
+    await act(async () => { fireEvent.press(screen.getByTestId('profile-editor-back')); });
     expect(router.replace).toHaveBeenCalledWith('/settings');
     expect(router.back).not.toHaveBeenCalled();
   });
