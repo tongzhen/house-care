@@ -109,6 +109,16 @@ describe('setup flow', () => {
     expect(screen.queryByText('Save')).toBeNull();
   });
 
+  it('loads and saves the home age from the Settings profile flow', async () => {
+    const onBack = jest.fn();
+    const onCommit = jest.fn(async () => undefined);
+    await render(<Setup initial={{ id: 'primary-home', houseType: 'detached', ageBand: '0-2', appliances: ['dishwasher'], features: [], variants: {} }} onBack={onBack} onCommit={onCommit} />);
+    await act(async () => { fireEvent.press(screen.getByText('10+ years')); });
+    await act(async () => { fireEvent.press(screen.getByLabelText('Back')); });
+    expect(onCommit).toHaveBeenCalledWith(expect.objectContaining({ ageBand: '10+' }));
+    expect(onBack).toHaveBeenCalledTimes(1);
+  });
+
   it('summarizes the relevant maintenance plan before saving', async () => {
     await render(<Setup initial={null} onSave={jest.fn(async () => undefined)} />);
     await advanceToFeatures();
