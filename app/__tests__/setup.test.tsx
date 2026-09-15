@@ -18,6 +18,16 @@ import { defaultNotificationSchedule } from '../../src/notificationSchedule';
 import { discardIssuePhoto } from '../../src/media';
 
 describe('setup flow', () => {
+  async function advanceToAppliances() {
+    await act(async () => { fireEvent.press(screen.getByText('Set up my home')); });
+    await act(async () => { fireEvent.press(screen.getByText('Continue')); });
+  }
+
+  async function advanceToFeatures() {
+    await advanceToAppliances();
+    await act(async () => { fireEvent.press(screen.getByText('Continue')); });
+  }
+
   it('provides Danish translations for all shared Index screen copy', async () => {
     await i18n.changeLanguage('da');
     try {
@@ -32,7 +42,11 @@ describe('setup flow', () => {
     const view = await render(<Setup initial={null} onSave={jest.fn(async () => undefined)} />);
 
     try {
-      ['Boligtype', 'Fritstående hus', 'Rækkehus', 'Apparater', 'Boligens funktioner', 'Tagrender', 'Faskine', 'Pumpebrønd', 'Udendørs vandhane', 'Ventilation', 'Gulvvarme', 'Trægulve', 'Gulvafløb'].forEach((label) => expect(screen.getByText(label)).toBeTruthy());
+      expect(screen.getByText('Et roligere hjem starter her.')).toBeTruthy();
+      await act(async () => { fireEvent.press(screen.getByText('Opsæt mit hjem')); });
+      ['Fritstående hus', 'Rækkehus', 'Nybyggeri', '0–2 år', '3–10 år', '10+ år'].forEach((label) => expect(screen.getByText(label)).toBeTruthy());
+      await act(async () => { fireEvent.press(screen.getByText('Fortsæt')); });
+      ['Opvaskemaskine', 'Vaskemaskine', 'Tørretumbler', 'Emhætte'].forEach((label) => expect(screen.getByText(label)).toBeTruthy());
       await act(async () => { fireEvent.press(screen.getByText('Tørretumbler')); });
       expect(await screen.findByText('Type af tørretumbler')).toBeTruthy();
       expect(screen.getByText('Med aftræk')).toBeTruthy();
@@ -40,6 +54,10 @@ describe('setup flow', () => {
       expect(await screen.findByText('Type af emhætte')).toBeTruthy();
       expect(screen.getByText('Recirkulerende')).toBeTruthy();
       expect(screen.getByText('Med aftræk til det fri')).toBeTruthy();
+      await act(async () => { fireEvent.press(screen.getByText('Med aftræk')); });
+      await act(async () => { fireEvent.press(screen.getByText('Recirkulerende')); });
+      await act(async () => { fireEvent.press(screen.getByText('Fortsæt')); });
+      ['Tagrender', 'Faskine', 'Pumpebrønd', 'Udendørs vandhane', 'Ventilation', 'Gulvvarme', 'Trægulve', 'Gulvafløb'].forEach((label) => expect(screen.getByText(label)).toBeTruthy());
     } finally {
       view.unmount();
       await i18n.changeLanguage('en');
@@ -49,7 +67,8 @@ describe('setup flow', () => {
   it('saves a selected dishwasher profile', async () => {
     const onSave = jest.fn(async () => undefined);
     await render(<Setup initial={null} onSave={onSave} />);
-    fireEvent.press(screen.getByText('Continue'));
+    await advanceToFeatures();
+    fireEvent.press(screen.getByText('Create my care plan'));
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ appliances: ['dishwasher'], houseType: 'detached' }));
   });
 
@@ -57,9 +76,10 @@ describe('setup flow', () => {
     const onSave = jest.fn(async () => undefined);
     const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
     await render(<Setup initial={null} onSave={onSave} />);
+    await advanceToAppliances();
     await act(async () => { fireEvent.press(screen.getByText('Dishwasher')); });
     await act(async () => { fireEvent.press(screen.getByText('Continue')); });
-    expect(alert).toHaveBeenCalledWith('Make care fit your home.', 'Choose at least one appliance to continue.');
+    expect(alert).toHaveBeenCalledWith('Appliances', 'Choose at least one appliance to continue.');
     expect(onSave).not.toHaveBeenCalled();
     alert.mockRestore();
   });
@@ -67,9 +87,11 @@ describe('setup flow', () => {
   it('stores a selected appliance variant for catalogue eligibility', async () => {
     const onSave = jest.fn(async () => undefined);
     await render(<Setup initial={null} onSave={onSave} />);
+    await advanceToAppliances();
     await act(async () => { fireEvent.press(screen.getByText('Tumble dryer')); });
     await act(async () => { fireEvent.press(await screen.findByText('Vented')); });
-    fireEvent.press(screen.getByText('Continue'));
+    await act(async () => { fireEvent.press(screen.getByText('Continue')); });
+    fireEvent.press(screen.getByText('Create my care plan'));
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ variants: { tumbleDryer: 'vented' } }));
   });
 
@@ -77,13 +99,23 @@ describe('setup flow', () => {
     const onBack = jest.fn();
     const onCommit = jest.fn(async () => undefined);
     await render(<Setup initial={{ id: 'primary-home', houseType: 'detached', appliances: ['dishwasher'], features: [], variants: {} }} onBack={onBack} onCommit={onCommit} />);
+    await act(async () => { fireEvent.press(screen.getByText('Continue')); });
     await act(async () => { fireEvent.press(screen.getByText('Washing machine')); });
     expect(onCommit).not.toHaveBeenCalled();
-    await act(async () => { fireEvent.press(screen.getByText('‹ Settings')); });
+    await act(async () => { fireEvent.press(screen.getByLabelText('Back')); });
+    await act(async () => { fireEvent.press(screen.getByLabelText('Back')); });
     expect(onBack).toHaveBeenCalledTimes(1);
     expect(onCommit).toHaveBeenCalledWith(expect.objectContaining({ appliances: ['dishwasher', 'washing-machine'] }));
     expect(screen.queryByText('Save')).toBeNull();
-    expect(screen.queryByText('Continue')).toBeNull();
+  });
+
+  it('summarizes the relevant maintenance plan before saving', async () => {
+    await render(<Setup initial={null} onSave={jest.fn(async () => undefined)} />);
+    await advanceToFeatures();
+    await act(async () => { fireEvent.press(screen.getByText('Gutters')); });
+    expect(screen.getByText('Your plan')).toBeTruthy();
+    expect(screen.getByText(/care actions selected for your home/)).toBeTruthy();
+    expect(screen.getByText('Create my care plan')).toBeTruthy();
   });
 
   it('commits notification settings only when leaving', async () => {
