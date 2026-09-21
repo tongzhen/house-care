@@ -179,7 +179,7 @@ describe('setup flow', () => {
     await render(<Home actions={[action]} configurations={new Map([[action.id, { actionId: action.id, enabled: true, notificationsEnabled: true, nextDueAt }]])} language="en" now={Date.now()} onOpen={jest.fn()} onReportIssue={jest.fn()} />);
     expect(screen.getByText('Nothing needs your attention right now.')).toBeTruthy();
     expect(screen.queryByText('DUE NOW')).toBeNull();
-    expect(screen.getByText('Clean the dishwasher filter')).toBeTruthy();
+    expect(screen.getByText('Check and clean the dishwasher filter system')).toBeTruthy();
   });
 
   it('shows after-use actions separately from scheduled attention', async () => {
@@ -259,10 +259,10 @@ describe('setup flow', () => {
       { id: 'done-dishwasher', actionId: dishwasher.id, type: 'done', occurredAt: new Date().toISOString() },
       { id: 'done-exterior', actionId: exterior.id, type: 'done', occurredAt: new Date().toISOString() },
     ] }} language="en" onOpenReport={jest.fn()} onOpenIssue={jest.fn()} />);
-    expect(screen.getByText('Clean the dishwasher filter')).toBeTruthy();
+    expect(screen.getByText('Check and clean the dishwasher filter system')).toBeTruthy();
     expect(screen.getByText('Clear accessible gutter debris')).toBeTruthy();
     await act(async () => { fireEvent.press(screen.getByText('Appliance')); });
-    expect(screen.getByText('Clean the dishwasher filter')).toBeTruthy();
+    expect(screen.getByText('Check and clean the dishwasher filter system')).toBeTruthy();
     expect(screen.queryByText('Clear accessible gutter debris')).toBeNull();
   });
 
@@ -301,10 +301,10 @@ describe('setup flow', () => {
     const appliance = getAction('dishwasher-filter-clean')!;
     const exterior = getAction('gutters-accessible-clean')!;
     await render(<ActionList actions={[appliance, exterior]} configurations={new Map()} language="en" onOpen={jest.fn()} />);
-    expect(screen.getByText('Clean the dishwasher filter')).toBeTruthy();
+    expect(screen.getByText('Check and clean the dishwasher filter system')).toBeTruthy();
     expect(screen.getByText('Clear accessible gutter debris')).toBeTruthy();
     await act(async () => { fireEvent.press(screen.getByText('Exterior')); });
-    expect(screen.queryByText('Clean the dishwasher filter')).toBeNull();
+    expect(screen.queryByText('Check and clean the dishwasher filter system')).toBeNull();
     expect(screen.getByText('Clear accessible gutter debris')).toBeTruthy();
   });
 
@@ -341,7 +341,7 @@ describe('setup flow', () => {
     const action = getAction('dishwasher-filter-clean')!;
     await render(<IssueActionSelect actions={[action]} language="en" onBack={jest.fn()} onSelect={jest.fn()} />);
     expect(screen.getByText('None')).toBeTruthy();
-    expect(screen.getByText('Clean the dishwasher filter')).toBeTruthy();
+    expect(screen.getByText('Check and clean the dishwasher filter system')).toBeTruthy();
     expect(screen.getByText(`${action.estimatedMinutes} min`)).toBeTruthy();
     expect(screen.queryByText(/After each use/)).toBeNull();
   });

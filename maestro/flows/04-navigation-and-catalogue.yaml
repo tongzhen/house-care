@@ -9,21 +9,21 @@ tags:
     permissions:
       notifications: allow
 - runFlow: ../subflows/onboard-dishwasher-floor-drain.yaml
-- assertVisible: "Home"
-- tapOn: "Actions"
+- assertVisible: "What matters now"
+- tapOn: ".*Actions, tab.*"
 - assertVisible: "Category"
 - assertVisible: "Appliance"
 - assertVisible: "Drainage"
 - tapOn: "Drainage"
-- assertVisible: "Clean the floor drain and water trap"
-- assertNotVisible: "Clean the dishwasher filter"
-- tapOn: "Clean the floor drain and water trap"
+- assertVisible: ".*Clean the floor drain and water trap.*"
+- assertNotVisible: ".*Check and clean the dishwasher filter system.*"
+- tapOn: ".*Clean the floor drain and water trap.*"
 - assertVisible: "Why this matters"
-- back
-- assertVisible: "Actions"
-- tapOn: "History"
+- tapOn: ".*‹ Actions.*"
+- assertVisible: ".*Actions.*"
+- tapOn: ".*History, tab.*"
 - assertVisible: "History"
-- tapOn: "Settings"
+- tapOn: ".*Settings, tab.*"
 - assertVisible: "Edit home profile"
 - tapOn: "Actions overview"
 - assertVisible: "Status"
@@ -31,5 +31,5 @@ tags:
     element: ".*Not available for this home.*"
     direction: DOWN
 - assertVisible: ".*Not available for this home.*"
-- back
-- assertVisible: "Settings"
+- tapOn: ".*‹ Settings.*"
+- assertVisible: ".*Settings.*"

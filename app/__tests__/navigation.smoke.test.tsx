@@ -17,7 +17,7 @@ describe('navigation smoke flows', () => {
     const action = getAction('dishwasher-filter-clean')!;
     const onOpen = jest.fn();
     await render(<Home actions={[action]} configurations={new Map([[action.id, { actionId: action.id, enabled: true, notificationsEnabled: true, nextDueAt: new Date(Date.now() + 86400000).toISOString() }]])} language="en" now={Date.now()} onOpen={onOpen} onReportIssue={jest.fn()} />);
-    await act(async () => { fireEvent.press(screen.getByText('Clean the dishwasher filter')); });
+    await act(async () => { fireEvent.press(screen.getByText('Check and clean the dishwasher filter system')); });
     expect(onOpen).toHaveBeenCalledWith(action.id);
   });
 

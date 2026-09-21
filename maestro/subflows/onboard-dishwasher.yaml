@@ -1,6 +1,11 @@
 appId: com.housecare.app
 ---
-- assertVisible: "Make care fit your home."
-- assertVisible: "Dishwasher"
+- assertVisible: "A calmer home starts here."
+- tapOn: "Set up my home"
+- assertVisible: "What kind of home do you care for?"
 - tapOn: "Continue"
+- assertVisible: "Which appliances do you have?"
+- tapOn: "Continue"
+- assertVisible: "A few things around your home"
+- tapOn: "Create my care plan"
 - assertVisible: "What matters now"
