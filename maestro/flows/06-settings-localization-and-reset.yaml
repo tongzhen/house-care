@@ -9,24 +9,29 @@ tags:
     permissions:
       notifications: allow
 - runFlow: ../subflows/onboard-dishwasher.yaml
-- tapOn: "Settings"
+- tapOn: ".*Settings, tab.*"
+- tapOn: "Edit home profile"
+- assertVisible: "Edit home profile"
+- tapOn: "Washing machine"
+- tapOn: "‹ Settings"
+- assertVisible: ".*Settings.*"
 - tapOn: "Dansk"
 - assertVisible: "Indstillinger"
-- assertVisible: "Hjem"
+- assertVisible: ".*Hjem, tab.*"
 - tapOn: "Engelsk"
-- assertVisible: "Settings"
+- assertVisible: ".*Settings.*"
 - tapOn: "Notification settings"
 - assertVisible: "Notification timing"
 - assertVisible: "Monday"
-- back
-- assertVisible: "Settings"
+- tapOn: ".*‹ Settings.*"
+- assertVisible: ".*Settings.*"
 - scrollUntilVisible:
     element: "Reset app data"
     direction: DOWN
 - tapOn: "Reset app data"
 - assertVisible: "Reset House Care?"
 - tapOn: "Cancel"
-- assertVisible: "Settings"
+- assertVisible: ".*Settings.*"
 - tapOn: "Reset app data"
 - tapOn: "Reset to default"
-- assertVisible: "Make care fit your home."
+- assertVisible: "A calmer home starts here."

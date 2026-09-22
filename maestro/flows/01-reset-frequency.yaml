@@ -9,8 +9,8 @@ tags:
     permissions:
       notifications: allow
 - runFlow: ../subflows/onboard-dishwasher.yaml
-- tapOn: "Actions"
-- tapOn: "Clean the dishwasher filter"
+- tapOn: ".*Actions, tab.*"
+- tapOn: ".*Check and clean the dishwasher filter system.*"
 - scrollUntilVisible:
     element: "3 Months"
     direction: DOWN

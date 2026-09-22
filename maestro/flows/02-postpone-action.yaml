@@ -9,14 +9,14 @@ tags:
     permissions:
       notifications: allow
 - runFlow: ../subflows/onboard-dishwasher.yaml
-- tapOn: "Actions"
-- tapOn: "Clean the dishwasher filter"
+- tapOn: ".*Actions, tab.*"
+- tapOn: ".*Check and clean the dishwasher filter system.*"
 - scrollUntilVisible:
     element: "Tomorrow"
     direction: DOWN
 - tapOn: "Tomorrow"
 - assertNotVisible: "The action could not be updated"
 - assertVisible: "Actions"
-- tapOn: "History"
-- assertVisible: "Clean the dishwasher filter"
+- tapOn: ".*History, tab.*"
+- assertVisible: ".*Check and clean the dishwasher filter system.*"
 - assertVisible: "Snoozed"

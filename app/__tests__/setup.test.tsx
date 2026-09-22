@@ -12,7 +12,7 @@ jest.mock('../../src/db', () => ({}));
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { Alert } from 'react-native';
 import i18n from '../../src/i18n';
-import { ActionDetail, ActionList, ActionOverview, CustomFrequency, History, Home, IssueActionSelect, IssueForm, NotificationSettings, ReportExport, Setup, isSwipeBackGesture } from '../index';
+import { ActionDetail, ActionList, ActionOverview, CustomFrequency, History, Home, IssueActionSelect, IssueForm, NotificationSettings, ProfileEditor, ReportExport, Setup, isSwipeBackGesture } from '../index';
 import { getAction } from '../../src/catalog';
 import { defaultNotificationSchedule } from '../../src/notificationSchedule';
 import { discardIssuePhoto } from '../../src/media';
@@ -39,7 +39,7 @@ describe('setup flow', () => {
 
   it('localizes every Home Profile label and option in Danish', async () => {
     await i18n.changeLanguage('da');
-    const view = await render(<Setup initial={null} onSave={jest.fn(async () => undefined)} />);
+    const view = await render(<Setup onSave={jest.fn(async () => undefined)} />);
 
     try {
       expect(screen.getByText('Et roligere hjem starter her.')).toBeTruthy();
@@ -66,7 +66,7 @@ describe('setup flow', () => {
 
   it('saves a selected dishwasher profile', async () => {
     const onSave = jest.fn(async () => undefined);
-    await render(<Setup initial={null} onSave={onSave} />);
+    await render(<Setup onSave={onSave} />);
     await advanceToFeatures();
     fireEvent.press(screen.getByText('Create my care plan'));
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ appliances: ['dishwasher'], houseType: 'detached' }));
@@ -75,7 +75,7 @@ describe('setup flow', () => {
   it('explains missing required profile details instead of silently disabling setup', async () => {
     const onSave = jest.fn(async () => undefined);
     const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
-    await render(<Setup initial={null} onSave={onSave} />);
+    await render(<Setup onSave={onSave} />);
     await advanceToAppliances();
     await act(async () => { fireEvent.press(screen.getByText('Dishwasher')); });
     await act(async () => { fireEvent.press(screen.getByText('Continue')); });
@@ -86,7 +86,7 @@ describe('setup flow', () => {
 
   it('stores a selected appliance variant for catalogue eligibility', async () => {
     const onSave = jest.fn(async () => undefined);
-    await render(<Setup initial={null} onSave={onSave} />);
+    await render(<Setup onSave={onSave} />);
     await advanceToAppliances();
     await act(async () => { fireEvent.press(screen.getByText('Tumble dryer')); });
     await act(async () => { fireEvent.press(await screen.findByText('Vented')); });
@@ -95,15 +95,17 @@ describe('setup flow', () => {
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ variants: { tumbleDryer: 'vented' } }));
   });
 
-  it('commits an edited profile only when leaving Settings', async () => {
+  it('renders a compact Settings editor without onboarding UI and commits only when leaving', async () => {
     const onBack = jest.fn();
     const onCommit = jest.fn(async () => undefined);
-    await render(<Setup initial={{ id: 'primary-home', houseType: 'detached', appliances: ['dishwasher'], features: [], variants: {} }} onBack={onBack} onCommit={onCommit} />);
-    await act(async () => { fireEvent.press(screen.getByText('Continue')); });
+    await render(<ProfileEditor initial={{ id: 'primary-home', houseType: 'detached', appliances: ['dishwasher'], features: [], variants: {} }} onBack={onBack} onCommit={onCommit} />);
+    expect(screen.getByText('Edit home profile')).toBeTruthy();
+    expect(screen.queryByText('1 of 3')).toBeNull();
+    expect(screen.queryByText('A calmer home starts here.')).toBeNull();
+    expect(screen.queryByText('Create my care plan')).toBeNull();
     await act(async () => { fireEvent.press(screen.getByText('Washing machine')); });
     expect(onCommit).not.toHaveBeenCalled();
-    await act(async () => { fireEvent.press(screen.getByLabelText('Back')); });
-    await act(async () => { fireEvent.press(screen.getByLabelText('Back')); });
+    await act(async () => { fireEvent.press(screen.getByTestId('profile-editor-back')); });
     expect(onBack).toHaveBeenCalledTimes(1);
     expect(onCommit).toHaveBeenCalledWith(expect.objectContaining({ appliances: ['dishwasher', 'washing-machine'] }));
     expect(screen.queryByText('Save')).toBeNull();
@@ -112,15 +114,41 @@ describe('setup flow', () => {
   it('loads and saves the home age from the Settings profile flow', async () => {
     const onBack = jest.fn();
     const onCommit = jest.fn(async () => undefined);
-    await render(<Setup initial={{ id: 'primary-home', houseType: 'detached', ageBand: '0-2', appliances: ['dishwasher'], features: [], variants: {} }} onBack={onBack} onCommit={onCommit} />);
+    await render(<ProfileEditor initial={{ id: 'primary-home', houseType: 'detached', ageBand: '0-2', appliances: ['dishwasher'], features: [], variants: {} }} onBack={onBack} onCommit={onCommit} />);
     await act(async () => { fireEvent.press(screen.getByText('10+ years')); });
-    await act(async () => { fireEvent.press(screen.getByLabelText('Back')); });
+    await act(async () => { fireEvent.press(screen.getByTestId('profile-editor-back')); });
     expect(onCommit).toHaveBeenCalledWith(expect.objectContaining({ ageBand: '10+' }));
     expect(onBack).toHaveBeenCalledTimes(1);
   });
 
+  it('keeps an invalid Settings draft open without committing it', async () => {
+    const onBack = jest.fn();
+    const onCommit = jest.fn(async () => undefined);
+    const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
+    await render(<ProfileEditor initial={{ id: 'primary-home', appliances: ['dishwasher'], features: [], variants: {} }} onBack={onBack} onCommit={onCommit} />);
+    await act(async () => { fireEvent.press(screen.getByText('Dishwasher')); });
+    await act(async () => { fireEvent.press(screen.getByTestId('profile-editor-back')); });
+    expect(alert).toHaveBeenCalledWith('Edit home profile', 'Choose at least one appliance to continue.');
+    expect(onCommit).not.toHaveBeenCalled();
+    expect(onBack).not.toHaveBeenCalled();
+    expect(screen.getByText('Edit home profile')).toBeTruthy();
+    alert.mockRestore();
+  });
+
+  it('saves all editable Settings profile fields on a valid exit', async () => {
+    const onCommit = jest.fn(async () => undefined);
+    await render(<ProfileEditor initial={{ id: 'primary-home', houseType: 'detached', ageBand: 'new-build', appliances: ['dishwasher'], features: [], variants: {} }} onBack={jest.fn()} onCommit={onCommit} />);
+    await act(async () => { fireEvent.press(screen.getByText('Terraced')); });
+    await act(async () => { fireEvent.press(screen.getByText('3–10 years')); });
+    await act(async () => { fireEvent.press(screen.getByText('Tumble dryer')); });
+    await act(async () => { fireEvent.press(screen.getByText('Vented')); });
+    await act(async () => { fireEvent.press(screen.getByText('Gutters')); });
+    await act(async () => { fireEvent.press(screen.getByTestId('profile-editor-back')); });
+    expect(onCommit).toHaveBeenCalledWith(expect.objectContaining({ houseType: 'terraced', ageBand: '3-10', appliances: ['dishwasher', 'tumble-dryer'], features: ['gutters'], variants: { tumbleDryer: 'vented' } }));
+  });
+
   it('summarizes the relevant maintenance plan before saving', async () => {
-    await render(<Setup initial={null} onSave={jest.fn(async () => undefined)} />);
+    await render(<Setup onSave={jest.fn(async () => undefined)} />);
     await advanceToFeatures();
     await act(async () => { fireEvent.press(screen.getByText('Gutters')); });
     expect(screen.getByText('Your plan')).toBeTruthy();
@@ -151,7 +179,7 @@ describe('setup flow', () => {
     await render(<Home actions={[action]} configurations={new Map([[action.id, { actionId: action.id, enabled: true, notificationsEnabled: true, nextDueAt }]])} language="en" now={Date.now()} onOpen={jest.fn()} onReportIssue={jest.fn()} />);
     expect(screen.getByText('Nothing needs your attention right now.')).toBeTruthy();
     expect(screen.queryByText('DUE NOW')).toBeNull();
-    expect(screen.getByText('Clean the dishwasher filter')).toBeTruthy();
+    expect(screen.getByText('Check and clean the dishwasher filter system')).toBeTruthy();
   });
 
   it('shows after-use actions separately from scheduled attention', async () => {
@@ -231,10 +259,10 @@ describe('setup flow', () => {
       { id: 'done-dishwasher', actionId: dishwasher.id, type: 'done', occurredAt: new Date().toISOString() },
       { id: 'done-exterior', actionId: exterior.id, type: 'done', occurredAt: new Date().toISOString() },
     ] }} language="en" onOpenReport={jest.fn()} onOpenIssue={jest.fn()} />);
-    expect(screen.getByText('Clean the dishwasher filter')).toBeTruthy();
+    expect(screen.getByText('Check and clean the dishwasher filter system')).toBeTruthy();
     expect(screen.getByText('Clear accessible gutter debris')).toBeTruthy();
     await act(async () => { fireEvent.press(screen.getByText('Appliance')); });
-    expect(screen.getByText('Clean the dishwasher filter')).toBeTruthy();
+    expect(screen.getByText('Check and clean the dishwasher filter system')).toBeTruthy();
     expect(screen.queryByText('Clear accessible gutter debris')).toBeNull();
   });
 
@@ -273,10 +301,10 @@ describe('setup flow', () => {
     const appliance = getAction('dishwasher-filter-clean')!;
     const exterior = getAction('gutters-accessible-clean')!;
     await render(<ActionList actions={[appliance, exterior]} configurations={new Map()} language="en" onOpen={jest.fn()} />);
-    expect(screen.getByText('Clean the dishwasher filter')).toBeTruthy();
+    expect(screen.getByText('Check and clean the dishwasher filter system')).toBeTruthy();
     expect(screen.getByText('Clear accessible gutter debris')).toBeTruthy();
     await act(async () => { fireEvent.press(screen.getByText('Exterior')); });
-    expect(screen.queryByText('Clean the dishwasher filter')).toBeNull();
+    expect(screen.queryByText('Check and clean the dishwasher filter system')).toBeNull();
     expect(screen.getByText('Clear accessible gutter debris')).toBeTruthy();
   });
 
@@ -313,7 +341,7 @@ describe('setup flow', () => {
     const action = getAction('dishwasher-filter-clean')!;
     await render(<IssueActionSelect actions={[action]} language="en" onBack={jest.fn()} onSelect={jest.fn()} />);
     expect(screen.getByText('None')).toBeTruthy();
-    expect(screen.getByText('Clean the dishwasher filter')).toBeTruthy();
+    expect(screen.getByText('Check and clean the dishwasher filter system')).toBeTruthy();
     expect(screen.getByText(`${action.estimatedMinutes} min`)).toBeTruthy();
     expect(screen.queryByText(/After each use/)).toBeNull();
   });
