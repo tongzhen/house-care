@@ -326,6 +326,7 @@ The visual direction is calm, practical, and reassuring:
 - Warm off-white background.
 - Deep forest green primary actions.
 - Sage selected/informational states.
+- Distinct deep-teal vector pictograms on pale-sage 40-point tiles for all 21 maintenance actions; the same icon follows an action through Home, Actions, detail, and History.
 - Yellow “Why this matters” callout.
 - Red safety-escalation treatment.
 - Large, friendly typography, clear spacing, and one primary action at a time.
