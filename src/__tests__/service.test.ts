@@ -10,13 +10,13 @@ jest.mock('../catalog', () => ({
     { id: 'dishwasher-filter-clean', trigger: { kind: 'recurring', defaultFrequency: { interval: 1, unit: 'month' } }, profileConditions: { appliances: ['dishwasher'] } },
     { id: 'floor-drain-clean', trigger: { kind: 'recurring', defaultFrequency: { interval: 1, unit: 'month' } }, profileConditions: { features: ['floor-drains'] } },
     { id: 'dryer-lint-filter', trigger: { kind: 'habit' }, profileConditions: { appliances: ['tumble-dryer'] } },
-    { id: 'gutters-ground-check', trigger: { kind: 'seasonal' }, profileConditions: { features: ['gutters'] } },
+    { id: 'gutters-ground-check', trigger: { kind: 'seasonal', weatherEvents: ['heavy-rain'] }, profileConditions: { features: ['gutters'] } },
   ],
   getAction: (id: string) => ({
     'dishwasher-filter-clean': { id, trigger: { kind: 'recurring', defaultFrequency: { interval: 1, unit: 'month' } } },
     'floor-drain-clean': { id, trigger: { kind: 'recurring', defaultFrequency: { interval: 1, unit: 'month' } } },
     'dryer-lint-filter': { id, trigger: { kind: 'habit' } },
-    'gutters-ground-check': { id, trigger: { kind: 'seasonal' } },
+    'gutters-ground-check': { id, trigger: { kind: 'seasonal', weatherEvents: ['heavy-rain'] }, profileConditions: { features: ['gutters'] } },
   })[id],
   actionApplies: (action: { profileConditions: { appliances?: string[]; features?: string[] } }, profile: { appliances: string[]; features: string[] }) =>
     (!action.profileConditions.appliances || action.profileConditions.appliances.some((item) => profile.appliances.includes(item))) &&
@@ -25,7 +25,7 @@ jest.mock('../catalog', () => ({
 
 import * as db from '../db';
 import { cancelScheduledNotifications, rescheduleNotifications } from '../notifications';
-import { recordIssue, recordOutcome, resetAppData, saveHomeProfile, setActionEnabled, updateFrequency, updateSettings, type RecordOutcomeDependencies } from '../service';
+import { recordIssue, recordOutcome, recordWeatherCheck, resetAppData, saveHomeProfile, setActionEnabled, updateFrequency, updateSettings, type RecordOutcomeDependencies } from '../service';
 import { defaultNotificationSchedule } from '../notificationSchedule';
 import { finishIssuePhotoDraft, persistIssuePhoto, removePersistedIssuePhoto } from '../media';
 
@@ -67,6 +67,28 @@ describe('maintenance service', () => {
     expect(db.addOutcome).toHaveBeenCalledWith(expect.objectContaining({ actionId: 'dishwasher-filter-clean', type: 'done' }));
     expect(db.upsertConfiguration).toHaveBeenCalledWith(expect.objectContaining({ actionId: 'dishwasher-filter-clean', nextDueAt: expect.any(String), snoozedUntil: undefined }));
     expect(rescheduleNotifications).toHaveBeenCalled();
+  });
+
+  it('records an after-rain check without moving routine reminders', async () => {
+    jest.mocked(db.loadProfile).mockResolvedValue({ id: 'primary-home', appliances: [], features: ['gutters'], variants: {} });
+    jest.mocked(db.loadConfigurations).mockResolvedValue([{ actionId: 'gutters-ground-check', enabled: true, notificationsEnabled: true, nextDueAt: '2026-11-01T09:00:00.000Z' }]);
+    const dependencies: RecordOutcomeDependencies = {
+      repository: db,
+      notificationScheduler: { reconcile: jest.fn(async () => undefined) },
+      clock: { now: () => new Date('2026-10-02T10:00:00.000Z') },
+      idGenerator: { next: () => 'rain-1' },
+    };
+    await recordWeatherCheck('gutters-ground-check', 'heavy-rain', dependencies);
+    expect(db.addOutcome).toHaveBeenCalledWith({ id: 'rain-1', actionId: 'gutters-ground-check', type: 'event_checked', eventKey: 'heavy-rain', occurredAt: '2026-10-02T10:00:00.000Z' });
+    expect(db.upsertConfiguration).not.toHaveBeenCalled();
+    expect(dependencies.notificationScheduler.reconcile).not.toHaveBeenCalled();
+  });
+
+  it('rejects weather checks for disabled actions', async () => {
+    jest.mocked(db.loadProfile).mockResolvedValue({ id: 'primary-home', appliances: [], features: ['gutters'], variants: {} });
+    jest.mocked(db.loadConfigurations).mockResolvedValue([{ actionId: 'gutters-ground-check', enabled: false, notificationsEnabled: true }]);
+    await expect(recordWeatherCheck('gutters-ground-check', 'heavy-rain')).rejects.toThrow('not available');
+    expect(db.addOutcome).not.toHaveBeenCalled();
   });
 
   it('uses injected repository, clock, ID, and notification ports for an outcome', async () => {

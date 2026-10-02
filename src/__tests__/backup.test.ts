@@ -9,7 +9,7 @@ jest.mock('../media', () => ({ removePersistedIssuePhoto: jest.fn(async () => un
 
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
-import { clearData, exportBackup, removeIssue, removeIssuePhoto } from '../backup';
+import { clearData, exportBackup, parseBackupManifest, removeIssue, removeIssuePhoto } from '../backup';
 import * as db from '../db';
 import { defaultNotificationSchedule } from '../notificationSchedule';
 import { removePersistedIssuePhoto } from '../media';
@@ -17,6 +17,13 @@ import { removePersistedIssuePhoto } from '../media';
 beforeEach(() => { jest.clearAllMocks(); });
 
 describe('local backup', () => {
+  it('accepts existing version 3 backups and version 4 weather checks', () => {
+    const base = { profile: { appliances: [], features: ['gutters'], variants: {} }, configurations: [], settings: { language: 'en', notificationsEnabled: false } };
+    expect(parseBackupManifest({ ...base, version: 3, outcomes: [] }).version).toBe(3);
+    const rainCheck = { id: 'rain-1', actionId: 'gutters-ground-check', type: 'event_checked', eventKey: 'heavy-rain', occurredAt: '2026-10-02T10:00:00.000Z' };
+    expect(parseBackupManifest({ ...base, version: 4, outcomes: [rainCheck] }).outcomes).toEqual([rainCheck]);
+    expect(() => parseBackupManifest({ ...base, version: 4, outcomes: [{ ...rainCheck, eventKey: undefined }] })).toThrow();
+  });
   it('exports a versioned archive without mutating local data', async () => {
     jest.mocked(Sharing.isAvailableAsync).mockResolvedValue(true);
     await exportBackup({ profile: { id: 'primary-home', appliances: ['dishwasher'], features: [], variants: {} }, configurations: [], outcomes: [], settings: { language: 'en', notificationsEnabled: true, notificationSchedule: defaultNotificationSchedule() } });

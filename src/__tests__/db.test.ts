@@ -11,11 +11,11 @@ const mockDatabase = { execAsync: mockExecAsync, runAsync: mockRunAsync, getFirs
 
 jest.mock('expo-sqlite', () => ({ openDatabaseAsync: jest.fn(async () => mockDatabase) }));
 
-import { initialiseDatabase, loadProfile, replaceLocalData, resetLocalData, saveProfile, transaction } from '../db';
+import { initialiseDatabase, loadOutcomes, loadProfile, replaceLocalData, resetLocalData, saveProfile, transaction } from '../db';
 import { defaultNotificationSchedule } from '../notificationSchedule';
 import * as SQLite from 'expo-sqlite';
 
-beforeEach(() => { jest.clearAllMocks(); mockGetAllAsync.mockResolvedValue([{ name: 'title' }]); });
+beforeEach(() => { jest.clearAllMocks(); mockGetAllAsync.mockResolvedValue([{ name: 'title' }, { name: 'event_key' }, { name: 'notifications_enabled' }]); });
 
 describe('SQLite repository', () => {
   it('initialises all local persistence tables', async () => {
@@ -29,12 +29,23 @@ describe('SQLite repository', () => {
 
   it('migrates action configurations created before notification preferences', async () => {
     mockGetAllAsync
-      .mockResolvedValueOnce([{ name: 'title' }])
+      .mockResolvedValueOnce([{ name: 'title', }, { name: 'event_key' }])
       .mockResolvedValueOnce([{ name: 'action_id' }, { name: 'enabled' }]);
 
     await initialiseDatabase();
 
     expect(mockExecAsync).toHaveBeenCalledWith('ALTER TABLE action_configurations ADD COLUMN notifications_enabled INTEGER NOT NULL DEFAULT 1;');
+  });
+
+  it('adds event keys to existing outcome tables', async () => {
+    mockGetAllAsync.mockResolvedValueOnce([{ name: 'title' }]);
+    await initialiseDatabase();
+    expect(mockExecAsync).toHaveBeenCalledWith('ALTER TABLE task_outcomes ADD COLUMN event_key TEXT;');
+  });
+
+  it('normalises empty outcome fields for backup validation', async () => {
+    mockGetAllAsync.mockResolvedValueOnce([{ id: 'done-1', actionId: 'gutters-ground-check', type: 'done', occurredAt: '2026-10-02T10:00:00.000Z', eventKey: null, title: null, note: null, photoUri: null }]);
+    await expect(loadOutcomes()).resolves.toEqual([{ id: 'done-1', actionId: 'gutters-ground-check', type: 'done', occurredAt: '2026-10-02T10:00:00.000Z', eventKey: undefined, title: undefined, note: undefined, photoUri: undefined }]);
   });
 
   it('serialises a profile before writing it', async () => {

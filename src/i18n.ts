@@ -33,6 +33,23 @@ Object.assign(resources.da.translation, {
 Object.assign(resources.en.translation.legal, { copyrightFallback: 'Copyright information is included in the licence text.' });
 Object.assign(resources.da.translation.legal, { copyrightFallback: 'Oplysninger om ophavsret findes i licensteksten.' });
 
+Object.assign(resources.en.translation, { weather: {
+  eventChecklist: 'Weather check', heavyRain: 'After heavy rain', entryHint: 'Check relevant drainage and gutters when rain has passed.',
+  heavyRainIntro: 'Use this checklist after heavy rain if it is safe to go outside. It uses the maintenance actions for your home.',
+  safety: 'Wait until conditions are safe. Check only from a safe ground-level position. Never enter a well or climb a ladder or roof.',
+  noApplicableActions: 'There are no enabled heavy-rain checks for this home. Add gutters, a soakaway, or a pump well to your home profile if applicable.',
+  viewSteps: 'View safe steps', checked: 'Checked after rain', lastChecked: 'Last checked after rain: {{date}}',
+  historyFilter: 'Weather checks', historyLabel: 'Checked after rain',
+} });
+Object.assign(resources.da.translation, { weather: {
+  eventChecklist: 'Vejrtjek', heavyRain: 'Efter kraftig regn', entryHint: 'Tjek relevante afløb og tagrender, når regnen er ovre.',
+  heavyRainIntro: 'Brug denne tjekliste efter kraftig regn, hvis det er sikkert at gå udenfor. Den viser vedligeholdelsesopgaver for dit hjem.',
+  safety: 'Vent, til forholdene er sikre. Tjek kun fra et sikkert sted i jordhøjde. Gå aldrig ned i en brønd, og kravl ikke på en stige eller et tag.',
+  noApplicableActions: 'Der er ingen aktiverede tjek efter kraftig regn for dette hjem. Tilføj tagrender, faskine eller pumpebrønd til hjemprofilen, hvis det er relevant.',
+  viewSteps: 'Se sikre trin', checked: 'Tjekket efter regn', lastChecked: 'Sidst tjekket efter regn: {{date}}',
+  historyFilter: 'Vejrtjek', historyLabel: 'Tjekket efter regn',
+} });
+
 // eslint-disable-next-line import/no-named-as-default-member
 i18n.use(initReactI18next).init({ resources, lng: defaultAppLanguage(), fallbackLng: 'en', interpolation: { escapeValue: false } });
 export default i18n;

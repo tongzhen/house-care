@@ -8,6 +8,7 @@
 - `id` is stable and must not change after release.
 - `profileConditions` controls whether the action applies to a home.
 - `trigger` contains the default schedule and future seasonal/weather metadata.
+- `heavy-rain` weather metadata also selects eligible, enabled actions for the offline After heavy rain checklist. The homeowner decides when to open it; metadata does not trigger alerts or change routine schedules.
 - `content.en` is the canonical content for early delivery.
 - `content.da` contains the Danish localization and must preserve the English safety meaning.
 - User frequency overrides must be stored outside this file.

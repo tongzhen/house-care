@@ -8,5 +8,5 @@ export default function ActionsRoute() {
   if (!state) return null;
   if (!state.profile) return <Redirect href="/setup" />;
   const configurations = configurationMap(state);
-  return <ActionList actions={orderedActiveActions(state, configurations)} configurations={configurations} language={state.settings.language} onOpen={(actionId) => router.push({ pathname: '/actions/[actionId]', params: { actionId, returnTo: '/actions' } })} />;
+  return <ActionList actions={orderedActiveActions(state, configurations)} configurations={configurations} language={state.settings.language} onOpen={(actionId) => router.push({ pathname: '/actions/[actionId]', params: { actionId, returnTo: '/actions' } })} onOpenWeather={() => router.push('/weather/heavy-rain')} />;
 }

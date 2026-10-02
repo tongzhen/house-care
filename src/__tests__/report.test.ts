@@ -18,6 +18,7 @@ const state = {
     { id: 'done', actionId: 'dishwasher-filter-clean', type: 'done' as const, occurredAt: '2026-08-10T10:00:00.000Z' },
     { id: 'issue', actionId: 'dishwasher-filter-clean', type: 'issue_reported' as const, occurredAt: '2026-08-11T10:00:00.000Z', title: 'Leak <risk>', note: 'Needs & attention', photoUri: 'file:///issue.jpg' },
     { id: 'snooze', actionId: 'dishwasher-filter-clean', type: 'snoozed' as const, occurredAt: '2026-08-12T10:00:00.000Z' },
+    { id: 'rain', actionId: 'dishwasher-filter-clean', type: 'event_checked' as const, eventKey: 'heavy-rain', occurredAt: '2026-08-13T10:00:00.000Z' },
   ],
 };
 const period = { start: new Date('2026-08-01T12:00:00'), end: new Date('2026-08-31T12:00:00') };
