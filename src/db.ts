@@ -5,6 +5,7 @@ import type { ActionConfiguration, AppSettings, FrequencyUnit, Profile, TaskOutc
 import type { HomeRepositoryTransaction } from './ports';
 
 let databasePromise: Promise<SQLite.SQLiteDatabase> | undefined;
+let initialisationPromise: Promise<void> | undefined;
 const profileId = 'primary-home';
 
 async function db() {
@@ -36,7 +37,7 @@ async function addOutcomeWith(connection: StatementRunner, outcome: TaskOutcome)
   await connection.runAsync('INSERT INTO task_outcomes (id, action_id, outcome_type, occurred_at, event_key, title, note, photo_uri) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [outcome.id, outcome.actionId, outcome.type, outcome.occurredAt, outcome.eventKey ?? null, outcome.title ?? null, outcome.note ?? null, outcome.photoUri ?? null]);
 }
 
-export async function initialiseDatabase() {
+async function initialiseDatabaseOnce() {
   const connection = await db();
   await connection.execAsync(`
     PRAGMA journal_mode = WAL;
@@ -55,6 +56,14 @@ export async function initialiseDatabase() {
     await connection.execAsync('ALTER TABLE action_configurations ADD COLUMN notifications_enabled INTEGER NOT NULL DEFAULT 1;');
   }
   await connection.runAsync('DELETE FROM task_outcomes WHERE outcome_type = ?', ['not_relevant']);
+}
+
+export function initialiseDatabase() {
+  initialisationPromise ??= initialiseDatabaseOnce().catch((error: unknown) => {
+    initialisationPromise = undefined;
+    throw error;
+  });
+  return initialisationPromise;
 }
 
 export async function loadProfile(): Promise<Profile | null> {

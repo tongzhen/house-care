@@ -16,9 +16,9 @@ tags:
 - tapOn: "Gutters"
 - tapOn: "Create my care plan"
 - tapOn: ".*Actions, tab.*"
-- tapOn: "After heavy rain"
-- assertVisible: "Inspect gutters and downpipes from ground level"
-- tapOn: "Inspect gutters and downpipes from ground level"
+- tapOn: "After heavy rain. Check relevant drainage and gutters when rain has passed."
+- assertVisible: "Inspect gutters and downpipes from ground level. View safe steps"
+- tapOn: "Inspect gutters and downpipes from ground level. View safe steps"
 - scrollUntilVisible:
     element: "Checked after rain"
     direction: DOWN
@@ -27,4 +27,4 @@ tags:
 - assertVisible: ".*Last checked after rain:.*"
 - tapOn: ".*‹ Actions.*"
 - tapOn: ".*History, tab.*"
-- assertVisible: "Checked after rain"
+- assertVisible: ".*Checked after rain.*"

@@ -21,7 +21,7 @@ export default function HeavyRainChecklistRoute() {
     {items.length === 0 ? <Text style={styles.empty}>{t('weather.noApplicableActions')}</Text> : items.map((action) => {
       const checkedAt = lastWeatherCheck(state, action.id, 'heavy-rain');
       const copy = state.settings.language === 'da' && action.content.da ? action.content.da : action.content.en;
-      return <Pressable key={action.id} accessibilityRole="button" style={styles.row} onPress={() => router.push({ pathname: '/actions/[actionId]', params: { actionId: action.id, returnTo: '/weather/heavy-rain' } })}>
+      return <Pressable key={action.id} accessibilityRole="button" accessibilityLabel={`${copy.title}. ${checkedAt ? t('weather.lastChecked', { date: formatDate(checkedAt, state.settings.language) }) : t('weather.viewSteps')}`} style={styles.row} onPress={() => router.push({ pathname: '/actions/[actionId]', params: { actionId: action.id, returnTo: '/weather/heavy-rain' } })}>
         <View style={styles.rowText}><Text style={styles.rowTitle}>{copy.title}</Text><Text style={styles.rowSub}>{checkedAt ? t('weather.lastChecked', { date: formatDate(checkedAt, state.settings.language) }) : t('weather.viewSteps')}</Text></View><Text style={styles.arrow}>›</Text>
       </Pressable>;
     })}
