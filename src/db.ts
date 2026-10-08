@@ -59,11 +59,12 @@ async function initialiseDatabaseOnce() {
 }
 
 export function initialiseDatabase() {
-  initialisationPromise ??= initialiseDatabaseOnce().catch((error: unknown) => {
-    initialisationPromise = undefined;
-    throw error;
-  });
-  return initialisationPromise;
+  if (initialisationPromise) return initialisationPromise;
+  const operation = initialiseDatabaseOnce();
+  initialisationPromise = operation;
+  const clear = () => { if (initialisationPromise === operation) initialisationPromise = undefined; };
+  operation.then(clear, clear);
+  return operation;
 }
 
 export async function loadProfile(): Promise<Profile | null> {
