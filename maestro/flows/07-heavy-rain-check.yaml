@@ -1,0 +1,30 @@
+appId: com.housecare.app
+name: Record an after-rain check without completing routine maintenance
+tags:
+  - regression
+  - weather
+---
+- launchApp:
+    clearState: true
+    permissions:
+      notifications: allow
+- assertVisible: "A calmer home starts here."
+- tapOn: "Set up my home"
+- tapOn: "Continue"
+- tapOn: "Continue"
+- assertVisible: "A few things around your home"
+- tapOn: "Gutters"
+- tapOn: "Create my care plan"
+- tapOn: ".*Actions, tab.*"
+- tapOn: "After heavy rain. Check relevant drainage and gutters when rain has passed."
+- assertVisible: "Inspect gutters and downpipes from ground level. View safe steps"
+- tapOn: "Inspect gutters and downpipes from ground level. View safe steps"
+- scrollUntilVisible:
+    element: "Checked after rain"
+    direction: DOWN
+- assertNotVisible: "Mark as done"
+- tapOn: "Checked after rain"
+- assertVisible: ".*Last checked after rain:.*"
+- tapOn: ".*‹ Actions.*"
+- tapOn: ".*History, tab.*"
+- assertVisible: ".*Checked after rain.*"

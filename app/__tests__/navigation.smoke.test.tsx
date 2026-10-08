@@ -10,7 +10,7 @@ jest.mock('../../src/db', () => ({}));
 
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { getAction } from '../../src/catalog';
-import { ActionDetail, Home } from '../index';
+import { ActionDetail, ActionList, Home } from '../index';
 
 describe('navigation smoke flows', () => {
   it('opens an actionable Home row through its callback', async () => {
@@ -30,5 +30,21 @@ describe('navigation smoke flows', () => {
     await act(async () => { fireEvent.press(screen.getByText('I noticed an issue')); });
     expect(onBack).toHaveBeenCalledTimes(1);
     expect(onIssue).toHaveBeenCalledTimes(1);
+  });
+
+  it('opens the after-rain checklist from Actions', async () => {
+    const onOpenWeather = jest.fn();
+    await render(<ActionList actions={[]} configurations={new Map()} language="en" onOpen={jest.fn()} onOpenWeather={onOpenWeather} />);
+    await act(async () => { fireEvent.press(screen.getByText('After heavy rain')); });
+    expect(onOpenWeather).toHaveBeenCalledTimes(1);
+  });
+
+  it('offers an event check after safe steps without routine completion controls', async () => {
+    const action = getAction('gutters-ground-check')!;
+    const onWeatherCheck = jest.fn(async () => undefined);
+    await render(<ActionDetail action={action} configuration={{ actionId: action.id, enabled: true, notificationsEnabled: true }} language="en" returnView="weather" onBack={jest.fn()} onDone={jest.fn()} onSnooze={jest.fn()} onCustomSnooze={jest.fn(async () => undefined)} onWeatherCheck={onWeatherCheck} onIssue={jest.fn()} onFrequency={jest.fn(async () => undefined)} onEnabled={jest.fn(async () => undefined)} />);
+    expect(screen.queryByText('Mark as done')).toBeNull();
+    await act(async () => { fireEvent.press(screen.getByText('Checked after rain')); });
+    expect(onWeatherCheck).toHaveBeenCalledTimes(1);
   });
 });

@@ -10,6 +10,14 @@ export function activeActions(state: AppState, configurations = configurationMap
   return actions.filter((action) => configurations.get(action.id)?.enabled && actionApplies(action, state.profile!));
 }
 
+export function actionsForWeatherEvent(state: AppState, eventKey: string, configurations = configurationMap(state)) {
+  return activeActions(state, configurations).filter((action) => action.trigger.weatherEvents?.includes(eventKey));
+}
+
+export function lastWeatherCheck(state: AppState, actionId: string, eventKey: string) {
+  return state.outcomes.find((outcome) => outcome.actionId === actionId && outcome.type === 'event_checked' && outcome.eventKey === eventKey)?.occurredAt;
+}
+
 export function dueFor(action: MaintenanceAction, configuration?: ActionConfiguration) {
   return new Date(configuration?.snoozedUntil ?? configuration?.nextDueAt ?? (action.trigger.kind === 'habit' ? '9999-01-01' : new Date().toISOString())).getTime();
 }

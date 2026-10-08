@@ -9,15 +9,23 @@ import { defaultNotificationSchedule, validateNotificationSchedule } from './not
 import type { AppState } from './service';
 import type { TaskOutcome } from './types';
 
-const backupVersion = 3;
+const backupVersion = 4;
 const frequencySchema = z.object({ interval: z.number().int().positive(), unit: z.enum(['day', 'week', 'month', 'year']) });
-const backupSchema = z.object({
-  version: z.literal(backupVersion),
+const oldOutcomeSchema = z.object({ id: z.string().min(1), actionId: z.string().min(1), type: z.enum(['done', 'snoozed', 'issue_reported']), occurredAt: z.string().datetime(), title: z.string().optional(), note: z.string().optional(), photoUri: z.string().optional() });
+const outcomeSchema = oldOutcomeSchema.extend({ type: z.enum(['done', 'snoozed', 'issue_reported', 'event_checked']), eventKey: z.string().optional() }).refine((outcome) => outcome.type !== 'event_checked' || outcome.eventKey === 'heavy-rain', 'Weather checks need a supported event');
+const backupBaseSchema = z.object({
   profile: z.object({ houseType: z.enum(['detached', 'terraced']).optional(), ageBand: z.enum(['new-build', '0-2', '3-10', '10+']).optional(), features: z.array(z.string()), appliances: z.array(z.string()), variants: z.record(z.string(), z.string()) }),
   configurations: z.array(z.object({ actionId: z.string().min(1), enabled: z.boolean(), frequencyOverride: frequencySchema.optional(), nextDueAt: z.string().datetime().optional(), snoozedUntil: z.string().datetime().optional(), notificationsEnabled: z.boolean() })),
-  outcomes: z.array(z.object({ id: z.string().min(1), actionId: z.string().min(1), type: z.enum(['done', 'snoozed', 'issue_reported']), occurredAt: z.string().datetime(), title: z.string().optional(), note: z.string().optional(), photoUri: z.string().optional() })),
   settings: z.object({ language: z.enum(['en', 'da']), notificationsEnabled: z.boolean(), notificationsPermissionRequested: z.boolean().optional(), notificationSchedule: z.record(z.string(), z.object({ enabled: z.boolean(), startTime: z.string(), endTime: z.string() })).optional() }),
 });
+const backupSchema = z.discriminatedUnion('version', [
+  backupBaseSchema.extend({ version: z.literal(3), outcomes: z.array(oldOutcomeSchema) }),
+  backupBaseSchema.extend({ version: z.literal(4), outcomes: z.array(outcomeSchema) }),
+]);
+
+export function parseBackupManifest(value: unknown) {
+  return backupSchema.parse(value);
+}
 
 async function removePhotos(outcomes: TaskOutcome[]) {
   await Promise.all(outcomes.map((outcome) => removePersistedIssuePhoto(outcome.photoUri).catch(() => undefined)));
@@ -49,7 +57,7 @@ export async function importBackup() {
   if (!manifestFile) throw new Error('Backup manifest is missing.');
   let manifest: z.infer<typeof backupSchema>;
   try {
-    manifest = backupSchema.parse(JSON.parse(await manifestFile.async('text')));
+    manifest = parseBackupManifest(JSON.parse(await manifestFile.async('text')));
   } catch {
     throw new Error('Backup is not compatible with House Care.');
   }

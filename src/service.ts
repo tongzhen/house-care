@@ -13,6 +13,7 @@ export interface AppState { profile: Profile | null; configurations: ActionConfi
 
 const id = () => `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 const outcomeOperations = new Map<string, Promise<AppState>>();
+const eventCheckOperations = new Map<string, Promise<AppState>>();
 
 export interface RecordOutcomeDependencies {
   repository: HomeRepository;
@@ -103,11 +104,32 @@ async function recordOutcomeOnce(actionId: string, type: OutcomeType, options: R
 }
 
 export function recordOutcome(actionId: string, type: OutcomeType, options: RecordOutcomeOptions = {}, dependencies: RecordOutcomeDependencies = recordOutcomeDependencies) {
+  if (type === 'event_checked') throw new Error('Use recordWeatherCheck for weather events');
   const existing = outcomeOperations.get(actionId);
   if (existing) return existing;
   const operation = recordOutcomeOnce(actionId, type, options, dependencies);
   outcomeOperations.set(actionId, operation);
   const clear = () => { if (outcomeOperations.get(actionId) === operation) outcomeOperations.delete(actionId); };
+  operation.then(clear, clear);
+  return operation;
+}
+
+export function recordWeatherCheck(actionId: string, eventKey: 'heavy-rain', dependencies: RecordOutcomeDependencies = recordOutcomeDependencies) {
+  const key = `${eventKey}:${actionId}`;
+  const existing = eventCheckOperations.get(key);
+  if (existing) return existing;
+  const operation = (async () => {
+    const state = await loadAppStateFrom(dependencies.repository);
+    const action = getAction(actionId);
+    const config = state.configurations.find((item) => item.actionId === actionId);
+    if (!state.profile || !action || !config?.enabled || !actionApplies(action, state.profile) || !action.trigger.weatherEvents?.includes(eventKey)) {
+      throw new Error('Weather check is not available for this home');
+    }
+    await dependencies.repository.addOutcome({ id: dependencies.idGenerator.next(), actionId, type: 'event_checked', eventKey, occurredAt: dependencies.clock.now().toISOString() });
+    return loadAppStateFrom(dependencies.repository);
+  })();
+  eventCheckOperations.set(key, operation);
+  const clear = () => { if (eventCheckOperations.get(key) === operation) eventCheckOperations.delete(key); };
   operation.then(clear, clear);
   return operation;
 }

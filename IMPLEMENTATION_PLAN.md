@@ -228,7 +228,14 @@ type Trigger =
 - A frequency change recalculates future due dates immediately; it never changes history.
 - Snooze changes only the current due date.
 - `habit` actions never create device notifications in the MVP.
-- Seasonal/weather metadata is retained in content now, but automated weather triggers are not implemented.
+- Seasonal/weather metadata is retained in content. The offline After heavy rain checklist uses `heavy-rain` metadata to link applicable, enabled actions; it does not detect weather or trigger reminders.
+
+### Offline heavy-rain checklist extension
+
+- The Actions tab opens an on-demand After heavy rain checklist for applicable, enabled gutter, soakaway, and pump-well actions.
+- Each item opens its existing safe guidance. `Checked after rain` records a separate `event_checked` outcome with `eventKey: heavy-rain` in History, leaving its routine due date, snooze, frequency, and notifications unchanged.
+- The checklist shows the last check date. Local backups use version 4 and continue accepting version 3 imports. Maintenance reports exclude event checks from routine completion totals.
+- This extension requires no postcode, device location, network service, or weather notification permission.
 
 ```mermaid
 sequenceDiagram
