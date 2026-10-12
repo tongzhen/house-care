@@ -15,7 +15,7 @@ import { initialiseDatabase, loadOutcomes, loadProfile, replaceLocalData, resetL
 import { defaultNotificationSchedule } from '../notificationSchedule';
 import * as SQLite from 'expo-sqlite';
 
-beforeEach(() => { jest.clearAllMocks(); mockGetAllAsync.mockResolvedValue([{ name: 'title' }, { name: 'event_key' }, { name: 'notifications_enabled' }]); });
+beforeEach(() => { jest.clearAllMocks(); mockGetAllAsync.mockResolvedValue([{ name: 'postal_code' }, { name: 'title' }, { name: 'event_key' }, { name: 'notifications_enabled' }]); });
 
 describe('SQLite repository', () => {
   it('initialises all local persistence tables', async () => {
@@ -29,6 +29,7 @@ describe('SQLite repository', () => {
 
   it('migrates action configurations created before notification preferences', async () => {
     mockGetAllAsync
+      .mockResolvedValueOnce([{ name: 'postal_code' }])
       .mockResolvedValueOnce([{ name: 'title', }, { name: 'event_key' }])
       .mockResolvedValueOnce([{ name: 'action_id' }, { name: 'enabled' }]);
 
@@ -37,8 +38,14 @@ describe('SQLite repository', () => {
     expect(mockExecAsync).toHaveBeenCalledWith('ALTER TABLE action_configurations ADD COLUMN notifications_enabled INTEGER NOT NULL DEFAULT 1;');
   });
 
+  it('adds an optional postal code to an existing home profile', async () => {
+    mockGetAllAsync.mockResolvedValueOnce([{ name: 'id' }]);
+    await initialiseDatabase();
+    expect(mockExecAsync).toHaveBeenCalledWith('ALTER TABLE home_profile ADD COLUMN postal_code TEXT;');
+  });
+
   it('adds event keys to existing outcome tables', async () => {
-    mockGetAllAsync.mockResolvedValueOnce([{ name: 'title' }]);
+    mockGetAllAsync.mockResolvedValueOnce([{ name: 'postal_code' }]).mockResolvedValueOnce([{ name: 'title' }]);
     await initialiseDatabase();
     expect(mockExecAsync).toHaveBeenCalledWith('ALTER TABLE task_outcomes ADD COLUMN event_key TEXT;');
   });

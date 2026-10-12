@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { actionsForWeatherEvent, lastWeatherCheck } from '../../src/actionViews';
 import { useAppState } from '../../src/appState';
 import { formatDate } from '../../src/date';
+import { WeatherPanel } from '../../src/weatherView';
 
 export default function HeavyRainChecklistRoute() {
   const { t } = useTranslation();
@@ -17,6 +18,7 @@ export default function HeavyRainChecklistRoute() {
     <Text style={styles.kicker}>{t('weather.eventChecklist')}</Text>
     <Text style={styles.title}>{t('weather.heavyRain')}</Text>
     <Text style={styles.intro}>{t('weather.heavyRainIntro')}</Text>
+    {state.profile.postalCode && <WeatherPanel postalCode={state.profile.postalCode} language={state.settings.language} detailed />}
     <View style={styles.notice}><Text style={styles.noticeText}>{t('weather.safety')}</Text></View>
     {items.length === 0 ? <Text style={styles.empty}>{t('weather.noApplicableActions')}</Text> : items.map((action) => {
       const checkedAt = lastWeatherCheck(state, action.id, 'heavy-rain');

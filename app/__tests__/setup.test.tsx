@@ -72,6 +72,37 @@ describe('setup flow', () => {
     expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ appliances: ['dishwasher'], houseType: 'detached' }));
   });
 
+  it('keeps weather optional in setup and available for later profile editing', async () => {
+    const onSave = jest.fn(async () => undefined);
+    await render(<Setup onSave={onSave} />);
+    await act(async () => { fireEvent.press(screen.getByText('Set up my home')); });
+    expect(screen.getByText('Postal code (optional)')).toBeTruthy();
+    await act(async () => { fireEvent.press(screen.getByText('Continue')); });
+    await act(async () => { fireEvent.press(screen.getByText('Continue')); });
+    await act(async () => { fireEvent.press(screen.getByText('Create my care plan')); });
+    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ postalCode: undefined }));
+  });
+
+  it('keeps the manual rain checklist visible without showing weather data', async () => {
+    await render(<ActionList actions={[]} configurations={new Map()} language="en" onOpen={jest.fn()} onOpenWeather={jest.fn()} />);
+    expect(screen.getByText('After heavy rain')).toBeTruthy();
+    expect(screen.queryByText('Weather near home')).toBeNull();
+  });
+
+  it('validates a non-empty postal code and allows removing it in Home Profile', async () => {
+    const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
+    const onCommit = jest.fn(async () => undefined);
+    await render(<ProfileEditor initial={{ id: 'primary-home', postalCode: '2750', appliances: ['dishwasher'], features: [], variants: {} }} onBack={jest.fn()} onCommit={onCommit} />);
+    await act(async () => { fireEvent.changeText(screen.getByLabelText('Postal code (optional)'), '275'); });
+    await act(async () => { fireEvent.press(screen.getByTestId('profile-editor-back')); });
+    expect(alert).toHaveBeenCalledWith('Edit home profile', 'Enter a four-digit Danish postal code, or leave it blank.');
+    expect(onCommit).not.toHaveBeenCalled();
+    await act(async () => { fireEvent.changeText(screen.getByLabelText('Postal code (optional)'), ''); });
+    await act(async () => { fireEvent.press(screen.getByTestId('profile-editor-back')); });
+    expect(onCommit).toHaveBeenCalledWith(expect.objectContaining({ postalCode: undefined }));
+    alert.mockRestore();
+  });
+
   it('explains missing required profile details instead of silently disabling setup', async () => {
     const onSave = jest.fn(async () => undefined);
     const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => undefined);
