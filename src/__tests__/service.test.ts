@@ -1,7 +1,7 @@
 /* eslint-disable import/first */
 
 jest.mock('../db', () => ({
-  initialiseDatabase: jest.fn(), loadProfile: jest.fn(), loadConfigurations: jest.fn(), loadOutcomes: jest.fn(), getSettings: jest.fn(), saveProfile: jest.fn(), upsertConfiguration: jest.fn(), deleteConfiguration: jest.fn(), addOutcome: jest.fn(), saveSettings: jest.fn(), resetLocalData: jest.fn(), transaction: jest.fn(),
+  initialiseDatabase: jest.fn(), loadProfile: jest.fn(), loadConfigurations: jest.fn(), loadOutcomes: jest.fn(), getSettings: jest.fn(), saveProfile: jest.fn(), upsertConfiguration: jest.fn(), deleteConfiguration: jest.fn(), addOutcome: jest.fn(), saveSettings: jest.fn(), resetLocalData: jest.fn(), transaction: jest.fn(), clearWeatherCache: jest.fn(),
 }));
 jest.mock('../notifications', () => ({ rescheduleNotifications: jest.fn(), cancelScheduledNotifications: jest.fn() }));
 jest.mock('../media', () => ({ persistIssuePhoto: jest.fn(async () => undefined), finishIssuePhotoDraft: jest.fn(async () => undefined), removePersistedIssuePhoto: jest.fn(async () => undefined) }));
@@ -59,6 +59,14 @@ describe('maintenance service', () => {
     expect(db.saveProfile).toHaveBeenCalledWith({ appliances: ['dishwasher'], features: [], variants: {} });
     expect(db.upsertConfiguration).toHaveBeenCalledTimes(1);
     expect(db.upsertConfiguration).toHaveBeenCalledWith(expect.objectContaining({ actionId: 'dishwasher-filter-clean', enabled: true }));
+  });
+
+  it('clears saved weather when the home postal code changes or is removed', async () => {
+    jest.mocked(db.loadProfile).mockResolvedValue({ id: 'primary-home', postalCode: '2750', appliances: ['dishwasher'], features: [], variants: {} });
+    await saveHomeProfile({ postalCode: '2750', appliances: ['dishwasher'], features: [], variants: {} });
+    expect(db.clearWeatherCache).not.toHaveBeenCalled();
+    await saveHomeProfile({ appliances: ['dishwasher'], features: [], variants: {} });
+    expect(db.clearWeatherCache).toHaveBeenCalledTimes(1);
   });
 
   it('records completion and schedules the next due date', async () => {

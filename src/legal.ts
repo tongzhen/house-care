@@ -8,7 +8,7 @@ export const legalSiteUrl = 'https://tongzhen.github.io/house-care-legal';
 export const supportEmail = 'support@housecare.example';
 export const privacyEmail = 'privacy@housecare.example';
 
-const common = { version: '0.1', updated: '19 August 2026' };
+const common = { version: '0.2', updated: '8 October 2026' };
 
 export const legalDocuments: Record<LegalLanguage, Record<LegalDocumentId, LegalDocument>> = {
   en: {
@@ -17,6 +17,7 @@ export const legalDocuments: Record<LegalLanguage, Record<LegalDocumentId, Legal
       sections: [
         { heading: 'Local-first', paragraphs: ['House Care has no account, analytics, advertising, or backend service. We do not collect or sell personal information.'] },
         { heading: 'Information stored on your device', paragraphs: ['Your selected home profile, action settings, completion history, issue notes, and optional issue photos stay in the app’s private storage on your device.'] },
+        { heading: 'Optional weather', paragraphs: ['If you add a Danish postal code, House Care sends that code to Open-Meteo to find its coordinates. When you view weather, House Care sends the coordinates to DMI to request a forecast and nearby station readings. If DMI’s forecast is unavailable, House Care requests the DMI model forecast through Open-Meteo. The postal code and recent weather are cached on your device. Remove the postal code to stop weather requests and clear the weather cache. No weather request is made without a postal code.'] },
         { heading: 'Optional device services', paragraphs: ['Notifications are scheduled locally. If you choose Open in calendar, House Care opens a prefilled event editor and you decide whether to save it. If you export a backup or PDF report, you choose the destination through the device share sheet.'], bullets: ['Photo access is requested only when you attach an issue photo.', 'House Care does not request access to your calendar.', 'Notification permission is requested only when local reminders are enabled.'] },
         { heading: 'Retention and deletion', paragraphs: ['Information remains on your device until you delete an issue, reset app data, or remove the app. Reset app data removes the local profile, history, and issue records; deleting the app is subject to your device backup settings.'] },
         { heading: 'Contact', paragraphs: [`House Care is currently published under a development identity. Before public release this policy will name the legal entity and postal address. Privacy questions: ${privacyEmail}.`] },
@@ -55,6 +56,7 @@ export const legalDocuments: Record<LegalLanguage, Record<LegalDocumentId, Legal
       sections: [
         { heading: 'Lokal først', paragraphs: ['House Care har ingen konto, analyse, annoncer eller backendtjeneste. Vi indsamler eller sælger ikke personoplysninger.'] },
         { heading: 'Oplysninger på din enhed', paragraphs: ['Din valgte boligprofil, opgaveindstillinger, historik, problemnoter og valgfrie billeder gemmes i appens private lager på din enhed.'] },
+        { heading: 'Valgfrit vejr', paragraphs: ['Hvis du tilføjer et dansk postnummer, sender House Care koden til Open-Meteo for at finde koordinaterne. Når du ser vejret, sender House Care koordinaterne til DMI for at hente en prognose og målinger fra nærliggende stationer. Hvis DMI-prognosen ikke er tilgængelig, henter House Care DMI-modellens prognose via Open-Meteo. Postnummer og nyere vejrdata gemmes midlertidigt på din enhed. Fjern postnummeret for at stoppe vejrforespørgsler og slette vejrdataene. Uden postnummer sendes ingen vejrforespørgsler.'] },
         { heading: 'Valgfrie enhedstjenester', paragraphs: ['Notifikationer planlægges lokalt. Hvis du vælger Føj til kalender, skriver House Care én begivenhed i den kalender, du vælger. Ved eksport af backup eller PDF vælger du selv destination i enhedens deleark.'], bullets: ['Adgang til billeder anmodes kun, når du vedhæfter et billede.', 'Kalenderadgang anmodes kun, når du føjer en opgave til kalenderen.', 'Notifikationstilladelse anmodes kun, når lokale påmindelser aktiveres.'] },
         { heading: 'Opbevaring og sletning', paragraphs: ['Oplysningerne bliver på din enhed, indtil du sletter et problem, nulstiller appdata eller fjerner appen. Nulstil appdata fjerner lokal profil, historik og problemregistreringer; sletning af appen afhænger af enhedens backupindstillinger.'] },
         { heading: 'Kontakt', paragraphs: [`House Care udgives foreløbigt under en udviklingsidentitet. Før offentlig udgivelse vil politikken angive juridisk enhed og postadresse. Spørgsmål om privatliv: ${privacyEmail}.`] },

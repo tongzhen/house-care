@@ -22,6 +22,8 @@ describe('local backup', () => {
     expect(parseBackupManifest({ ...base, version: 3, outcomes: [] }).version).toBe(3);
     const rainCheck = { id: 'rain-1', actionId: 'gutters-ground-check', type: 'event_checked', eventKey: 'heavy-rain', occurredAt: '2026-10-02T10:00:00.000Z' };
     expect(parseBackupManifest({ ...base, version: 4, outcomes: [rainCheck] }).outcomes).toEqual([rainCheck]);
+    expect(parseBackupManifest({ ...base, profile: { ...base.profile, postalCode: '2750' }, version: 4, outcomes: [] }).profile.postalCode).toBe('2750');
+    expect(() => parseBackupManifest({ ...base, profile: { ...base.profile, postalCode: '275' }, version: 4, outcomes: [] })).toThrow();
     expect(() => parseBackupManifest({ ...base, version: 4, outcomes: [{ ...rainCheck, eventKey: undefined }] })).toThrow();
   });
   it('exports a versioned archive without mutating local data', async () => {

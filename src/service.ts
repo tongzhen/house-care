@@ -53,6 +53,7 @@ function initialConfiguration(actionId: string, position: number): ActionConfigu
 }
 
 export async function saveHomeProfile(profile: Omit<Profile, 'id'>): Promise<AppState> {
+  const previousProfile = await repository.loadProfile();
   const existing = await repository.loadConfigurations();
   const existingById = new Map(existing.map((config) => [config.actionId, config]));
   const applicable = actions.filter((action) => actionApplies(action, profile));
@@ -69,6 +70,7 @@ export async function saveHomeProfile(profile: Omit<Profile, 'id'>): Promise<App
       await transaction.upsertConfiguration(existingById.get(action.id) ?? initialConfiguration(action.id, position));
     }
   });
+  if (previousProfile?.postalCode !== profile.postalCode) await repository.clearWeatherCache();
   const state = await loadAppState();
   return reconcileNotificationsAfterCommit(state);
 }

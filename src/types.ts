@@ -10,7 +10,7 @@ export interface MaintenanceAction {
   trigger: { kind: 'recurring' | 'seasonal' | 'habit'; defaultFrequency?: Frequency; seasons?: string[]; weatherEvents?: string[]; frequencyNote?: string; };
   content: { en: ActionContent; da: ActionContent | null }; sources: string[];
 }
-export interface Profile { id: string; houseType?: 'detached' | 'terraced'; ageBand?: 'new-build' | '0-2' | '3-10' | '10+'; features: string[]; appliances: string[]; variants: Record<string, string>; }
+export interface Profile { id: string; houseType?: 'detached' | 'terraced'; ageBand?: 'new-build' | '0-2' | '3-10' | '10+'; postalCode?: string; features: string[]; appliances: string[]; variants: Record<string, string>; }
 export interface ActionConfiguration { actionId: string; enabled: boolean; frequencyOverride?: Frequency; nextDueAt?: string; snoozedUntil?: string; notificationsEnabled: boolean; }
 export interface TaskOutcome { id: string; actionId: string; type: OutcomeType; occurredAt: string; eventKey?: string; title?: string; note?: string; photoUri?: string; }
 export interface NotificationDayPreference { enabled: boolean; startTime: string; endTime: string; }
