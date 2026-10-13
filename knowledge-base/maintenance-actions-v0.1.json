@@ -241,7 +241,7 @@
       "category": "exterior",
       "target": "gutters-downpipes",
       "profileConditions": {"features": ["gutters"]},
-      "trigger": {"kind": "seasonal", "seasons": ["spring", "autumn"], "weatherEvents": ["heavy-rain", "storm", "leaf-fall"]},
+      "trigger": {"kind": "seasonal", "seasons": ["spring", "autumn"], "seasonalDates": [{"season":"spring","month":3,"day":1},{"season":"autumn","month":9,"day":1}], "weatherEvents": ["heavy-rain", "storm", "leaf-fall"]},
       "estimatedMinutes": 5,
       "safetyLevel": "DIY",
       "content": {
@@ -264,7 +264,7 @@
       "category": "exterior",
       "target": "gutters-downpipes",
       "profileConditions": {"features": ["gutters"]},
-      "trigger": {"kind": "seasonal", "seasons": ["spring", "autumn"], "weatherEvents": ["leaf-fall"], "frequencyNote": "Prioritise cleaning after autumn leaf fall. Inspect in spring and clean again as needed."},
+      "trigger": {"kind": "seasonal", "seasons": ["spring", "autumn"], "seasonalDates": [{"season":"spring","month":3,"day":1},{"season":"autumn","month":11,"day":1}], "weatherEvents": ["leaf-fall"], "frequencyNote": "Prioritise cleaning after autumn leaf fall. Inspect in spring and clean again as needed."},
       "estimatedMinutes": 30,
       "safetyLevel": "DIY with caution",
       "content": {
@@ -333,7 +333,7 @@
       "category": "exterior",
       "target": "outdoor-tap",
       "profileConditions": {"features": ["outdoor-tap"]},
-      "trigger": {"kind": "seasonal", "seasons": ["autumn"], "weatherEvents": ["frost-forecast"], "frequencyNote": "Complete before the first forecast frost, not after freezing has occurred."},
+      "trigger": {"kind": "seasonal", "seasons": ["autumn"], "seasonalDates": [{"season":"autumn","month":10,"day":1}], "weatherEvents": ["frost-forecast"], "frequencyNote": "Complete before the first forecast frost, not after freezing has occurred."},
       "estimatedMinutes": 10,
       "safetyLevel": "DIY with caution",
       "content": {
@@ -425,7 +425,7 @@
       "category": "heating",
       "target": "underfloor-heating",
       "profileConditions": {"features": ["underfloor-heating"]},
-      "trigger": {"kind": "seasonal", "seasons": ["autumn"], "defaultFrequency": {"interval": 1, "unit": "year"}, "frequencyNote": "Check once a year at the start of the heating season; response time depends on the installation."},
+      "trigger": {"kind": "seasonal", "seasons": ["autumn"], "seasonalDates": [{"season":"autumn","month":9,"day":1}], "frequencyNote": "Check once a year at the start of the heating season; response time depends on the installation."},
       "estimatedMinutes": 8,
       "safetyLevel": "DIY with caution",
       "content": {

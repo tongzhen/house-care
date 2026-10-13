@@ -11,7 +11,7 @@ const mockDatabase = { execAsync: mockExecAsync, runAsync: mockRunAsync, getFirs
 
 jest.mock('expo-sqlite', () => ({ openDatabaseAsync: jest.fn(async () => mockDatabase) }));
 
-import { initialiseDatabase, loadOutcomes, loadProfile, replaceLocalData, resetLocalData, saveProfile, transaction } from '../db';
+import { initialiseDatabase, loadOutcomes, loadProfile, replaceLocalData, resetLocalData, saveProfile, saveReminderLedger, loadConfigurations, transaction } from '../db';
 import { defaultNotificationSchedule } from '../notificationSchedule';
 import * as SQLite from 'expo-sqlite';
 
@@ -36,6 +36,21 @@ describe('SQLite repository', () => {
     await initialiseDatabase();
 
     expect(mockExecAsync).toHaveBeenCalledWith('ALTER TABLE action_configurations ADD COLUMN notifications_enabled INTEGER NOT NULL DEFAULT 1;');
+  });
+
+  it('adds seasonal persistence fields without changing existing records', async () => {
+    await initialiseDatabase();
+    expect(mockExecAsync).toHaveBeenCalledWith('ALTER TABLE action_configurations ADD COLUMN seasonal_schedule_version INTEGER;');
+    expect(mockExecAsync).toHaveBeenCalledWith('ALTER TABLE action_configurations ADD COLUMN seasonal_due_date TEXT;');
+    expect(mockExecAsync).toHaveBeenCalledWith('ALTER TABLE action_configurations ADD COLUMN reminder_ledger TEXT;');
+  });
+
+  it('loads seasonal state and updates only the reminder ledger', async () => {
+    const ledger = [{ key: '2026-10-01', scheduledAt: '2026-10-13T10:01:00.000Z' }];
+    mockGetAllAsync.mockResolvedValueOnce([{ action_id: 'outdoor-tap-winter-check', enabled: 1, notifications_enabled: 1, seasonal_schedule_version: 1, seasonal_due_date: '2026-10-01', reminder_ledger: JSON.stringify(ledger) }]);
+    expect((await loadConfigurations())[0]).toMatchObject({ seasonalScheduleVersion: 1, seasonalDueDate: '2026-10-01', reminderLedger: ledger });
+    await saveReminderLedger('outdoor-tap-winter-check', ledger);
+    expect(mockRunAsync).toHaveBeenCalledWith('UPDATE action_configurations SET reminder_ledger = ? WHERE action_id = ?', [JSON.stringify(ledger), 'outdoor-tap-winter-check']);
   });
 
   it('adds an optional postal code to an existing home profile', async () => {

@@ -1,7 +1,7 @@
 import * as SQLite from 'expo-sqlite';
 import { defaultNotificationSchedule, validateNotificationSchedule } from './notificationSchedule';
 import { defaultAppLanguage } from './language';
-import type { ActionConfiguration, AppSettings, FrequencyUnit, Profile, TaskOutcome } from './types';
+import type { ActionConfiguration, AppSettings, FrequencyUnit, Profile, TaskOutcome, ReminderAttempt } from './types';
 import type { HomeRepositoryTransaction } from './ports';
 
 let databasePromise: Promise<SQLite.SQLiteDatabase> | undefined;
@@ -30,7 +30,7 @@ async function saveProfileWith(connection: StatementRunner, profile: Omit<Profil
 }
 
 async function upsertConfigurationWith(connection: StatementRunner, configuration: ActionConfiguration) {
-  await connection.runAsync('INSERT OR REPLACE INTO action_configurations (action_id, enabled, frequency_interval, frequency_unit, next_due_at, snoozed_until, notifications_enabled) VALUES (?, ?, ?, ?, ?, ?, ?)', [configuration.actionId, configuration.enabled ? 1 : 0, configuration.frequencyOverride?.interval ?? null, configuration.frequencyOverride?.unit ?? null, configuration.nextDueAt ?? null, configuration.snoozedUntil ?? null, configuration.notificationsEnabled ? 1 : 0]);
+  await connection.runAsync('INSERT OR REPLACE INTO action_configurations (action_id, enabled, frequency_interval, frequency_unit, next_due_at, snoozed_until, notifications_enabled, seasonal_schedule_version, seasonal_due_date, reminder_ledger) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, COALESCE((SELECT reminder_ledger FROM action_configurations WHERE action_id = ?), ?))', [configuration.actionId, configuration.enabled ? 1 : 0, configuration.frequencyOverride?.interval ?? null, configuration.frequencyOverride?.unit ?? null, configuration.nextDueAt ?? null, configuration.snoozedUntil ?? null, configuration.notificationsEnabled ? 1 : 0, configuration.seasonalScheduleVersion ?? null, configuration.seasonalDueDate ?? null, configuration.actionId, JSON.stringify(configuration.reminderLedger ?? [])]);
 }
 
 async function addOutcomeWith(connection: StatementRunner, outcome: TaskOutcome) {
@@ -57,6 +57,9 @@ async function initialiseDatabaseOnce() {
   const configurationColumns = await connection.getAllAsync<{ name: string }>('PRAGMA table_info(action_configurations)');
   if (!configurationColumns.some((column) => column.name === 'notifications_enabled')) {
     await connection.execAsync('ALTER TABLE action_configurations ADD COLUMN notifications_enabled INTEGER NOT NULL DEFAULT 1;');
+  }
+  for (const [name, type] of [['seasonal_schedule_version', 'INTEGER'], ['seasonal_due_date', 'TEXT'], ['reminder_ledger', 'TEXT']] as const) {
+    if (!configurationColumns.some((column) => column.name === name)) await connection.execAsync(`ALTER TABLE action_configurations ADD COLUMN ${name} ${type};`);
   }
   await connection.runAsync('DELETE FROM task_outcomes WHERE outcome_type = ?', ['not_relevant']);
 }
@@ -97,8 +100,8 @@ export async function saveProfile(profile: Omit<Profile, 'id'>) {
 
 export async function loadConfigurations(): Promise<ActionConfiguration[]> {
   const connection = await db();
-  const rows = await connection.getAllAsync<{ action_id: string; enabled: number; frequency_interval: number | null; frequency_unit: string | null; next_due_at: string | null; snoozed_until: string | null; notifications_enabled: number }>('SELECT * FROM action_configurations');
-  return rows.map((row) => ({ actionId: row.action_id, enabled: row.enabled === 1, frequencyOverride: row.frequency_interval && row.frequency_unit ? { interval: row.frequency_interval, unit: row.frequency_unit as FrequencyUnit } : undefined, nextDueAt: row.next_due_at ?? undefined, snoozedUntil: row.snoozed_until ?? undefined, notificationsEnabled: row.notifications_enabled === 1 }));
+  const rows = await connection.getAllAsync<{ action_id: string; enabled: number; frequency_interval: number | null; frequency_unit: string | null; next_due_at: string | null; snoozed_until: string | null; notifications_enabled: number; seasonal_schedule_version: 1 | null; seasonal_due_date: string | null; reminder_ledger: string | null }>('SELECT * FROM action_configurations');
+  return rows.map((row) => ({ actionId: row.action_id, enabled: row.enabled === 1, frequencyOverride: row.frequency_interval && row.frequency_unit ? { interval: row.frequency_interval, unit: row.frequency_unit as FrequencyUnit } : undefined, nextDueAt: row.next_due_at ?? undefined, snoozedUntil: row.snoozed_until ?? undefined, notificationsEnabled: row.notifications_enabled === 1, seasonalScheduleVersion: row.seasonal_schedule_version ?? undefined, seasonalDueDate: row.seasonal_due_date ?? undefined, reminderLedger: row.reminder_ledger ? JSON.parse(row.reminder_ledger) : [] }));
 }
 
 export async function upsertConfiguration(configuration: ActionConfiguration) {
@@ -178,7 +181,7 @@ export async function replaceLocalData(profile: Omit<Profile, 'id'>, configurati
     await transaction.execAsync('DELETE FROM task_outcomes; DELETE FROM action_configurations; DELETE FROM home_profile; DELETE FROM app_settings; DELETE FROM weather_cache;');
     await transaction.runAsync('INSERT INTO home_profile (id, house_type, age_band, postal_code, features_json, appliances_json, variants_json, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [profileId, profile.houseType ?? null, profile.ageBand ?? null, profile.postalCode ?? null, JSON.stringify(profile.features), JSON.stringify(profile.appliances), JSON.stringify(profile.variants), new Date().toISOString()]);
     for (const configuration of configurations) {
-      await transaction.runAsync('INSERT INTO action_configurations (action_id, enabled, frequency_interval, frequency_unit, next_due_at, snoozed_until, notifications_enabled) VALUES (?, ?, ?, ?, ?, ?, ?)', [configuration.actionId, configuration.enabled ? 1 : 0, configuration.frequencyOverride?.interval ?? null, configuration.frequencyOverride?.unit ?? null, configuration.nextDueAt ?? null, configuration.snoozedUntil ?? null, configuration.notificationsEnabled ? 1 : 0]);
+      await upsertConfigurationWith(transaction, configuration);
     }
     for (const outcome of outcomes) {
       await transaction.runAsync('INSERT INTO task_outcomes (id, action_id, outcome_type, occurred_at, event_key, title, note, photo_uri) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [outcome.id, outcome.actionId, outcome.type, outcome.occurredAt, outcome.eventKey ?? null, outcome.title ?? null, outcome.note ?? null, outcome.photoUri ?? null]);
@@ -188,4 +191,10 @@ export async function replaceLocalData(profile: Omit<Profile, 'id'>, configurati
     await transaction.runAsync('INSERT INTO app_settings (key, value) VALUES (?, ?)', ['notificationsPermissionRequested', String(settings.notificationsPermissionRequested ?? false)]);
     await transaction.runAsync('INSERT INTO app_settings (key, value) VALUES (?, ?)', ['notificationSchedule', JSON.stringify(settings.notificationSchedule)]);
   });
+}
+
+// Notification reconciliation updates only its ledger, never task scheduling fields.
+export async function saveReminderLedger(actionId: string, ledger: ReminderAttempt[]) {
+  const connection = await db();
+  await connection.runAsync('UPDATE action_configurations SET reminder_ledger = ? WHERE action_id = ?', [JSON.stringify(ledger), actionId]);
 }

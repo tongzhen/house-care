@@ -1,5 +1,8 @@
 export type FrequencyUnit = 'day' | 'week' | 'month' | 'year';
 export type Weekday = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+export type Season = 'spring' | 'summer' | 'autumn' | 'winter';
+export interface SeasonalDate { season: Season; month: number; day: number; }
+export interface ReminderAttempt { key: string; scheduledAt: string; }
 export type OutcomeType = 'done' | 'snoozed' | 'issue_reported' | 'event_checked';
 export type SafetyLevel = 'DIY' | 'DIY with caution' | 'Professional required';
 export interface Frequency { interval: number; unit: FrequencyUnit; }
@@ -7,11 +10,11 @@ export interface ActionContent { title: string; whyItMatters: string; steps: str
 export interface MaintenanceAction {
   id: string; category: string; target: string; estimatedMinutes: number; safetyLevel: SafetyLevel;
   profileConditions: { appliances?: string[]; features?: string[]; systemVariants?: string[] };
-  trigger: { kind: 'recurring' | 'seasonal' | 'habit'; defaultFrequency?: Frequency; seasons?: string[]; weatherEvents?: string[]; frequencyNote?: string; };
+  trigger: { kind: 'recurring' | 'seasonal' | 'habit'; defaultFrequency?: Frequency; seasons?: Season[]; seasonalDates?: SeasonalDate[]; weatherEvents?: string[]; frequencyNote?: string; };
   content: { en: ActionContent; da: ActionContent | null }; sources: string[];
 }
 export interface Profile { id: string; houseType?: 'detached' | 'terraced'; ageBand?: 'new-build' | '0-2' | '3-10' | '10+'; postalCode?: string; features: string[]; appliances: string[]; variants: Record<string, string>; }
-export interface ActionConfiguration { actionId: string; enabled: boolean; frequencyOverride?: Frequency; nextDueAt?: string; snoozedUntil?: string; notificationsEnabled: boolean; }
+export interface ActionConfiguration { actionId: string; enabled: boolean; frequencyOverride?: Frequency; nextDueAt?: string; snoozedUntil?: string; notificationsEnabled: boolean; seasonalScheduleVersion?: 1; seasonalDueDate?: string; reminderLedger?: ReminderAttempt[]; }
 export interface TaskOutcome { id: string; actionId: string; type: OutcomeType; occurredAt: string; eventKey?: string; title?: string; note?: string; photoUri?: string; }
 export interface NotificationDayPreference { enabled: boolean; startTime: string; endTime: string; }
 export type NotificationSchedule = Record<Weekday, NotificationDayPreference>;

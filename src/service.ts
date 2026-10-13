@@ -1,6 +1,7 @@
 import { actionApplies, actions, getAction } from './catalog';
 import { clearData, importBackup, removeIssue, removeIssuePhoto } from './backup';
-import { atNineAM, nextDueAfterCompletion, nextDueDate } from './date';
+import { atNineAM, nextDueDate } from './date';
+import { configurationAfterCompletion, reconcileSeasonalConfiguration, usesSeasonalSchedule } from './seasonalScheduling';
 import * as repository from './db';
 import { deviceClock, expoNotificationScheduler, localIdGenerator, sqliteHomeRepository } from './deviceServices';
 import { cancelScheduledNotifications, rescheduleNotifications } from './notifications';
@@ -34,10 +35,18 @@ async function reconcileNotificationsAfterCommit(state: AppState) {
   return state;
 }
 
-export async function loadAppStateFrom(source: HomeRepository): Promise<AppState> {
+export async function loadAppStateFrom(source: HomeRepository, now = new Date()): Promise<AppState> {
   await source.initialiseDatabase();
   const [profile, configurations, outcomes, settings] = await Promise.all([source.loadProfile(), source.loadConfigurations(), source.loadOutcomes(), source.getSettings()]);
-  return { profile, configurations, outcomes, settings };
+  const reconciled = configurations.map((config) => {
+    const action = getAction(config.actionId);
+    return action ? reconcileSeasonalConfiguration(action, config, outcomes, now) : config;
+  });
+  const changed = reconciled.filter((config, index) => config !== configurations[index]);
+  if (changed.length) await source.transaction(async (transaction) => {
+    for (const config of changed) await transaction.upsertConfiguration(config);
+  });
+  return { profile, configurations: reconciled, outcomes, settings };
 }
 
 export async function loadAppState(): Promise<AppState> {
@@ -47,7 +56,9 @@ export async function loadAppState(): Promise<AppState> {
 function initialConfiguration(actionId: string, position: number): ActionConfiguration {
   const action = getAction(actionId)!;
   if (action.trigger.kind === 'habit') return { actionId, enabled: true, notificationsEnabled: false };
-  const due = new Date();
+  const now = new Date();
+  if (usesSeasonalSchedule(action)) return reconcileSeasonalConfiguration(action, { actionId, enabled: true, notificationsEnabled: true }, [], now);
+  const due = new Date(now);
   due.setDate(due.getDate() + position * 3);
   return { actionId, enabled: true, notificationsEnabled: true, nextDueAt: atNineAM(due).toISOString() };
 }
@@ -78,7 +89,7 @@ export async function saveHomeProfile(profile: Omit<Profile, 'id'>): Promise<App
 type RecordOutcomeOptions = { note?: string; photoUri?: string; snoozeDays?: number; snoozedUntil?: string };
 
 async function recordOutcomeOnce(actionId: string, type: OutcomeType, options: RecordOutcomeOptions, dependencies: RecordOutcomeDependencies) {
-  const state = await loadAppStateFrom(dependencies.repository);
+  const state = await loadAppStateFrom(dependencies.repository, dependencies.clock.now());
   const action = getAction(actionId);
   const current = state.configurations.find((config) => config.actionId === actionId);
   if (!action || !current) throw new Error('Action is not configured');
@@ -90,17 +101,16 @@ async function recordOutcomeOnce(actionId: string, type: OutcomeType, options: R
     snoozedUntil = options.snoozedUntil ?? atNineAM(requested).toISOString();
   }
   const outcome: TaskOutcome = { id: dependencies.idGenerator.next(), actionId, type, occurredAt: now.toISOString(), note: options.note, photoUri: options.photoUri };
-  const frequency = current.frequencyOverride ?? action.trigger.defaultFrequency;
-  const next: ActionConfiguration = { ...current, snoozedUntil: undefined };
+  let next: ActionConfiguration = { ...current };
   if (type === 'done') {
-    next.nextDueAt = nextDueAfterCompletion(now, frequency);
+    next = configurationAfterCompletion(action, current, now);
   }
   if (type === 'snoozed') next.snoozedUntil = snoozedUntil;
   await dependencies.repository.transaction(async (transaction: HomeRepositoryTransaction) => {
     await transaction.addOutcome(outcome);
     await transaction.upsertConfiguration(next);
   });
-  const nextState = await loadAppStateFrom(dependencies.repository);
+  const nextState = await loadAppStateFrom(dependencies.repository, now);
   await reconcileNotifications(nextState, dependencies.notificationScheduler).catch(() => undefined);
   return nextState;
 }
@@ -166,7 +176,9 @@ export async function updateFrequency(actionId: string, frequency?: Frequency) {
   const reference = new Date();
   const effectiveFrequency = frequency ?? action.trigger.defaultFrequency;
   const nextDueAt = effectiveFrequency ? atNineAM(nextDueDate(reference, effectiveFrequency)).toISOString() : config.nextDueAt;
-  await repository.upsertConfiguration({ ...config, frequencyOverride: frequency, nextDueAt, snoozedUntil: undefined });
+  let next: ActionConfiguration = { ...config, frequencyOverride: frequency, nextDueAt, snoozedUntil: undefined, seasonalDueDate: undefined, seasonalScheduleVersion: undefined };
+  if (!frequency) next = reconcileSeasonalConfiguration(action, next, state.outcomes, reference);
+  await repository.upsertConfiguration(next);
   const nextState = await loadAppState();
   return reconcileNotificationsAfterCommit(nextState);
 }

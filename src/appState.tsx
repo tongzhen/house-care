@@ -26,6 +26,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   const [issueDraft, setIssueDraft] = useState<IssueDraft>(emptyIssueDraft);
   const stateRef = useRef<AppState | null>(null);
   const pendingActionId = useRef<string | null>(null);
+  const pendingSeasonal = useRef(false);
 
   const refresh = useCallback(async () => {
     const nextState = await loadAppState();
@@ -47,7 +48,8 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       if (!active) return;
       setState(hydratedState);
       void reconcileNotifications(hydratedState).catch(() => undefined);
-      if (pendingActionId.current) router.replace({ pathname: '/actions/[actionId]', params: { actionId: pendingActionId.current, returnTo: '/home' } });
+      if (pendingSeasonal.current) { router.replace('/seasonal'); pendingSeasonal.current = false; }
+      else if (pendingActionId.current) router.replace({ pathname: '/actions/[actionId]', params: { actionId: pendingActionId.current, returnTo: '/home' } });
       pendingActionId.current = null;
     });
     return () => { active = false; };
@@ -58,6 +60,9 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   useEffect(() => subscribeToNotificationResponses((actionId) => {
     if (!stateRef.current) { pendingActionId.current = actionId; return; }
     router.push({ pathname: '/actions/[actionId]', params: { actionId, returnTo: '/home' } });
+  }, () => {
+    if (!stateRef.current) { pendingSeasonal.current = true; return; }
+    router.push('/seasonal');
   }), [router]);
   useEffect(() => {
     const subscription = NativeAppState.addEventListener('change', (status) => { if (status === 'active') void refresh(); });

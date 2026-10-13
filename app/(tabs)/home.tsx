@@ -11,5 +11,5 @@ export default function HomeRoute() {
   if (!state) return null;
   if (!state.profile) return <Redirect href="/setup" />;
   const configurations = configurationMap(state);
-  return <Home actions={orderedActiveActions(state, configurations)} configurations={configurations} language={state.settings.language} now={now} onOpen={(actionId) => router.push({ pathname: '/actions/[actionId]', params: { actionId, returnTo: '/home' } })} onReportIssue={() => router.push({ pathname: '/issues/new', params: { returnTo: '/home' } })} />;
+  return <Home actions={orderedActiveActions(state, configurations)} configurations={configurations} language={state.settings.language} now={now} onOpen={(actionId) => router.push({ pathname: '/actions/[actionId]', params: { actionId, returnTo: '/home' } })} onOpenSeasonal={() => router.push('/seasonal')} onReportIssue={() => router.push({ pathname: '/issues/new', params: { returnTo: '/home' } })} />;
 }
