@@ -3,24 +3,30 @@ import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import JSZip from 'jszip';
 import { z } from 'zod';
-import { clearOutcomePhoto, deleteOutcome, loadOutcomes, replaceLocalData, resetLocalData } from './db';
+import { clearOutcomePhoto, deleteOutcome, loadConfigurations, loadOutcomes, replaceLocalData, resetLocalData } from './db';
 import { removePersistedIssuePhoto } from './media';
 import { defaultNotificationSchedule, validateNotificationSchedule } from './notificationSchedule';
 import type { AppState } from './service';
 import type { TaskOutcome } from './types';
 
-const backupVersion = 4;
+const backupVersion = 5;
+const localDateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine((key) => {
+  const [year, month, day] = key.split('-').map(Number);
+  const date = new Date(year, month - 1, day);
+  return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
+}, 'Invalid calendar date');
 const frequencySchema = z.object({ interval: z.number().int().positive(), unit: z.enum(['day', 'week', 'month', 'year']) });
 const oldOutcomeSchema = z.object({ id: z.string().min(1), actionId: z.string().min(1), type: z.enum(['done', 'snoozed', 'issue_reported']), occurredAt: z.string().datetime(), title: z.string().optional(), note: z.string().optional(), photoUri: z.string().optional() });
 const outcomeSchema = oldOutcomeSchema.extend({ type: z.enum(['done', 'snoozed', 'issue_reported', 'event_checked']), eventKey: z.string().optional() }).refine((outcome) => outcome.type !== 'event_checked' || outcome.eventKey === 'heavy-rain', 'Weather checks need a supported event');
 const backupBaseSchema = z.object({
   profile: z.object({ houseType: z.enum(['detached', 'terraced']).optional(), ageBand: z.enum(['new-build', '0-2', '3-10', '10+']).optional(), postalCode: z.string().regex(/^\d{4}$/).optional(), features: z.array(z.string()), appliances: z.array(z.string()), variants: z.record(z.string(), z.string()) }),
-  configurations: z.array(z.object({ actionId: z.string().min(1), enabled: z.boolean(), frequencyOverride: frequencySchema.optional(), nextDueAt: z.string().datetime().optional(), snoozedUntil: z.string().datetime().optional(), notificationsEnabled: z.boolean() })),
+  configurations: z.array(z.object({ actionId: z.string().min(1), enabled: z.boolean(), frequencyOverride: frequencySchema.optional(), nextDueAt: z.string().datetime().optional(), snoozedUntil: z.string().datetime().optional(), notificationsEnabled: z.boolean(), seasonalScheduleVersion: z.literal(1).optional(), seasonalDueDate: localDateSchema.optional(), reminderLedger: z.array(z.object({ key: z.string().min(1), scheduledAt: z.string().datetime() })).optional() })),
   settings: z.object({ language: z.enum(['en', 'da']), notificationsEnabled: z.boolean(), notificationsPermissionRequested: z.boolean().optional(), notificationSchedule: z.record(z.string(), z.object({ enabled: z.boolean(), startTime: z.string(), endTime: z.string() })).optional() }),
 });
 const backupSchema = z.discriminatedUnion('version', [
   backupBaseSchema.extend({ version: z.literal(3), outcomes: z.array(oldOutcomeSchema) }),
   backupBaseSchema.extend({ version: z.literal(4), outcomes: z.array(outcomeSchema) }),
+  backupBaseSchema.extend({ version: z.literal(5), outcomes: z.array(outcomeSchema) }),
 ]);
 
 export function parseBackupManifest(value: unknown) {
@@ -32,6 +38,8 @@ async function removePhotos(outcomes: TaskOutcome[]) {
 }
 
 export async function exportBackup(state: AppState) {
+  const persisted = new Map((await loadConfigurations()).map((config) => [config.actionId, config]));
+  const configurations = state.configurations.map((config) => ({ ...config, reminderLedger: persisted.get(config.actionId)?.reminderLedger ?? config.reminderLedger }));
   const zip = new JSZip();
   const media: Record<string, string> = {};
   for (const outcome of state.outcomes) {
@@ -41,7 +49,7 @@ export async function exportBackup(state: AppState) {
       zip.file(filename, await FileSystem.readAsStringAsync(outcome.photoUri, { encoding: FileSystem.EncodingType.Base64 }), { base64: true });
     }
   }
-  zip.file('manifest.json', JSON.stringify({ version: backupVersion, exportedAt: new Date().toISOString(), profile: state.profile, configurations: state.configurations, outcomes: state.outcomes.map((outcome) => ({ ...outcome, photoUri: media[outcome.id] })), settings: state.settings }));
+  zip.file('manifest.json', JSON.stringify({ version: backupVersion, exportedAt: new Date().toISOString(), profile: state.profile, configurations, outcomes: state.outcomes.map((outcome) => ({ ...outcome, photoUri: media[outcome.id] })), settings: state.settings }));
   const encoded = await zip.generateAsync({ type: 'base64' });
   const uri = `${FileSystem.documentDirectory}house-care-backup-${Date.now()}.zip`;
   await FileSystem.writeAsStringAsync(uri, encoded, { encoding: FileSystem.EncodingType.Base64 });

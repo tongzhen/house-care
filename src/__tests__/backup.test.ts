@@ -1,6 +1,6 @@
 /* eslint-disable import/first */
 
-jest.mock('../db', () => ({ resetLocalData: jest.fn(), replaceLocalData: jest.fn(), loadOutcomes: jest.fn(async () => []), clearOutcomePhoto: jest.fn(), deleteOutcome: jest.fn(), saveProfile: jest.fn(), saveSettings: jest.fn(), upsertConfiguration: jest.fn(), addOutcome: jest.fn() }));
+jest.mock('../db', () => ({ loadConfigurations: jest.fn(async () => []), resetLocalData: jest.fn(), replaceLocalData: jest.fn(), loadOutcomes: jest.fn(async () => []), clearOutcomePhoto: jest.fn(), deleteOutcome: jest.fn(), saveProfile: jest.fn(), saveSettings: jest.fn(), upsertConfiguration: jest.fn(), addOutcome: jest.fn() }));
 jest.mock('expo-document-picker', () => ({ getDocumentAsync: jest.fn() }));
 jest.mock('expo-file-system/legacy', () => ({ documentDirectory: 'file:///documents/', readAsStringAsync: jest.fn(), writeAsStringAsync: jest.fn(), deleteAsync: jest.fn(), EncodingType: { Base64: 'base64' } }));
 jest.mock('expo-sharing', () => ({ isAvailableAsync: jest.fn(), shareAsync: jest.fn() }));
@@ -26,6 +26,12 @@ describe('local backup', () => {
     expect(() => parseBackupManifest({ ...base, profile: { ...base.profile, postalCode: '275' }, version: 4, outcomes: [] })).toThrow();
     expect(() => parseBackupManifest({ ...base, version: 4, outcomes: [{ ...rainCheck, eventKey: undefined }] })).toThrow();
   });
+  it('round-trips seasonal configuration and attempt history in version 5', () => {
+    const config = { actionId: 'outdoor-tap-winter-check', enabled: false, notificationsEnabled: false, seasonalScheduleVersion: 1, seasonalDueDate: '2026-10-01', nextDueAt: '2026-10-01T07:00:00.000Z', snoozedUntil: '2026-10-20T07:00:00.000Z', reminderLedger: [{ key: '2026-10-01', scheduledAt: '2026-10-13T10:01:00.000Z' }] };
+    const manifest = { version: 5, profile: { appliances: [], features: ['outdoor-tap'], variants: {} }, configurations: [config], settings: { language: 'en', notificationsEnabled: false }, outcomes: [] };
+    expect(parseBackupManifest(manifest).configurations).toEqual([config]);
+  });
+
   it('exports a versioned archive without mutating local data', async () => {
     jest.mocked(Sharing.isAvailableAsync).mockResolvedValue(true);
     await exportBackup({ profile: { id: 'primary-home', appliances: ['dishwasher'], features: [], variants: {} }, configurations: [], outcomes: [], settings: { language: 'en', notificationsEnabled: true, notificationSchedule: defaultNotificationSchedule() } });

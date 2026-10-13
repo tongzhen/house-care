@@ -39,6 +39,19 @@ describe('navigation smoke flows', () => {
     expect(onOpenWeather).toHaveBeenCalledTimes(1);
   });
 
+  it('opens seasonal care from Actions and shows calendar scheduling in task details', async () => {
+    const onOpenSeasonal = jest.fn();
+    await render(<ActionList actions={[]} configurations={new Map()} language="en" onOpen={jest.fn()} onOpenSeasonal={onOpenSeasonal} />);
+    await act(async () => fireEvent.press(screen.getByText('Seasonal care')));
+    expect(onOpenSeasonal).toHaveBeenCalledTimes(1);
+    const action = getAction('outdoor-tap-winter-check')!;
+    await render(<ActionDetail action={action} configuration={{ actionId: action.id, enabled: true, notificationsEnabled: true }} language="en" returnView="seasonal" onBack={jest.fn()} onDone={jest.fn()} onSnooze={jest.fn()} onCustomSnooze={jest.fn(async () => undefined)} onIssue={jest.fn()} onFrequency={jest.fn(async () => undefined)} onEnabled={jest.fn(async () => undefined)} />);
+    expect(screen.getByText(/Seasonal schedule/)).toBeTruthy();
+    expect(screen.queryByText(/After each use/)).toBeNull();
+    expect(screen.getByText('‹ Seasonal care')).toBeTruthy();
+    expect(screen.getByText('Use seasonal schedule')).toBeTruthy();
+  });
+
   it('offers an event check after safe steps without routine completion controls', async () => {
     const action = getAction('gutters-ground-check')!;
     const onWeatherCheck = jest.fn(async () => undefined);

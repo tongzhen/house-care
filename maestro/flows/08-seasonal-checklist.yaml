@@ -1,0 +1,53 @@
+appId: com.housecare.app
+name: Seasonal checklist, completion and snooze
+# Calendar labels depend on the current season; action titles and navigation do not.
+tags:
+  - regression
+  - seasonal
+---
+- launchApp:
+    clearState: true
+    permissions:
+      notifications: allow
+- assertVisible: "A calmer home starts here."
+- tapOn: "Set up my home"
+- tapOn: "Continue"
+- tapOn: "Continue"
+- tapOn: "Gutters"
+- scrollUntilVisible:
+    element: "Outdoor tap"
+    direction: DOWN
+- tapOn: "Outdoor tap"
+- tapOn: "Underfloor heating"
+- tapOn: "Create my care plan"
+- tapOn: ".*Actions, tab.*"
+- tapOn: ".*Seasonal care.*"
+- assertVisible: "Autumn"
+- tapOn: "Autumn"
+- assertVisible: ".*Prepare the outdoor tap for frost.*"
+- tapOn: ".*Prepare the outdoor tap for frost.*"
+- assertVisible: ".*Seasonal schedule.*"
+- scrollUntilVisible:
+    element: "Mark as done"
+    direction: DOWN
+- tapOn: "Mark as done"
+- assertVisible: ".*care"
+- tapOn: "Autumn"
+- scrollUntilVisible:
+    element: ".*Last completed:.*"
+    direction: DOWN
+- assertVisible: ".*Last completed:.*"
+- scrollUntilVisible:
+    element: ".*Check underfloor heating.*"
+    direction: UP
+- tapOn: ".*Check underfloor heating.*"
+- scrollUntilVisible:
+    element: "In one week"
+    direction: DOWN
+- tapOn: "In one week"
+- assertVisible: ".*care"
+- tapOn: "Autumn"
+- scrollUntilVisible:
+    element: ".*Snoozed.*"
+    direction: DOWN
+- assertVisible: ".*Snoozed.*"

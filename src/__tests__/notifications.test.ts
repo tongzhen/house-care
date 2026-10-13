@@ -1,16 +1,18 @@
 /* eslint-disable import/first */
 
 jest.mock('expo-notifications', () => ({
+  getAllScheduledNotificationsAsync: jest.fn(async () => []), cancelScheduledNotificationAsync: jest.fn(),
   setNotificationHandler: jest.fn(), scheduleNotificationAsync: jest.fn(), cancelAllScheduledNotificationsAsync: jest.fn(), getPermissionsAsync: jest.fn(), requestPermissionsAsync: jest.fn(), addNotificationResponseReceivedListener: jest.fn(() => ({ remove: jest.fn() })), getLastNotificationResponseAsync: jest.fn(async () => null),
   SchedulableTriggerInputTypes: { DATE: 'date' },
 }));
+
+jest.mock('../db', () => ({ loadConfigurations: jest.fn(async () => []), saveReminderLedger: jest.fn(async () => undefined) }));
 
 import * as NativeNotifications from 'expo-notifications';
 import { defaultNotificationSchedule } from '../notificationSchedule';
 import { requestNotificationPermission, rescheduleNotifications, subscribeToNotificationResponses } from '../notifications';
 
 const mockScheduleNotificationAsync = jest.mocked(NativeNotifications.scheduleNotificationAsync);
-const mockCancelAllScheduledNotificationsAsync = jest.mocked(NativeNotifications.cancelAllScheduledNotificationsAsync);
 const mockGetPermissionsAsync = jest.mocked(NativeNotifications.getPermissionsAsync);
 const mockRequestPermissionsAsync = jest.mocked(NativeNotifications.requestPermissionsAsync);
 const mockAddNotificationResponseReceivedListener = jest.mocked(NativeNotifications.addNotificationResponseReceivedListener);
@@ -24,7 +26,7 @@ describe('local notifications', () => {
   it('does not schedule reminders when permission is denied', async () => {
     mockGetPermissionsAsync.mockResolvedValue(denied);
     await rescheduleNotifications([{ actionId: 'dishwasher-filter-clean', enabled: true, notificationsEnabled: true, nextDueAt: '2099-08-20T09:00:00.000Z' }], [action], true);
-    expect(mockCancelAllScheduledNotificationsAsync).toHaveBeenCalled();
+    expect(mockScheduleNotificationAsync).not.toHaveBeenCalled();
     expect(mockScheduleNotificationAsync).not.toHaveBeenCalled();
   });
 
@@ -54,7 +56,7 @@ describe('local notifications', () => {
 
     await Promise.all([first, latest]);
 
-    expect(mockCancelAllScheduledNotificationsAsync).toHaveBeenCalledTimes(1);
+    expect(NativeNotifications.getAllScheduledNotificationsAsync).toHaveBeenCalledTimes(1);
     expect(mockScheduleNotificationAsync).toHaveBeenCalledTimes(1);
     expect(mockScheduleNotificationAsync).toHaveBeenCalledWith(expect.objectContaining({ content: expect.objectContaining({ body: 'Latest title' }) }));
   });

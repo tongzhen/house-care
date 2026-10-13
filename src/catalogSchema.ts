@@ -31,7 +31,12 @@ const maintenanceActionSchema = z.object({
   trigger: z.object({
     kind: z.enum(['recurring', 'seasonal', 'habit']),
     defaultFrequency: frequencySchema.optional(),
-    seasons: z.array(z.string().min(1)).optional(),
+    seasons: z.array(z.enum(['spring', 'summer', 'autumn', 'winter'])).optional(),
+    seasonalDates: z.array(z.object({
+      season: z.enum(['spring', 'summer', 'autumn', 'winter']),
+      month: z.number().int().min(1).max(12),
+      day: z.number().int().min(1).max(31),
+    }).strict()).min(1).optional(),
     weatherEvents: z.array(z.string().min(1)).optional(),
     frequencyNote: z.string().min(1).optional(),
   }).strict(),
@@ -54,6 +59,19 @@ export const catalogSchema = z.object({
   const actionIds = new Set<string>();
 
   for (const [index, action] of catalog.actions.entries()) {
+    if (action.trigger.kind === 'seasonal' && !action.trigger.seasonalDates?.length) {
+      context.addIssue({ code: 'custom', message: 'Seasonal actions need calendar dates.', path: ['actions', index, 'trigger'] });
+    }
+    const calendarKeys = new Set<string>();
+    for (const date of action.trigger.seasonalDates ?? []) {
+      const actual = new Date(2025, date.month - 1, date.day);
+      const season = date.month >= 3 && date.month <= 5 ? 'spring' : date.month >= 6 && date.month <= 8 ? 'summer' : date.month >= 9 && date.month <= 11 ? 'autumn' : 'winter';
+      const key = `${date.month}-${date.day}`;
+      if (action.trigger.kind !== 'seasonal' || actual.getMonth() !== date.month - 1 || season !== date.season || !action.trigger.seasons?.includes(date.season) || calendarKeys.has(key)) {
+        context.addIssue({ code: 'custom', message: 'Invalid or duplicate seasonal calendar date.', path: ['actions', index, 'trigger', 'seasonalDates'] });
+      }
+      calendarKeys.add(key);
+    }
     if (actionIds.has(action.id)) {
       context.addIssue({
         code: 'custom',

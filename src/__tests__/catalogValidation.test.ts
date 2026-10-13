@@ -9,6 +9,14 @@ describe('maintenance catalogue validation', () => {
     expect(catalog.actions.every((action) => action.content.da !== null)).toBe(true);
   });
 
+  it('rejects missing seasonal schedules, invalid dates and mismatched seasons', () => {
+    const original = source.actions.find((action) => action.id === 'gutters-ground-check')!;
+    for (const seasonalDates of [undefined, [{ season: 'spring', month: 2, day: 31 }], [{ season: 'winter', month: 3, day: 1 }]]) {
+      const invalid = { ...source, actions: [{ ...original, trigger: { ...original.trigger, seasonalDates } }] };
+      expect(catalogSchema.safeParse(invalid).success).toBe(false);
+    }
+  });
+
   it('rejects duplicate action IDs', () => {
     const duplicateIdCatalog = {
       ...source,

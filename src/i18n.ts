@@ -70,6 +70,29 @@ Object.assign(resources.da.translation, { weather: {
   dmiSource: 'DMI', openMeteoDmiSource: 'DMI-model via Open-Meteo', fallbackSource: 'Prognose: DMI-model via Open-Meteo · Nedbør: DMI-målestation · Sted: Open-Meteo / GeoNames. Vejret i nærheden kan afvige fra vejret ved hjemmet.',
 } });
 
+Object.assign(resources.en.translation, { seasonal: {
+  title: 'Seasonal care', entryHint: 'A few useful checks for the season ahead.',
+  labels: { spring: 'Spring', summer: 'Summer', autumn: 'Autumn', winter: 'Winter' },
+  care: { spring: 'Spring care', summer: 'Summer care', autumn: 'Autumn care', winter: 'Winter care' },
+  months: { spring: 'March–May', summer: 'June–August', autumn: 'September–November', winter: 'December–February' },
+  attention_one: '{{count}} check needs attention', attention_other: '{{count}} checks need attention',
+  summary: 'Complete each check separately. Unfinished tasks stay here until you finish them.',
+  toDo: 'To do', overdue: 'Overdue', empty: 'No seasonal checks scheduled', emptyHint: 'Your regular maintenance continues as usual.',
+  calendarHint: 'Calendar dates are prompts. Prepare outdoor taps before actual frost, and clear gutter debris after leaf fall as needed.',
+  schedule: 'Seasonal schedule', useSchedule: 'Use seasonal schedule', lastDone: 'Last completed: {{date}}',
+} });
+Object.assign(resources.da.translation, { seasonal: {
+  title: 'Sæsonopgaver', entryHint: 'Et par nyttige tjek til den kommende sæson.',
+  labels: { spring: 'Forår', summer: 'Sommer', autumn: 'Efterår', winter: 'Vinter' },
+  care: { spring: 'Forårsopgaver', summer: 'Sommeropgaver', autumn: 'Efterårsopgaver', winter: 'Vinteropgaver' },
+  months: { spring: 'Marts–maj', summer: 'Juni–august', autumn: 'September–november', winter: 'December–februar' },
+  attention_one: '{{count}} tjek kræver opmærksomhed', attention_other: '{{count}} tjek kræver opmærksomhed',
+  summary: 'Udfør hvert tjek separat. Uafsluttede opgaver bliver her, indtil du udfører dem.',
+  toDo: 'Skal gøres', overdue: 'Overskredet', empty: 'Ingen sæsonopgaver planlagt', emptyHint: 'Din almindelige vedligeholdelse fortsætter som normalt.',
+  calendarHint: 'Datoerne er påmindelser. Gør udendørs vandhaner klar før den faktiske frost, og fjern blade fra tagrender efter behov.',
+  schedule: 'Sæsonplan', useSchedule: 'Brug sæsonplan', lastDone: 'Sidst udført: {{date}}',
+} });
+
 // eslint-disable-next-line import/no-named-as-default-member
 i18n.use(initReactI18next).init({ resources, lng: defaultAppLanguage(), fallbackLng: 'en', interpolation: { escapeValue: false } });
 export default i18n;

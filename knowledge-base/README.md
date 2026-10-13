@@ -7,7 +7,7 @@
 - Each record is one independently schedulable action.
 - `id` is stable and must not change after release.
 - `profileConditions` controls whether the action applies to a home.
-- `trigger` contains the default schedule and future seasonal/weather metadata.
+- `trigger` contains the default schedule and seasonal calendar dates and weather metadata.
 - `heavy-rain` weather metadata also selects eligible, enabled actions for the offline After heavy rain checklist. The homeowner decides when to open it; metadata does not trigger alerts or change routine schedules.
 - `content.en` is the canonical content for early delivery.
 - `content.da` contains the Danish localization and must preserve the English safety meaning.
@@ -43,3 +43,17 @@ English is the canonical language. Danish translations populate `content.da` usi
 ## Scheduling notes
 
 Some records include explanatory ranges in `frequencyNote`, while `defaultFrequency` provides one deterministic schedule for the app. Users may override the schedule in local configuration without modifying this knowledge-base file.
+
+## Seasonal schedules
+
+The four existing seasonal actions have fixed Denmark calendar prompts: gutter
+inspection on 1 March / 1 September, accessible gutter debris care on 1 March /
+1 November, outdoor-tap preparation on 1 October, and underfloor-heating checks
+on 1 September. These dates do not predict frost, leaf fall or heating demand;
+manufacturer instructions and actual conditions still apply.
+
+`seasons` supplies the four localized labels. `seasonalDates` supplies independently
+recurring month/day occurrences. Default seasonal completion advances to the next
+calendar date; custom interval overrides retain completion-based scheduling.
+Unfinished tasks remain overdue with one outstanding occurrence per action.
+The seasonal checklist and calendar reminders do not need weather or a postal code.
