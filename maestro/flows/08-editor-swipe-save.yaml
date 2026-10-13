@@ -1,0 +1,49 @@
+appId: com.housecare.app
+name: Save profile and notification drafts when swiping back
+tags:
+  - regression
+  - settings
+---
+- launchApp:
+    clearState: true
+    permissions:
+      notifications: allow
+- runFlow: ../subflows/onboard-dishwasher.yaml
+- tapOn: ".*Settings, tab.*"
+- tapOn: "Edit home profile"
+- tapOn: "Washing machine"
+- swipe:
+    start: "2%, 20%"
+    end: "90%, 20%"
+    duration: 600
+- assertVisible: "Edit home profile"
+- tapOn: ".*Actions, tab.*"
+- scrollUntilVisible:
+    element: ".*washing-machine.*"
+    direction: DOWN
+- launchApp
+- tapOn: ".*Actions, tab.*"
+- scrollUntilVisible:
+    element: ".*washing-machine.*"
+    direction: DOWN
+- tapOn: ".*Settings, tab.*"
+- tapOn: "Notification settings"
+- tapOn:
+    id: "notification-day-1"
+- swipe:
+    start: "2%, 20%"
+    end: "90%, 20%"
+    duration: 600
+- assertVisible: "Edit home profile"
+- tapOn: ".*Home, tab.*"
+- tapOn: ".*Report an issue.*"
+- tapOn:
+    id: "issue-title"
+- inputText: "Draft cancelled by swipe"
+- swipe:
+    start: "2%, 20%"
+    end: "90%, 20%"
+    duration: 600
+- assertVisible: "What matters now"
+- tapOn: ".*Report an issue.*"
+- assertNotVisible: "Draft cancelled by swipe"
