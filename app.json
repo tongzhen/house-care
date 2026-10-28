@@ -5,7 +5,7 @@
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/housecare-icons/icon.png",
     "scheme": "housecare",
     "plugins": [
       "expo-router",
@@ -23,6 +23,7 @@
       "@react-native-community/datetimepicker"
     ],
     "ios": {
+      "icon": "./assets/housecare-icons/icon.png",
       "supportsTablet": false,
       "bundleIdentifier": "com.housecare.app",
       "buildNumber": "1",
@@ -31,6 +32,12 @@
       }
     },
     "android": {
+      "icon": "./assets/housecare-icons/icon.png",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/housecare-icons/adaptive-foreground.png",
+        "backgroundColor": "#135645",
+        "monochromeImage": "./assets/housecare-icons/adaptive-monochrome.png"
+      },
       "package": "com.housecare.app",
       "versionCode": 1,
       "permissions": [
