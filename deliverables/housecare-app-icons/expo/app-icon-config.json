@@ -1,0 +1,16 @@
+{
+  "expo": {
+    "icon": "./assets/housecare-icons/icon.png",
+    "ios": {
+      "icon": "./assets/housecare-icons/icon.png"
+    },
+    "android": {
+      "icon": "./assets/housecare-icons/icon.png",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/housecare-icons/adaptive-foreground.png",
+        "backgroundColor": "#135645",
+        "monochromeImage": "./assets/housecare-icons/adaptive-monochrome.png"
+      }
+    }
+  }
+}

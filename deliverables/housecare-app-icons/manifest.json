@@ -1,0 +1,372 @@
+{
+  "source_sha256": "700581ffccbdb1c92b13adae9ba24aa598461483fc0c6c1ccb9d43cee265ef3e",
+  "background": "#135645",
+  "adaptive_canvas_dp": 108,
+  "adaptive_safe_diameter_dp": 64,
+  "images": [
+    {
+      "path": "android/play-store-icon-512.png",
+      "width": 512,
+      "height": 512,
+      "mode": "RGBA",
+      "sha256": "e6d22a380a0674e49a301b2cfadc993fb8ad82207923899c3bb82bf28e27d2c9"
+    },
+    {
+      "path": "android/res/drawable-hdpi/ic_launcher_foreground.png",
+      "width": 162,
+      "height": 162,
+      "mode": "RGBA",
+      "sha256": "2f86f5b92fe0727ebe701f6cbb558d0aadf9941458e804d67986a3e768c1c09a"
+    },
+    {
+      "path": "android/res/drawable-hdpi/ic_launcher_monochrome.png",
+      "width": 162,
+      "height": 162,
+      "mode": "RGBA",
+      "sha256": "829468de96872ee838b7b0f19e9e59b15c74c90d1e51dac3cd47580b9c4e78c7"
+    },
+    {
+      "path": "android/res/drawable-ldpi/ic_launcher_foreground.png",
+      "width": 81,
+      "height": 81,
+      "mode": "RGBA",
+      "sha256": "31df20a45fc4d603530c0973bdff180f5e2de949f4b1d55a9ed387a7165747e1"
+    },
+    {
+      "path": "android/res/drawable-ldpi/ic_launcher_monochrome.png",
+      "width": 81,
+      "height": 81,
+      "mode": "RGBA",
+      "sha256": "4a06ca9cfd5ac6e816a4cb68e57c7fe288e44981bfaeedae2f64db0c9c0407e7"
+    },
+    {
+      "path": "android/res/drawable-mdpi/ic_launcher_foreground.png",
+      "width": 108,
+      "height": 108,
+      "mode": "RGBA",
+      "sha256": "9265c991f49f950b692b96b07224a233552c6eb057ff065be1b2ccdb5ef5b536"
+    },
+    {
+      "path": "android/res/drawable-mdpi/ic_launcher_monochrome.png",
+      "width": 108,
+      "height": 108,
+      "mode": "RGBA",
+      "sha256": "77b1d10eb0fb0878ef4c43190820f5d6331e6ae2f65f549e7b6de92205bcf264"
+    },
+    {
+      "path": "android/res/drawable-xhdpi/ic_launcher_foreground.png",
+      "width": 216,
+      "height": 216,
+      "mode": "RGBA",
+      "sha256": "877a8d79bbc740486530aed13c470e0ad8580f2f24a6369d8209d053ba0485e2"
+    },
+    {
+      "path": "android/res/drawable-xhdpi/ic_launcher_monochrome.png",
+      "width": 216,
+      "height": 216,
+      "mode": "RGBA",
+      "sha256": "b8b679018c59ed36fb72367b55e6e040212726aac12ac4f6fe586de3570dafbd"
+    },
+    {
+      "path": "android/res/drawable-xxhdpi/ic_launcher_foreground.png",
+      "width": 324,
+      "height": 324,
+      "mode": "RGBA",
+      "sha256": "204969039448112d217ab995c7ed8f065bc0adb066bf943ee11e2d132188d844"
+    },
+    {
+      "path": "android/res/drawable-xxhdpi/ic_launcher_monochrome.png",
+      "width": 324,
+      "height": 324,
+      "mode": "RGBA",
+      "sha256": "567bf9a007a594d9005e4883de5ce44c86537cebb6c23ad6378b41e4ad04a592"
+    },
+    {
+      "path": "android/res/drawable-xxxhdpi/ic_launcher_foreground.png",
+      "width": 432,
+      "height": 432,
+      "mode": "RGBA",
+      "sha256": "0a219cec99edee164412f92e10b989b3627106ea7771c6d4176cc12bed807781"
+    },
+    {
+      "path": "android/res/drawable-xxxhdpi/ic_launcher_monochrome.png",
+      "width": 432,
+      "height": 432,
+      "mode": "RGBA",
+      "sha256": "30fe6651326c084cc97a7f5f6df9c2c5af57aac6f120dc0278bf9538e213991e"
+    },
+    {
+      "path": "android/res/mipmap-hdpi/ic_launcher.png",
+      "width": 72,
+      "height": 72,
+      "mode": "RGBA",
+      "sha256": "5c3236b8de317d311c7b635c9826334ad938f8164f23d82ed1548d2551512cf8"
+    },
+    {
+      "path": "android/res/mipmap-hdpi/ic_launcher_round.png",
+      "width": 72,
+      "height": 72,
+      "mode": "RGBA",
+      "sha256": "f0ae111a07337a7fc74ef1b9660da5dba4ab6aa09e42c37b9e449a7a269d9444"
+    },
+    {
+      "path": "android/res/mipmap-ldpi/ic_launcher.png",
+      "width": 36,
+      "height": 36,
+      "mode": "RGBA",
+      "sha256": "34329864a366b7247fa61fb185b1cac8a7fb958c2bc143596e7f42960592bd76"
+    },
+    {
+      "path": "android/res/mipmap-ldpi/ic_launcher_round.png",
+      "width": 36,
+      "height": 36,
+      "mode": "RGBA",
+      "sha256": "7acab818d1a7abd68dc037f81fb29fff12396fe0b59c7a6a4515156031574eea"
+    },
+    {
+      "path": "android/res/mipmap-mdpi/ic_launcher.png",
+      "width": 48,
+      "height": 48,
+      "mode": "RGBA",
+      "sha256": "6ae269fe62fd6d77e9a12998796a9aa18d8be3de0180d90d27b2d6171fe4bd49"
+    },
+    {
+      "path": "android/res/mipmap-mdpi/ic_launcher_round.png",
+      "width": 48,
+      "height": 48,
+      "mode": "RGBA",
+      "sha256": "bfee813ac098cdfc38282a972a39e2016aeb693fabc44f457b947cade529651c"
+    },
+    {
+      "path": "android/res/mipmap-xhdpi/ic_launcher.png",
+      "width": 96,
+      "height": 96,
+      "mode": "RGBA",
+      "sha256": "dbacb61914d24625536ee9123a8fdec6269fc09c7f31035cccd02bfaf85cee14"
+    },
+    {
+      "path": "android/res/mipmap-xhdpi/ic_launcher_round.png",
+      "width": 96,
+      "height": 96,
+      "mode": "RGBA",
+      "sha256": "339da315fc9769c7072157a199d6d24bf135def39545222e6d91584718ec27ba"
+    },
+    {
+      "path": "android/res/mipmap-xxhdpi/ic_launcher.png",
+      "width": 144,
+      "height": 144,
+      "mode": "RGBA",
+      "sha256": "5c0a0dff24dbf04122f4b25b41abd76ca7447c1081234eee14ba93bc884b4596"
+    },
+    {
+      "path": "android/res/mipmap-xxhdpi/ic_launcher_round.png",
+      "width": 144,
+      "height": 144,
+      "mode": "RGBA",
+      "sha256": "d6e31d2eab0878a1bdfbcf8d54957c959863be8c9f55600a359157798613d779"
+    },
+    {
+      "path": "android/res/mipmap-xxxhdpi/ic_launcher.png",
+      "width": 192,
+      "height": 192,
+      "mode": "RGBA",
+      "sha256": "4704c7b02f1d252bb9480fdfcc084596469c15b3bdaf73a8e7ba19045f915190"
+    },
+    {
+      "path": "android/res/mipmap-xxxhdpi/ic_launcher_round.png",
+      "width": 192,
+      "height": 192,
+      "mode": "RGBA",
+      "sha256": "32e42063dc90e5e5e78075b91197ac73b1a23dad8f1a2e720f5961ee2c01999d"
+    },
+    {
+      "path": "expo/adaptive-background.png",
+      "width": 1024,
+      "height": 1024,
+      "mode": "RGB",
+      "sha256": "9f2ebe5daf9faad317ee37e50650186a4778ebd5c6e8dcd9f4509dbb57c83ba1"
+    },
+    {
+      "path": "expo/adaptive-foreground.png",
+      "width": 1024,
+      "height": 1024,
+      "mode": "RGBA",
+      "sha256": "1476ae4a9162ebbd357e71ebbc4e3c5dc7b4f87d9e7cd0cd79ee6758f8c26ac2"
+    },
+    {
+      "path": "expo/adaptive-monochrome.png",
+      "width": 1024,
+      "height": 1024,
+      "mode": "RGBA",
+      "sha256": "ce76c58de641f16bef6215bd2933a26662c590973731bacea07b93dc82c8db23"
+    },
+    {
+      "path": "expo/icon.png",
+      "width": 1024,
+      "height": 1024,
+      "mode": "RGB",
+      "sha256": "b17831c22faa3746491c53ef0d47de217ee38bd13f27a9ad9bab91edf805195e"
+    },
+    {
+      "path": "ios/AppIcon.appiconset/Icon-ios-marketing-1024@1x.png",
+      "width": 1024,
+      "height": 1024,
+      "mode": "RGB",
+      "sha256": "b17831c22faa3746491c53ef0d47de217ee38bd13f27a9ad9bab91edf805195e"
+    },
+    {
+      "path": "ios/AppIcon.appiconset/Icon-ipad-20@1x.png",
+      "width": 20,
+      "height": 20,
+      "mode": "RGB",
+      "sha256": "980109f21864bdaff19d773262c8b685777fdadbfa00d166dc64a6cd67daa472"
+    },
+    {
+      "path": "ios/AppIcon.appiconset/Icon-ipad-20@2x.png",
+      "width": 40,
+      "height": 40,
+      "mode": "RGB",
+      "sha256": "9917e61ec42c632f078cf760aea3a08520565d74465f8473be72de17ad435b00"
+    },
+    {
+      "path": "ios/AppIcon.appiconset/Icon-ipad-29@1x.png",
+      "width": 29,
+      "height": 29,
+      "mode": "RGB",
+      "sha256": "bbd9bb4d72a4a09bf1dbe98f04d76a3bc4afb926b87ffd3779ee4ad2576d4500"
+    },
+    {
+      "path": "ios/AppIcon.appiconset/Icon-ipad-29@2x.png",
+      "width": 58,
+      "height": 58,
+      "mode": "RGB",
+      "sha256": "185dc36997bf7c3765fd036b0ce37cc49fee6417061a9abf198c4c80cfb314f1"
+    },
+    {
+      "path": "ios/AppIcon.appiconset/Icon-ipad-40@1x.png",
+      "width": 40,
+      "height": 40,
+      "mode": "RGB",
+      "sha256": "9917e61ec42c632f078cf760aea3a08520565d74465f8473be72de17ad435b00"
+    },
+    {
+      "path": "ios/AppIcon.appiconset/Icon-ipad-40@2x.png",
+      "width": 80,
+      "height": 80,
+      "mode": "RGB",
+      "sha256": "edb02c086649a86c75652ce8123f0f8e6a3960173d293b7afea40bdfd5482c29"
+    },
+    {
+      "path": "ios/AppIcon.appiconset/Icon-ipad-76@1x.png",
+      "width": 76,
+      "height": 76,
+      "mode": "RGB",
+      "sha256": "a8972f659357772f4fdbda5c29c5bad7357ce9d61ada4fb66b5a20ed8c2cd4ff"
+    },
+    {
+      "path": "ios/AppIcon.appiconset/Icon-ipad-76@2x.png",
+      "width": 152,
+      "height": 152,
+      "mode": "RGB",
+      "sha256": "828a373371ec12d36a72edfb5415f33a2f9194269150aabb3696db7c3acd780a"
+    },
+    {
+      "path": "ios/AppIcon.appiconset/Icon-ipad-83.5@2x.png",
+      "width": 167,
+      "height": 167,
+      "mode": "RGB",
+      "sha256": "fa80f3b65ec7e80a1f1ee6114b777f90239ed0bb4d664aa462b5f3eb4be36153"
+    },
+    {
+      "path": "ios/AppIcon.appiconset/Icon-iphone-20@2x.png",
+      "width": 40,
+      "height": 40,
+      "mode": "RGB",
+      "sha256": "9917e61ec42c632f078cf760aea3a08520565d74465f8473be72de17ad435b00"
+    },
+    {
+      "path": "ios/AppIcon.appiconset/Icon-iphone-20@3x.png",
+      "width": 60,
+      "height": 60,
+      "mode": "RGB",
+      "sha256": "d01f3585a582902be183c17cfcfd1fcde0e1ee5c86c05f28ef9410f2df9f1a1e"
+    },
+    {
+      "path": "ios/AppIcon.appiconset/Icon-iphone-29@2x.png",
+      "width": 58,
+      "height": 58,
+      "mode": "RGB",
+      "sha256": "185dc36997bf7c3765fd036b0ce37cc49fee6417061a9abf198c4c80cfb314f1"
+    },
+    {
+      "path": "ios/AppIcon.appiconset/Icon-iphone-29@3x.png",
+      "width": 87,
+      "height": 87,
+      "mode": "RGB",
+      "sha256": "5649e9c41f1eb138c6d8a18f6fb2c97d109f1b42c8a7b90b5fb82813b357799d"
+    },
+    {
+      "path": "ios/AppIcon.appiconset/Icon-iphone-40@2x.png",
+      "width": 80,
+      "height": 80,
+      "mode": "RGB",
+      "sha256": "edb02c086649a86c75652ce8123f0f8e6a3960173d293b7afea40bdfd5482c29"
+    },
+    {
+      "path": "ios/AppIcon.appiconset/Icon-iphone-40@3x.png",
+      "width": 120,
+      "height": 120,
+      "mode": "RGB",
+      "sha256": "9cd72502c49eb974b8b4be4f872b66f571352713b080ffae797814f9fa94e506"
+    },
+    {
+      "path": "ios/AppIcon.appiconset/Icon-iphone-60@2x.png",
+      "width": 120,
+      "height": 120,
+      "mode": "RGB",
+      "sha256": "9cd72502c49eb974b8b4be4f872b66f571352713b080ffae797814f9fa94e506"
+    },
+    {
+      "path": "ios/AppIcon.appiconset/Icon-iphone-60@3x.png",
+      "width": 180,
+      "height": 180,
+      "mode": "RGB",
+      "sha256": "6d7f1fe795b918c5be75f2297338597c171cb891be664e23ab30183160e59f70"
+    },
+    {
+      "path": "ios-single-size/AppIcon.appiconset/Icon-1024.png",
+      "width": 1024,
+      "height": 1024,
+      "mode": "RGB",
+      "sha256": "b17831c22faa3746491c53ef0d47de217ee38bd13f27a9ad9bab91edf805195e"
+    },
+    {
+      "path": "masters/extracted-foreground-1024.png",
+      "width": 1024,
+      "height": 1024,
+      "mode": "RGBA",
+      "sha256": "78d1b9cb0a06dabe569aacb9a2813f0f9c50df850366cb23c7c3881ab1e3ff01"
+    },
+    {
+      "path": "masters/icon-1024.png",
+      "width": 1024,
+      "height": 1024,
+      "mode": "RGB",
+      "sha256": "b17831c22faa3746491c53ef0d47de217ee38bd13f27a9ad9bab91edf805195e"
+    },
+    {
+      "path": "preview.png",
+      "width": 1140,
+      "height": 430,
+      "mode": "RGB",
+      "sha256": "491ca6b66e63bfe3ea01a24c91ff02bf177db412857db1902077755e07e26d4a"
+    },
+    {
+      "path": "source/original-icon.png",
+      "width": 1024,
+      "height": 1024,
+      "mode": "RGB",
+      "sha256": "700581ffccbdb1c92b13adae9ba24aa598461483fc0c6c1ccb9d43cee265ef3e"
+    }
+  ]
+}

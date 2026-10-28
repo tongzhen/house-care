@@ -1,0 +1,14 @@
+{
+  "png_count": 52,
+  "dimensions_and_hashes": "passed",
+  "ios_opaque_srgb": "passed",
+  "android_layer_safe_zone": "passed, including antialias fringe",
+  "android_xml_references": "passed",
+  "play_store_format_and_size": "passed",
+  "xcode_all_sizes_compilation": "passed",
+  "xcode_single_size_compilation": "passed",
+  "android_sdk_36_compile_and_link": "passed",
+  "visual_preview_review": "passed",
+  "device_installation": "not performed",
+  "xcode_environment_note": "Simulator service unavailable; device-platform asset compilation succeeded."
+}
