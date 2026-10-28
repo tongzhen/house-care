@@ -333,6 +333,7 @@ The visual direction is calm, practical, and reassuring:
 - Warm off-white background.
 - Deep forest green primary actions.
 - Sage selected/informational states.
+- All 21 maintenance actions use warm-teal PNG pictograms on 40-point sage tiles, bundled at 1x, 2x and 3x for iOS and Android in Home, Actions, detail and History.
 - Yellow “Why this matters” callout.
 - Red safety-escalation treatment.
 - Large, friendly typography, clear spacing, and one primary action at a time.
