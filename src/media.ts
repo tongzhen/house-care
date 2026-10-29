@@ -34,6 +34,10 @@ export async function selectIssuePhoto(previousDraftUri?: string) {
 
 export async function discardIssuePhoto(uri?: string) {
   if (!uri) return;
+  const directory = FileSystem.documentDirectory;
+  if (!directory || !uri.startsWith(directory) || !/^issue-[A-Za-z0-9_-]+\.jpg$/.test(uri.slice(directory.length))) {
+    throw new Error('Only app-owned issue photos can be deleted.');
+  }
   const file = new File(uri);
   if (file.exists) file.delete();
 }

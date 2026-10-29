@@ -3,8 +3,9 @@ import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
 import JSZip from 'jszip';
 import { z } from 'zod';
-import { clearOutcomePhoto, deleteOutcome, loadConfigurations, loadOutcomes, replaceLocalData, resetLocalData } from './db';
+import { clearOutcomePhoto, deleteOutcome, loadConfigurations, replaceLocalData, resetLocalData } from './db';
 import { removePersistedIssuePhoto } from './media';
+import { processPendingPhotoDeletions } from './photoCleanup';
 import { defaultNotificationSchedule, validateNotificationSchedule } from './notificationSchedule';
 import type { AppState } from './service';
 import type { TaskOutcome } from './types';
@@ -31,10 +32,6 @@ const backupSchema = z.discriminatedUnion('version', [
 
 export function parseBackupManifest(value: unknown) {
   return backupSchema.parse(value);
-}
-
-async function removePhotos(outcomes: TaskOutcome[]) {
-  await Promise.all(outcomes.map((outcome) => removePersistedIssuePhoto(outcome.photoUri).catch(() => undefined)));
 }
 
 export async function exportBackup(state: AppState) {
@@ -78,36 +75,35 @@ export async function importBackup() {
       if (outcome.photoUri) {
         const file = zip.file(outcome.photoUri);
         if (!file) throw new Error('Backup photo is missing.');
-        photoUri = `${FileSystem.documentDirectory}issue-import-${Date.now()}-${outcome.id}.jpg`;
+        photoUri = `${FileSystem.documentDirectory}issue-import-${Date.now()}-${restoredOutcomes.length}-${Math.random().toString(16).slice(2)}.jpg`;
         await FileSystem.writeAsStringAsync(photoUri, await file.async('base64'), { encoding: FileSystem.EncodingType.Base64 });
         createdPhotos.push(photoUri);
       }
       restoredOutcomes.push({ ...outcome, photoUri });
     }
-    const existingOutcomes = await loadOutcomes();
     const notificationSchedule = { ...defaultNotificationSchedule(), ...manifest.settings.notificationSchedule };
     validateNotificationSchedule(notificationSchedule);
     await replaceLocalData(manifest.profile, manifest.configurations, restoredOutcomes, { ...manifest.settings, notificationSchedule });
-    await removePhotos(existingOutcomes);
-    return true;
   } catch (error) {
     await Promise.all(createdPhotos.map((uri) => removePersistedIssuePhoto(uri).catch(() => undefined)));
     throw error;
   }
+  // Replacement has committed. Cleanup failure must never remove imported files.
+  await processPendingPhotoDeletions().catch(() => undefined);
+  return true;
 }
 
 export async function clearData() {
-  const outcomes = await loadOutcomes();
-  await removePhotos(outcomes);
   await resetLocalData();
+  await processPendingPhotoDeletions().catch(() => undefined);
 }
 
 export async function removeIssuePhoto(outcome: TaskOutcome) {
-  await removePersistedIssuePhoto(outcome.photoUri).catch(() => undefined);
   await clearOutcomePhoto(outcome.id);
+  await processPendingPhotoDeletions().catch(() => undefined);
 }
 
 export async function removeIssue(outcome: TaskOutcome) {
-  await removePersistedIssuePhoto(outcome.photoUri).catch(() => undefined);
   await deleteOutcome(outcome.id);
+  await processPendingPhotoDeletions().catch(() => undefined);
 }

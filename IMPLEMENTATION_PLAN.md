@@ -72,6 +72,8 @@ Application workflows depend on repository and device-service interfaces. SQLite
 
 Multi-record workflow changes commit inside an exclusive SQLite transaction. Notification scheduling is reconciled only after that durable commit and on app reload or foreground recovery, so a transient device-service failure never rolls back a completed maintenance action.
 
+Photo removal, issue deletion, reset, and backup replacement enqueue the persisted photo URIs in `pending_photo_deletions` within the same exclusive transaction as the record change. Files are removed only after commit, restricted to app-owned issue JPEGs. Successful or already-missing files are acknowledged; failures remain queued across reset/restart and retry after startup, foreground refresh, or another deletion. Referenced photos are retained. The local cleanup queue is not exported in backups.
+
 ```text
 Screens and components
         ↓

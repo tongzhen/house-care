@@ -46,6 +46,7 @@ async function initialiseDatabaseOnce() {
     CREATE TABLE IF NOT EXISTS task_outcomes (id TEXT PRIMARY KEY, action_id TEXT NOT NULL, outcome_type TEXT NOT NULL, occurred_at TEXT NOT NULL, event_key TEXT, title TEXT, note TEXT, photo_uri TEXT);
     CREATE TABLE IF NOT EXISTS app_settings (key TEXT PRIMARY KEY, value TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS weather_cache (postal_code TEXT PRIMARY KEY, value TEXT NOT NULL);
+    CREATE TABLE IF NOT EXISTS pending_photo_deletions (uri TEXT PRIMARY KEY NOT NULL);
   `);
   const profileColumns = await connection.getAllAsync<{ name: string }>('PRAGMA table_info(home_profile)');
   if (!profileColumns.some((column) => column.name === 'postal_code')) await connection.execAsync('ALTER TABLE home_profile ADD COLUMN postal_code TEXT;');
@@ -140,12 +141,37 @@ export async function transaction<T>(work: (transaction: HomeRepositoryTransacti
 
 export async function clearOutcomePhoto(outcomeId: string) {
   const connection = await db();
-  await connection.runAsync('UPDATE task_outcomes SET photo_uri = NULL WHERE id = ?', [outcomeId]);
+  await connection.withExclusiveTransactionAsync(async (transaction) => {
+    await enqueueOutcomePhotos(transaction, outcomeId);
+    await transaction.runAsync('UPDATE task_outcomes SET photo_uri = NULL WHERE id = ?', [outcomeId]);
+  });
 }
 
 export async function deleteOutcome(outcomeId: string) {
   const connection = await db();
-  await connection.runAsync('DELETE FROM task_outcomes WHERE id = ?', [outcomeId]);
+  await connection.withExclusiveTransactionAsync(async (transaction) => {
+    await enqueueOutcomePhotos(transaction, outcomeId);
+    await transaction.runAsync('DELETE FROM task_outcomes WHERE id = ?', [outcomeId]);
+  });
+}
+
+// Capture the persisted URI, not a potentially stale copy supplied by the UI.
+async function enqueueOutcomePhotos(connection: StatementRunner, outcomeId?: string) {
+  const filter = outcomeId === undefined ? '' : ' AND id = ?';
+  await connection.runAsync(`INSERT OR IGNORE INTO pending_photo_deletions (uri) SELECT photo_uri FROM task_outcomes WHERE photo_uri IS NOT NULL AND photo_uri <> ''${filter}`, outcomeId === undefined ? [] : [outcomeId]);
+}
+
+export async function loadPendingPhotoDeletions(): Promise<string[]> {
+  const rows = await (await db()).getAllAsync<{ uri: string }>('SELECT uri FROM pending_photo_deletions');
+  return rows.map(row => row.uri);
+}
+
+export async function isPhotoReferenced(uri: string): Promise<boolean> {
+  return Boolean(await (await db()).getFirstAsync('SELECT id FROM task_outcomes WHERE photo_uri = ? LIMIT 1', [uri]));
+}
+
+export async function completePhotoDeletion(uri: string) {
+  await (await db()).runAsync('DELETE FROM pending_photo_deletions WHERE uri = ?', [uri]);
 }
 
 export async function getSettings(): Promise<AppSettings> {
@@ -171,6 +197,7 @@ export async function saveSettings(settings: AppSettings) {
 export async function resetLocalData() {
   const connection = await db();
   await connection.withExclusiveTransactionAsync(async (transaction) => {
+    await enqueueOutcomePhotos(transaction);
     await transaction.execAsync('DELETE FROM task_outcomes; DELETE FROM action_configurations; DELETE FROM home_profile; DELETE FROM app_settings; DELETE FROM weather_cache;');
   });
 }
@@ -178,6 +205,7 @@ export async function resetLocalData() {
 export async function replaceLocalData(profile: Omit<Profile, 'id'>, configurations: ActionConfiguration[], outcomes: TaskOutcome[], settings: AppSettings) {
   const connection = await db();
   await connection.withExclusiveTransactionAsync(async (transaction) => {
+    await enqueueOutcomePhotos(transaction);
     await transaction.execAsync('DELETE FROM task_outcomes; DELETE FROM action_configurations; DELETE FROM home_profile; DELETE FROM app_settings; DELETE FROM weather_cache;');
     await transaction.runAsync('INSERT INTO home_profile (id, house_type, age_band, postal_code, features_json, appliances_json, variants_json, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [profileId, profile.houseType ?? null, profile.ageBand ?? null, profile.postalCode ?? null, JSON.stringify(profile.features), JSON.stringify(profile.appliances), JSON.stringify(profile.variants), new Date().toISOString()]);
     for (const configuration of configurations) {

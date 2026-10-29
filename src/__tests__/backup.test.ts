@@ -4,15 +4,19 @@ jest.mock('../db', () => ({ loadConfigurations: jest.fn(async () => []), resetLo
 jest.mock('expo-document-picker', () => ({ getDocumentAsync: jest.fn() }));
 jest.mock('expo-file-system/legacy', () => ({ documentDirectory: 'file:///documents/', readAsStringAsync: jest.fn(), writeAsStringAsync: jest.fn(), deleteAsync: jest.fn(), EncodingType: { Base64: 'base64' } }));
 jest.mock('expo-sharing', () => ({ isAvailableAsync: jest.fn(), shareAsync: jest.fn() }));
-jest.mock('jszip', () => jest.fn(() => ({ file: jest.fn(), generateAsync: jest.fn(async () => 'zip-data') })));
+jest.mock('jszip', () => Object.assign(jest.fn(() => ({ file: jest.fn(), generateAsync: jest.fn(async () => 'zip-data') })), { loadAsync: jest.fn() }));
 jest.mock('../media', () => ({ removePersistedIssuePhoto: jest.fn(async () => undefined) }));
+jest.mock('../photoCleanup', () => ({ processPendingPhotoDeletions: jest.fn(async () => undefined) }));
 
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
-import { clearData, exportBackup, parseBackupManifest, removeIssue, removeIssuePhoto } from '../backup';
+import * as DocumentPicker from 'expo-document-picker';
+import JSZip from 'jszip';
+import { clearData, exportBackup, importBackup, parseBackupManifest, removeIssue, removeIssuePhoto } from '../backup';
+import { removePersistedIssuePhoto } from '../media';
 import * as db from '../db';
 import { defaultNotificationSchedule } from '../notificationSchedule';
-import { removePersistedIssuePhoto } from '../media';
+import { processPendingPhotoDeletions } from '../photoCleanup';
 
 beforeEach(() => { jest.clearAllMocks(); });
 
@@ -45,10 +49,9 @@ describe('local backup', () => {
     expect(db.resetLocalData).toHaveBeenCalledTimes(1);
   });
 
-  it('removes app-private issue photos before resetting their records', async () => {
-    jest.mocked(db.loadOutcomes).mockResolvedValue([{ id: 'issue-1', actionId: 'dishwasher-filter-clean', type: 'issue_reported', occurredAt: '2026-08-17T09:00:00.000Z', photoUri: 'file:///documents/issue-1.jpg' }]);
+  it('starts photo cleanup only after the reset commits', async () => {
     await clearData();
-    expect(removePersistedIssuePhoto).toHaveBeenCalledWith('file:///documents/issue-1.jpg');
+    expect(jest.mocked(db.resetLocalData).mock.invocationCallOrder[0]).toBeLessThan(jest.mocked(processPendingPhotoDeletions).mock.invocationCallOrder[0]);
   });
 
   it('removes a photo or an entire issue record from local storage', async () => {
@@ -57,15 +60,40 @@ describe('local backup', () => {
     await removeIssue(issue);
     expect(db.clearOutcomePhoto).toHaveBeenCalledWith('issue-1');
     expect(db.deleteOutcome).toHaveBeenCalledWith('issue-1');
-    expect(removePersistedIssuePhoto).toHaveBeenCalledWith(issue.photoUri);
+    expect(processPendingPhotoDeletions).toHaveBeenCalledTimes(2);
   });
 
   it('removes issue records even when stale photo cleanup fails', async () => {
     const issue = { id: 'issue-1', actionId: 'dishwasher-filter-clean', type: 'issue_reported' as const, occurredAt: '2026-08-17T09:00:00.000Z', photoUri: 'file:///documents/missing.jpg' };
-    jest.mocked(removePersistedIssuePhoto).mockRejectedValueOnce(new Error('File is already missing'));
+    jest.mocked(processPendingPhotoDeletions).mockRejectedValueOnce(new Error('File cleanup unavailable'));
 
     await expect(removeIssue(issue)).resolves.toBeUndefined();
 
     expect(db.deleteOutcome).toHaveBeenCalledWith('issue-1');
+  });
+
+  it.each(['reset', 'photo', 'issue'] as const)('never starts cleanup when the %s transaction fails', async operation => {
+    const issue = { id: 'issue-1', actionId: 'general-issue', type: 'issue_reported' as const, occurredAt: '2026-08-17T09:00:00.000Z', photoUri: 'file:///documents/issue-1.jpg' };
+    const save = operation === 'reset' ? db.resetLocalData : operation === 'photo' ? db.clearOutcomePhoto : db.deleteOutcome;
+    jest.mocked(save).mockRejectedValueOnce(new Error('Commit failed'));
+    await expect(operation === 'reset' ? clearData() : operation === 'photo' ? removeIssuePhoto(issue) : removeIssue(issue)).rejects.toThrow('Commit failed');
+    expect(processPendingPhotoDeletions).not.toHaveBeenCalled();
+  });
+
+  it.each([false, true])('preserves committed import photos and cleans staged photos only on rollback (commit failure: %s)', async fails => {
+    const manifest = { version: 5, profile: { appliances: [], features: [], variants: {} }, configurations: [], settings: { language: 'en', notificationsEnabled: false }, outcomes: [{ id: '../untrusted-id', actionId: 'general-issue', type: 'issue_reported', occurredAt: '2026-10-29T10:00:00.000Z', photoUri: 'media/photo.jpg' }] };
+    jest.mocked(DocumentPicker.getDocumentAsync).mockResolvedValueOnce({ canceled: false, assets: [{ uri: 'file:///cache/import.zip' }] } as never);
+    jest.mocked(JSZip.loadAsync).mockResolvedValueOnce({ file: (name: string) => ({ async: async () => name === 'manifest.json' ? JSON.stringify(manifest) : 'photo-data' }) } as never);
+    if (fails) jest.mocked(db.replaceLocalData).mockRejectedValueOnce(new Error('Transaction failed'));
+    else jest.mocked(processPendingPhotoDeletions).mockRejectedValueOnce(new Error('Cleanup unavailable'));
+    if (fails) await expect(importBackup()).rejects.toThrow('Transaction failed');
+    else await expect(importBackup()).resolves.toBe(true);
+    const imported = jest.mocked(db.replaceLocalData).mock.calls[0][2][0].photoUri!;
+    expect(imported).toMatch(/^file:\/\/\/documents\/issue-import-[A-Za-z0-9_-]+\.jpg$/);
+    expect(imported).not.toContain('untrusted-id');
+    if (fails) {
+      expect(removePersistedIssuePhoto).toHaveBeenCalledWith(imported);
+      expect(processPendingPhotoDeletions).not.toHaveBeenCalled();
+    } else expect(removePersistedIssuePhoto).not.toHaveBeenCalled();
   });
 });

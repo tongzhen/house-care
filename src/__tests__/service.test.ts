@@ -5,6 +5,7 @@ jest.mock('../db', () => ({
 }));
 jest.mock('../notifications', () => ({ rescheduleNotifications: jest.fn(), cancelScheduledNotifications: jest.fn() }));
 jest.mock('../media', () => ({ persistIssuePhoto: jest.fn(async () => undefined), finishIssuePhotoDraft: jest.fn(async () => undefined), removePersistedIssuePhoto: jest.fn(async () => undefined) }));
+jest.mock('../photoCleanup', () => ({ processPendingPhotoDeletions: jest.fn(async () => undefined) }));
 jest.mock('../catalog', () => ({
   actions: [
     { id: 'dishwasher-filter-clean', trigger: { kind: 'recurring', defaultFrequency: { interval: 1, unit: 'month' } }, profileConditions: { appliances: ['dishwasher'] } },
@@ -25,7 +26,8 @@ jest.mock('../catalog', () => ({
 
 import * as db from '../db';
 import { cancelScheduledNotifications, rescheduleNotifications } from '../notifications';
-import { recordIssue, recordOutcome, recordWeatherCheck, resetAppData, saveHomeProfile, setActionEnabled, updateFrequency, updateSettings, type RecordOutcomeDependencies } from '../service';
+import { loadAppState, recordIssue, recordOutcome, recordWeatherCheck, resetAppData, saveHomeProfile, setActionEnabled, updateFrequency, updateSettings, type RecordOutcomeDependencies } from '../service';
+import { processPendingPhotoDeletions } from '../photoCleanup';
 import { defaultNotificationSchedule } from '../notificationSchedule';
 import { finishIssuePhotoDraft, persistIssuePhoto, removePersistedIssuePhoto } from '../media';
 
@@ -53,6 +55,13 @@ beforeEach(() => {
 });
 
 describe('maintenance service', () => {
+  it('retries durable photo cleanup after loading without making cleanup a startup gate', async () => {
+    jest.mocked(processPendingPhotoDeletions).mockRejectedValueOnce(new Error('File service unavailable'));
+    await expect(loadAppState()).resolves.toEqual(expect.objectContaining({ settings }));
+    expect(processPendingPhotoDeletions).toHaveBeenCalledTimes(1);
+    await loadAppState();
+    expect(processPendingPhotoDeletions).toHaveBeenCalledTimes(2);
+  });
   it('creates configurations only for applicable profile actions', async () => {
     await saveHomeProfile({ appliances: ['dishwasher'], features: [], variants: {} });
 
