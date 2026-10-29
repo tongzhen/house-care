@@ -24,7 +24,7 @@ describe('issue media storage', () => {
     jest.mocked(ImagePicker.launchImageLibraryAsync).mockResolvedValue({ canceled: false, assets: [{ uri: 'file:///picker/original.heic' }] } as never);
     jest.mocked(ImageManipulator.manipulateAsync).mockResolvedValue({ uri: 'file:///cache/reencoded.jpg', width: 1200, height: 900 });
 
-    const result = await selectIssuePhoto('file:///documents/old-draft.jpg');
+    const result = await selectIssuePhoto('file:///documents/issue-draft-old.jpg');
 
     expect(ImageManipulator.manipulateAsync).toHaveBeenCalledWith('file:///picker/original.heic', [], { compress: 0.8, format: 'jpeg' });
     expect(FileSystem.copyAsync).toHaveBeenCalledWith({ from: 'file:///cache/reencoded.jpg', to: expect.stringContaining('issue-draft-') });
@@ -36,7 +36,7 @@ describe('issue media storage', () => {
   it('does not try to delete a photo that is already absent', async () => {
     mockFileExists = false;
 
-    await expect(discardIssuePhoto('file:///documents/missing.jpg')).resolves.toBeUndefined();
+    await expect(discardIssuePhoto('file:///documents/issue-missing.jpg')).resolves.toBeUndefined();
 
     expect(mockFileDelete).not.toHaveBeenCalled();
   });
@@ -44,5 +44,17 @@ describe('issue media storage', () => {
   it('copies a draft to its permanent outcome path', async () => {
     await expect(persistIssuePhoto('file:///documents/issue-draft-1.jpg', 'outcome-1')).resolves.toBe('file:///documents/issue-outcome-1.jpg');
     expect(FileSystem.copyAsync).toHaveBeenCalledWith({ from: 'file:///documents/issue-draft-1.jpg', to: 'file:///documents/issue-outcome-1.jpg' });
+  });
+
+  it.each([
+    'file:///documents/house-care.db',
+    'file:///documents/',
+    'file:///documents/../issue-photo.jpg',
+    'file:///documents/issue-../../photo.jpg',
+    'file:///documents/issue-%2e%2e.jpg',
+    'file:///other/issue-photo.jpg',
+  ])('rejects deletion outside an app-owned photo path: %s', async uri => {
+    await expect(discardIssuePhoto(uri)).rejects.toThrow('Only app-owned');
+    expect(mockFileDelete).not.toHaveBeenCalled();
   });
 });

@@ -7,6 +7,7 @@ import { deviceClock, expoNotificationScheduler, localIdGenerator, sqliteHomeRep
 import { cancelScheduledNotifications, rescheduleNotifications } from './notifications';
 import { validateNotificationSchedule } from './notificationSchedule';
 import { finishIssuePhotoDraft, persistIssuePhoto, removePersistedIssuePhoto } from './media';
+import { processPendingPhotoDeletions } from './photoCleanup';
 import type { Clock, HomeRepository, HomeRepositoryTransaction, IdGenerator, NotificationScheduler } from './ports';
 import type { ActionConfiguration, AppSettings, Frequency, OutcomeType, Profile, TaskOutcome } from './types';
 
@@ -50,7 +51,10 @@ export async function loadAppStateFrom(source: HomeRepository, now = new Date())
 }
 
 export async function loadAppState(): Promise<AppState> {
-  return loadAppStateFrom(sqliteHomeRepository);
+  const state = await loadAppStateFrom(sqliteHomeRepository);
+  // Cleanup is optional maintenance after migration/loading, not a startup gate.
+  void processPendingPhotoDeletions().catch(() => undefined);
+  return state;
 }
 
 function initialConfiguration(actionId: string, position: number): ActionConfiguration {
