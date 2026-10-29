@@ -158,6 +158,6 @@ export function subscribeToNotificationResponses(onActionId: (actionId: string) 
     if (typeof data?.actionId === 'string') onActionId(data.actionId);
   };
   const subscription = Notifications.addNotificationResponseReceivedListener(respond);
-  void Notifications.getLastNotificationResponseAsync().then(respond);
+  void Notifications.getLastNotificationResponseAsync().then(respond).catch(() => undefined);
   return () => subscription.remove();
 }
