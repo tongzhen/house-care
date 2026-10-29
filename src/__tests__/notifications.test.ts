@@ -75,4 +75,19 @@ describe('local notifications', () => {
     listener?.({ notification: { request: { content: { data: { actionId: 'dishwasher-filter-clean' } } } } } as never);
     expect(onActionId).toHaveBeenCalledWith('dishwasher-filter-clean');
   });
+
+  it('keeps live notification responses working when cold-launch lookup fails', async () => {
+    jest.mocked(NativeNotifications.getLastNotificationResponseAsync).mockRejectedValueOnce(new Error('Device unavailable'));
+    let listener: ((response: NativeNotifications.NotificationResponse) => void) | undefined;
+    const remove = jest.fn();
+    mockAddNotificationResponseReceivedListener.mockImplementationOnce(callback => { listener = callback; return { remove }; });
+    const onActionId = jest.fn();
+    const unsubscribe = subscribeToNotificationResponses(onActionId);
+    await Promise.resolve();
+    await Promise.resolve();
+    listener?.({ notification: { request: { content: { data: { actionId: 'dishwasher-filter-clean' } } } } } as never);
+    expect(onActionId).toHaveBeenCalledWith('dishwasher-filter-clean');
+    unsubscribe();
+    expect(remove).toHaveBeenCalled();
+  });
 });

@@ -137,6 +137,8 @@ maestro/                     End-to-end flow definitions
 
 ### State management
 
+Startup has loading, ready, and retryable error states. Local data is shown before notification permission setup. Failed refreshes retain the last loaded state and offer a retry; notification setup failures link to Settings without blocking the app. Startup errors never automatically reset user data.
+
 - SQLite is the source of truth for durable user data.
 - Feature hooks/services load, mutate, and refresh durable state.
 - Use a small client store only for transient UI state: active filters, open dialogs, and in-progress form state.
