@@ -35,7 +35,7 @@
       "icon": "./assets/housecare-icons/icon.png",
       "adaptiveIcon": {
         "foregroundImage": "./assets/housecare-icons/adaptive-foreground.png",
-        "backgroundColor": "#135645",
+        "backgroundColor": "#FAF8F2",
         "monochromeImage": "./assets/housecare-icons/adaptive-monochrome.png"
       },
       "package": "com.housecare.app",
