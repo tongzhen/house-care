@@ -6,12 +6,14 @@ export interface ReminderAttempt { key: string; scheduledAt: string; }
 export type OutcomeType = 'done' | 'snoozed' | 'issue_reported' | 'event_checked';
 export type SafetyLevel = 'DIY' | 'DIY with caution' | 'Professional required';
 export interface Frequency { interval: number; unit: FrequencyUnit; }
-export interface ActionContent { title: string; whyItMatters: string; steps: string[]; normalSigns: string[]; concerningSigns: string[]; escalationGuidance: string; safetyRestrictions: string[]; manualNote: string; }
+export type MaintenancePriority = 'low' | 'medium' | 'high';
+export interface MaintenanceSource { url: string; title: string; publisher: string; }
+export interface ActionContent { title: string; whyItMatters: string; delayConsequences: string; priorityReason: string; careGuidance: string; steps: string[]; normalSigns: string[]; concerningSigns: string[]; escalationGuidance: string; safetyRestrictions: string[]; manualNote: string; }
 export interface MaintenanceAction {
-  id: string; category: string; target: string; estimatedMinutes: number; safetyLevel: SafetyLevel;
+  id: string; category: string; target: string; estimatedMinutes: number; safetyLevel: SafetyLevel; priority: MaintenancePriority;
   profileConditions: { appliances?: string[]; features?: string[]; systemVariants?: string[] };
   trigger: { kind: 'recurring' | 'seasonal' | 'habit'; defaultFrequency?: Frequency; seasons?: Season[]; seasonalDates?: SeasonalDate[]; weatherEvents?: string[]; frequencyNote?: string; };
-  content: { en: ActionContent; da: ActionContent | null }; sources: string[];
+  content: { en: ActionContent; da: ActionContent | null }; sources: MaintenanceSource[];
 }
 export interface Profile { id: string; houseType?: 'detached' | 'terraced'; ageBand?: 'new-build' | '0-2' | '3-10' | '10+'; postalCode?: string; features: string[]; appliances: string[]; variants: Record<string, string>; }
 export interface ActionConfiguration { actionId: string; enabled: boolean; frequencyOverride?: Frequency; nextDueAt?: string; snoozedUntil?: string; notificationsEnabled: boolean; seasonalScheduleVersion?: 1; seasonalDueDate?: string; reminderLedger?: ReminderAttempt[]; }

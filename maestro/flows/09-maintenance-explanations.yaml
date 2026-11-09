@@ -1,0 +1,60 @@
+appId: com.housecare.app
+name: Read maintenance explanations and sources in English and Danish
+tags:
+  - regression
+  - guidance
+---
+- launchApp:
+    clearState: true
+    permissions:
+      notifications: allow
+- runFlow: ../subflows/onboard-dishwasher-floor-drain.yaml
+- openLink: housecare://actions/floor-drain-clean?returnTo=/home
+- assertVisible: "Medium priority"
+- assertVisible: "Why this matters"
+- scrollUntilVisible:
+    element: "What happens if I delay\\?"
+    direction: DOWN
+- assertVisible: "What happens if I delay\\?"
+- scrollUntilVisible:
+    element: "DIY or professional help\\?"
+    direction: DOWN
+- scrollUntilVisible:
+    element: "Safety restrictions"
+    direction: DOWN
+- scrollUntilVisible:
+    element: "Sources & maintenance instructions"
+    direction: DOWN
+- scrollUntilVisible:
+    element: ".*Vedligeholdelse af afløb og kloak.*"
+    direction: DOWN
+- scrollUntilVisible:
+    element: "Mark as done"
+    direction: DOWN
+- openLink: housecare://settings
+- tapOn: "Dansk"
+- assertVisible: "Indstillinger"
+- openLink: housecare://actions/floor-drain-clean?returnTo=/home
+- assertVisible: "Middel prioritet"
+- assertVisible: "Derfor er det vigtigt"
+- scrollUntilVisible:
+    element: "Hvad sker der, hvis jeg venter\\?"
+    direction: DOWN
+- scrollUntilVisible:
+    element: "Gør det selv eller få faglig hjælp\\?"
+    direction: DOWN
+- scrollUntilVisible:
+    element: "Sikkerhedsbegrænsninger"
+    direction: DOWN
+- scrollUntilVisible:
+    element: "Kilder og vedligeholdelsesvejledning"
+    direction: DOWN
+- scrollUntilVisible:
+    element: ".*Vedligeholdelse af afløb og kloak.*"
+    direction: DOWN
+- scrollUntilVisible:
+    element: "Markér som udført"
+    direction: DOWN
+- openLink: housecare://settings
+- tapOn: "Engelsk"
+- assertVisible: "Settings"

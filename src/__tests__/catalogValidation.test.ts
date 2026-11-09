@@ -43,4 +43,27 @@ describe('maintenance catalogue validation', () => {
 
     expect(catalogSchema.safeParse(untranslatedCatalog).success).toBe(false);
   });
+
+  it.each(['en', 'da'] as const)('rejects incomplete explanation fields in %s', (language) => {
+    for (const field of ['delayConsequences', 'priorityReason', 'careGuidance']) {
+      for (const value of [undefined, '', '   ']) {
+        const action = source.actions[0];
+        const invalid = { ...action, content: { ...action.content, [language]: { ...action.content[language], [field]: value } } };
+        expect(catalogSchema.safeParse({ ...source, actions: [invalid] }).success).toBe(false);
+      }
+    }
+  });
+
+  it('rejects missing or unsupported priorities and incomplete sources', () => {
+    const action = source.actions[0];
+    const reference = action.sources[0];
+    for (const patch of [
+      { priority: undefined }, { priority: 'urgent' }, { sources: [] },
+      { sources: [reference.url] }, { sources: [{ ...reference, url: 'invalid' }] },
+      { sources: [{ ...reference, url: 'javascript:alert(1)' }] },
+      { sources: [{ ...reference, title: ' ' }] }, { sources: [{ ...reference, publisher: '' }] },
+    ]) {
+      expect(catalogSchema.safeParse({ ...source, actions: [{ ...action, ...patch }] }).success).toBe(false);
+    }
+  });
 });

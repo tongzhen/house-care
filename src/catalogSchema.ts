@@ -9,6 +9,9 @@ const frequencySchema = z.object({
 const actionContentSchema = z.object({
   title: z.string().min(1),
   whyItMatters: z.string().min(1),
+  delayConsequences: z.string().trim().min(1),
+  priorityReason: z.string().trim().min(1),
+  careGuidance: z.string().trim().min(1),
   steps: z.array(z.string().min(1)).min(1),
   normalSigns: z.array(z.string().min(1)).min(1),
   concerningSigns: z.array(z.string().min(1)).min(1),
@@ -23,6 +26,7 @@ const maintenanceActionSchema = z.object({
   target: z.string().min(1),
   estimatedMinutes: z.number().int().positive(),
   safetyLevel: z.enum(['DIY', 'DIY with caution', 'Professional required']),
+  priority: z.enum(['low', 'medium', 'high']),
   profileConditions: z.object({
     appliances: z.array(z.string().min(1)).optional(),
     features: z.array(z.string().min(1)).optional(),
@@ -44,7 +48,11 @@ const maintenanceActionSchema = z.object({
     en: actionContentSchema,
     da: actionContentSchema,
   }).strict(),
-  sources: z.array(z.string().url()),
+  sources: z.array(z.object({
+    url: z.string().url().refine((url) => /^https?:\/\//i.test(url), 'Expected an HTTP(S) source'),
+    title: z.string().trim().min(1),
+    publisher: z.string().trim().min(1),
+  }).strict()).min(1),
 }).strict();
 
 export const catalogSchema = z.object({

@@ -23,6 +23,7 @@ The MVP is deliberately local-first:
 
 ### Confirmed behaviour
 
+- Every bundled maintenance action includes English/Danish purpose, delay consequences, a curated priority with a task-specific reason, and DIY/professional guidance. Task details show these before safe steps, followed by warning signs, escalation guidance, all safety restrictions and a named sources/manual section. Source links open externally on request with a localized failure message. Priority is informational and fixed per action; it does not change schedules, ordering or notifications. Guidance remains available offline. Manufacturer/installer instructions override generic content; source titles retain their publication language.
 - One primary due action and up to two upcoming actions appear on Home.
 - Opening an action from the Actions tab returns to that tab when the user uses the detail back control; Home and Actions overview retain their own return destinations.
 - The user can mark an action Done, Snooze, or I noticed an issue; actions can also be disabled temporarily.
