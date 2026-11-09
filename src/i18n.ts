@@ -95,6 +95,27 @@ Object.assign(resources.da.translation, { seasonal: {
   schedule: 'Sæsonplan', useSchedule: 'Brug sæsonplan', lastDone: 'Sidst udført: {{date}}',
 } });
 
+Object.assign(resources.en.translation, { maintenance: {
+  priority: { low: 'Low priority', medium: 'Medium priority', high: 'High priority' },
+  priorityHint: 'General maintenance priority. Follow the warning signs and safety guidance below.',
+  delay: 'What happens if I delay?', care: 'DIY or professional help?',
+  safetyLevel: { DIY: 'DIY', 'DIY with caution': 'DIY with caution', 'Professional required': 'Professional required' },
+  restrictions: 'Safety restrictions', sources: 'Sources & maintenance instructions',
+  manualPrecedence: 'Manufacturer and installer instructions for your exact model or system take priority over this general guidance.',
+  externalHint: 'Opens an external source. Internet access is required.',
+  sourceFailed: 'Could not open this source. Check your connection and try again.',
+} });
+Object.assign(resources.da.translation, { maintenance: {
+  priority: { low: 'Lav prioritet', medium: 'Middel prioritet', high: 'Høj prioritet' },
+  priorityHint: 'Generel vedligeholdelsesprioritet. Følg advarselstegnene og sikkerhedsvejledningen nedenfor.',
+  delay: 'Hvad sker der, hvis jeg venter?', care: 'Gør det selv eller få faglig hjælp?',
+  safetyLevel: { DIY: 'Gør det selv', 'DIY with caution': 'Gør det selv med forsigtighed', 'Professional required': 'Kræver en fagperson' },
+  restrictions: 'Sikkerhedsbegrænsninger', sources: 'Kilder og vedligeholdelsesvejledning',
+  manualPrecedence: 'Producentens og installatørens anvisninger til netop din model eller dit anlæg går forud for denne generelle vejledning.',
+  externalHint: 'Åbner en ekstern kilde. Kræver internetadgang.',
+  sourceFailed: 'Kilden kunne ikke åbnes. Kontrollér din forbindelse, og prøv igen.',
+} });
+
 // eslint-disable-next-line import/no-named-as-default-member
 i18n.use(initReactI18next).init({ resources, lng: defaultAppLanguage(), fallbackLng: 'en', interpolation: { escapeValue: false } });
 export default i18n;

@@ -38,3 +38,9 @@ When multiple Android devices are connected, target one by ADB serial:
 The flows use English visible text because English is the clean-install default. Prefer stable React Native `testID` selectors when flows begin covering localized screens or duplicate labels.
 
 The current local setup intentionally does not alter GitHub Actions or EAS Workflows. CI device execution should be added separately after deciding whether builds will run on EAS Workflows or another emulator runner.
+
+`09-maintenance-explanations.yaml` checks the task-detail priority, purpose, delay
+consequences, DIY guidance, safety restrictions, sources and completion control
+in English and Danish. It returns the test installation to English. External
+source-opening success and failure are covered in component tests so the device
+flow does not depend on a third-party website.
