@@ -61,6 +61,8 @@ The MVP is deliberately local-first:
 - Jest + `jest-expo` + React Native Testing Library for unit/component tests.
 - Maestro for critical end-to-end flows.
 
+Dependency security checks, pinned CI tooling, and the compatibility overrides required by the Expo SDK 57 dependency tree are documented in [dependency security](docs/dependency-security.md).
+
 Expo SQLite persists data across app restarts and Expo Notifications supports local scheduled notifications, which directly suits the offline product design. See [Expo storage guidance](https://docs.expo.dev/develop/user-interface/store-data/) and [Expo notifications guidance](https://docs.expo.dev/push-notifications/what-you-need-to-know/).
 
 ### Architecture style

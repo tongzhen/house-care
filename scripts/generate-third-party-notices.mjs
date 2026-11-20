@@ -33,7 +33,7 @@ function textForLicense(license) {
 }
 
 const notices = Object.entries(lock.packages)
-  .filter(([key, value]) => key && key.startsWith('node_modules/') && !value.dev && !value.optional && existsSync(join(root, key, 'package.json')))
+  .filter(([key, value]) => key && key.startsWith('node_modules/') && !value.link && !value.dev && !value.optional && existsSync(join(root, key, 'package.json')))
   .map(([key, value]) => {
     const packagePath = packagePathFromLockKey(key);
     if (!packagePath) throw new Error(`Invalid package path: ${key}`);
