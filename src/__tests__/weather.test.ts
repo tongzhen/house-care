@@ -123,12 +123,12 @@ it('shows measured rainfall when DMI says its forecast server is busy', async ()
 it('uses the DMI model fallback when the direct forecast server is busy', async () => {
   const previousFetch = global.fetch;
   const fetchMock = jest.fn(async (url) => {
-    const path = String(url);
-    if (path.includes('forecastedr')) return { ok: false, status: 429 };
-    const payload = path.includes('geocoding-api') ? { results: [{ ...point, country_code: 'DK', postcodes: ['2750'] }] }
-      : path.includes('api.open-meteo.com') ? { hourly: {
+    const requestUrl = new URL(String(url));
+    if (requestUrl.href.includes('forecastedr')) return { ok: false, status: 429 };
+    const payload = requestUrl.href.includes('geocoding-api') ? { results: [{ ...point, country_code: 'DK', postcodes: ['2750'] }] }
+      : requestUrl.hostname === 'api.open-meteo.com' ? { hourly: {
         time: ['2026-10-08T13:00', '2026-10-08T14:00'], temperature_2m: [11, 12], precipitation: [1, 2], wind_gusts_10m: [6, 7],
-      } } : path.includes('/station/items') ? { features: [] } : { features: [] };
+      } } : requestUrl.pathname.includes('/station/items') ? { features: [] } : { features: [] };
     return { ok: true, json: async () => payload };
   });
   global.fetch = fetchMock as unknown as typeof fetch;
